@@ -18,28 +18,6 @@ window.addEventListener("load", function loadAssets() {
 
 	};
 
-/*
-	textureLoader.load("textures/lava-1.jpg", function(texture) {
-
-		texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-		assets.colorMapLava = texture;
-
-	});
-
-	textureLoader.load("textures/flowmap8.png", function(texture) {
-
-		texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-		assets.flowMapLava = texture;
-
-	});
-*/
-
-	textureLoader.load("textures/sun.png", function(texture) {
-
-		assets.sun = texture;
-
-	});
-
 	textureLoader.load("textures/tex12.png", function(texture) {
 
 		texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
