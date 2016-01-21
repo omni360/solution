@@ -1,0 +1,69 @@
+{
+	"name": "solution",
+	"version": "0.0.1",
+	"description": "An animation library for different types of liquids.",
+	"homepage": "https://github.com/vanruesc/solution",
+	"main": "build/index.js",
+	"jsnext:main": "src/index.js",
+	"license": "Zlib",
+
+	"keywords": [
+		"3d",
+		"rendering",
+		"animation",
+		"water",
+		"waterfall",
+		"stream",
+		"liquid",
+		"fluid",
+		"viscous",
+		"viscousity",
+		"lava",
+		"three",
+		"three.js"
+	],
+
+	"author": {
+		"name": "Raoul van Rüschen",
+		"email": "vanruesc@fh-brandenburg.de"
+	},
+
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/vanruesc/solution.git"
+	},
+
+	"bugs": {
+		"url": "https://github.com/vanruesc/solution/issues"
+	},
+
+	"scripts": {
+		"test": "node grunt-cli.js",
+		"prepublish": "node grunt-cli.js fsinline",
+		"postpublish": "node grunt-cli.js clean",
+		"copy": "node grunt-cli.js copy:update"
+	},
+
+	"engines": {
+		"node": ">= 0.8.0"
+	},
+
+	"dependencies": {
+		"three": "x.x.x",
+		"postprocessing": "x.x.x"
+	},
+
+	"devDependencies": {
+		"grunt": "0.x.x",
+		"grunt-contrib-jshint": "0.x.x",
+		"grunt-contrib-uglify": "0.x.x",
+		"grunt-contrib-yuidoc": "0.x.x",
+		"grunt-contrib-watch": "0.x.x",
+		"grunt-contrib-clean": "0.x.x",
+		"grunt-contrib-copy": "0.x.x",
+		"grunt-fs-inline": "x.x.x",
+		"grunt-mocha": "0.x.x",
+		"grunt-rollup": "x.x.x",
+		"rollup-plugin-npm": "x.x.x"
+	}
+}

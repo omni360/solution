@@ -1,0 +1,963 @@
+{
+    "project": {
+        "name": "solution",
+        "description": "An animation library for different types of liquids.",
+        "version": "0.0.1",
+        "url": "https://github.com/vanruesc/solution"
+    },
+    "files": {
+        "src\\materials\\distortion\\index.js": {
+            "name": "src\\materials\\distortion\\index.js",
+            "modules": {},
+            "classes": {
+                "DistortionMaterial": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\materials\\lava\\index.js": {
+            "name": "src\\materials\\lava\\index.js",
+            "modules": {},
+            "classes": {
+                "LavaMaterial": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\materials\\noise\\index.js": {
+            "name": "src\\materials\\noise\\index.js",
+            "modules": {},
+            "classes": {
+                "NoiseMaterial": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\materials\\planar-water\\index.js": {
+            "name": "src\\materials\\planar-water\\index.js",
+            "modules": {},
+            "classes": {
+                "WaterMaterial": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\materials\\planar-water\\index2.js": {
+            "name": "src\\materials\\planar-water\\index2.js",
+            "modules": {},
+            "classes": {
+                "Water": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\materials\\waterfall\\index.js": {
+            "name": "src\\materials\\waterfall\\index.js",
+            "modules": {},
+            "classes": {
+                "WaterfallMaterial": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\materials\\index.js": {
+            "name": "src\\materials\\index.js",
+            "modules": {
+                "materials": 1
+            },
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\passes\\distortion.js": {
+            "name": "src\\passes\\distortion.js",
+            "modules": {},
+            "classes": {
+                "DistortionPass": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\passes\\index.js": {
+            "name": "src\\passes\\index.js",
+            "modules": {
+                "passes": 1
+            },
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\passes\\water.js": {
+            "name": "src\\passes\\water.js",
+            "modules": {},
+            "classes": {
+                "WaterPass": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "src\\index.js": {
+            "name": "src\\index.js",
+            "modules": {
+                "solution": 1
+            },
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        }
+    },
+    "modules": {
+        "solution": {
+            "name": "solution",
+            "submodules": {
+                "materials": 1,
+                "passes": 1
+            },
+            "elements": {},
+            "classes": {
+                "DistortionMaterial": 1,
+                "LavaMaterial": 1,
+                "NoiseMaterial": 1,
+                "WaterMaterial": 1,
+                "Water": 1,
+                "WaterfallMaterial": 1,
+                "DistortionPass": 1,
+                "WaterPass": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "src\\passes\\water.js",
+            "line": 5,
+            "description": "Library compilation."
+        },
+        "materials": {
+            "name": "materials",
+            "submodules": {},
+            "elements": {},
+            "classes": {},
+            "fors": {},
+            "is_submodule": 1,
+            "namespaces": {},
+            "module": "solution",
+            "namespace": "",
+            "file": "src\\materials\\index.js",
+            "line": 1,
+            "description": "Compilation of shader materials."
+        },
+        "passes": {
+            "name": "passes",
+            "submodules": {},
+            "elements": {},
+            "classes": {},
+            "fors": {},
+            "is_submodule": 1,
+            "namespaces": {},
+            "module": "solution",
+            "namespace": "",
+            "file": "src\\passes\\index.js",
+            "line": 1,
+            "description": "Compilation of post processing effects and scene renderers."
+        }
+    },
+    "classes": {
+        "DistortionMaterial": {
+            "name": "DistortionMaterial",
+            "shortname": "DistortionMaterial",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "solution",
+            "file": "src\\materials\\distortion\\index.js",
+            "line": 4,
+            "description": "A distortion shader material.\n\nShader code taken from Martins Upitis' water/underwater blend:\nhttp://devlog-martinsh.blogspot.de/2013/09/waterunderwater-sky-shader-update-02.html",
+            "is_constructor": 1,
+            "extends": "ShaderMaterial",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "- The options.",
+                    "type": "Object",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "perturbMap",
+                            "description": "- If none is provided, the shader will generate perlin noise on the fly.",
+                            "type": "Texture",
+                            "optional": true
+                        },
+                        {
+                            "name": "rollOffSpeed",
+                            "description": "- The water roll off speed. X affects the overall roll off, while Y controls the droplets.",
+                            "type": "Vector2",
+                            "optional": true
+                        },
+                        {
+                            "name": "waveStrength",
+                            "description": "- The distortion wave strength. X = sine, Y = cosine.",
+                            "type": "Vector2",
+                            "optional": true
+                        }
+                    ]
+                }
+            ]
+        },
+        "LavaMaterial": {
+            "name": "LavaMaterial",
+            "shortname": "LavaMaterial",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "solution",
+            "file": "src\\materials\\lava\\index.js",
+            "line": 4,
+            "description": "A noise-based flowing lava material.\n\nOriginal shader code by: https://www.shadertoy.com/user/nimitz",
+            "is_constructor": 1,
+            "extends": "ShaderMaterial",
+            "params": [
+                {
+                    "name": "noiseMap",
+                    "description": "- A simple noise map.",
+                    "type": "Texture"
+                },
+                {
+                    "name": "options",
+                    "description": "- The options.",
+                    "type": "Object",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "timeScale",
+                            "description": "- The time scale.",
+                            "type": "Number",
+                            "optional": true,
+                            "optdefault": "0.1"
+                        },
+                        {
+                            "name": "primarySpeed",
+                            "description": "- The primary flow speed.",
+                            "type": "Number",
+                            "optional": true,
+                            "optdefault": "0.6"
+                        },
+                        {
+                            "name": "secondarySpeed",
+                            "description": "- The secondary flow speed (speed of the perceived flow).",
+                            "type": "Number",
+                            "optional": true,
+                            "optdefault": "1.9"
+                        },
+                        {
+                            "name": "displacement",
+                            "description": "- A time multiplier for the displacement field.",
+                            "type": "Number",
+                            "optional": true,
+                            "optdefault": "1.0"
+                        },
+                        {
+                            "name": "advection",
+                            "description": "- Blend factor (blending displaced system with base system). 0.5 ~ low, 0.95 ~ high.",
+                            "type": "Number",
+                            "optional": true,
+                            "optdefault": "0.77"
+                        },
+                        {
+                            "name": "intensity",
+                            "description": "- Overall intensity.",
+                            "type": "Number",
+                            "optional": true,
+                            "optdefault": "1.4"
+                        },
+                        {
+                            "name": "octaveScale",
+                            "description": "- Used to scale the noise octave.",
+                            "type": "Vector2",
+                            "optional": true,
+                            "optdefault": "(2.0, 1.9)"
+                        }
+                    ]
+                }
+            ]
+        },
+        "NoiseMaterial": {
+            "name": "NoiseMaterial",
+            "shortname": "NoiseMaterial",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "solution",
+            "file": "src\\materials\\noise\\index.js",
+            "line": 4,
+            "description": "A noise shader material.\n\nShader code adopted from Martins Upitis' water/underwater blend:\nhttp://devlog-martinsh.blogspot.de/2013/09/waterunderwater-sky-shader-update-02.html",
+            "is_constructor": 1,
+            "extends": "ShaderMaterial",
+            "params": [
+                {
+                    "name": "highQuality",
+                    "description": "- Generates double the amount of noise values. Stresses the GPU immensely.",
+                    "type": "Boolean"
+                }
+            ]
+        },
+        "WaterMaterial": {
+            "name": "WaterMaterial",
+            "shortname": "WaterMaterial",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "solution",
+            "file": "src\\materials\\planar-water\\index.js",
+            "line": 4,
+            "description": "A water material.\n\nShader code taken from Martins Upitis' water/underwater blend:\nhttp://www.elysiun.com/forum/showthread.php?378697-Multiple-Water-Shaders-in-BGE",
+            "is_constructor": 1,
+            "extends": "ShaderMaterial",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "- The options.",
+                    "type": "Object",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "normalMap",
+                            "description": "- The normalmap to use for the waves.",
+                            "type": "Texture",
+                            "optional": true
+                        },
+                        {
+                            "name": "lightPosition",
+                            "description": "- The position of the main light source.",
+                            "type": "Vector3",
+                            "optional": true
+                        },
+                        {
+                            "name": "lowQuality",
+                            "description": "- The quality of the shader.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "false"
+                        }
+                    ]
+                }
+            ]
+        },
+        "Water": {
+            "name": "Water",
+            "shortname": "Water",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "solution",
+            "file": "src\\materials\\planar-water\\index2.js",
+            "line": 4,
+            "description": "The Water class handles reflection and refraction \nprocessing and provides a material to use on \narbitrary meshes.",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "options",
+                    "description": "- The options.",
+                    "type": "Object",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "normalMap",
+                            "description": "- The normalmap to use for the waves.",
+                            "type": "Texture",
+                            "optional": true
+                        },
+                        {
+                            "name": "lightPosition",
+                            "description": "- The position of the main light source.",
+                            "type": "Vector3",
+                            "optional": true
+                        },
+                        {
+                            "name": "lowQuality",
+                            "description": "- The quality of the shader.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "false"
+                        }
+                    ]
+                }
+            ]
+        },
+        "WaterfallMaterial": {
+            "name": "WaterfallMaterial",
+            "shortname": "WaterfallMaterial",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "solution",
+            "file": "src\\materials\\waterfall\\index.js",
+            "line": 4,
+            "description": "A mod of xbe's \"fires\" that creates a fast, smooth falling water effect.\n\nOriginal shader code by: https://www.shadertoy.com/user/bbcollinsworth",
+            "is_constructor": 1,
+            "extends": "ShaderMaterial",
+            "params": [
+                {
+                    "name": "options",
+                    "description": "- The options.",
+                    "type": "Object",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "drops",
+                            "description": "- The sharpness of the water drops. The higher, the sharper.",
+                            "type": "Number",
+                            "optional": true,
+                            "optdefault": "16"
+                        }
+                    ]
+                }
+            ]
+        },
+        "DistortionPass": {
+            "name": "DistortionPass",
+            "shortname": "DistortionPass",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "solution",
+            "namespace": "",
+            "file": "src\\passes\\distortion.js",
+            "line": 5,
+            "description": "A distortion and droplet pass for underwater and wet lens effects.",
+            "is_constructor": 1,
+            "params": [
+                {
+                    "name": "options",
+                    "description": "- The options.",
+                    "type": "Object",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "resolution",
+                            "description": "- The size of the generated perturbation map, relative to the main render size.",
+                            "type": "Number",
+                            "optional": true,
+                            "optdefault": "1.0"
+                        },
+                        {
+                            "name": "rollOffSpeed",
+                            "description": "- The droplet roll off speed.",
+                            "type": "Vector2",
+                            "optional": true
+                        },
+                        {
+                            "name": "waveStrength",
+                            "description": "- The sine and cosine wave distortion strength.",
+                            "type": "Vector2",
+                            "optional": true
+                        },
+                        {
+                            "name": "speed",
+                            "description": "- The effect's animation speed.",
+                            "type": "Number",
+                            "optional": true
+                        }
+                    ]
+                }
+            ]
+        },
+        "WaterPass": {
+            "name": "WaterPass",
+            "shortname": "WaterPass",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "solution",
+            "namespace": "",
+            "file": "src\\passes\\water.js",
+            "line": 5,
+            "description": "The water pass renders the reflection and refraction of the given scene to a \ntexture which is then used by a water material during the normal rendering \nprocess. The material's time value is updated automatically.\n\nYou may disable the water material if you don't need it and want to use the \ngenerated textures for something else!\n\nAdd this pass to an EffectComposer and follow it up with a RenderPass. Don't \nforget to set its renderToScreen flag to true!\n\nManipulate the water mesh however you like. You may also add the water material \nto other objects.",
+            "is_constructor": 1,
+            "extends": "Pass",
+            "params": [
+                {
+                    "name": "scene",
+                    "description": "- The scene to render.",
+                    "type": "Scene"
+                },
+                {
+                    "name": "camera",
+                    "description": "- The main camera.",
+                    "type": "Camera"
+                },
+                {
+                    "name": "lightPosition",
+                    "description": "- The main light position.",
+                    "type": "Boolean"
+                },
+                {
+                    "name": "options",
+                    "description": "- Additional options.",
+                    "type": "Object",
+                    "optional": true,
+                    "props": [
+                        {
+                            "name": "disableWater",
+                            "description": "- Whether the water material should be created and updated every frame.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "false"
+                        },
+                        {
+                            "name": "reflection",
+                            "description": "- Whether the reflection should be rendered.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        },
+                        {
+                            "name": "refraction",
+                            "description": "- Whether the refraction should be rendered.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "true"
+                        },
+                        {
+                            "name": "resolution",
+                            "description": "- The render texture resolution.",
+                            "type": "Number",
+                            "optional": true,
+                            "optdefault": "256"
+                        },
+                        {
+                            "name": "clipBias",
+                            "description": "- The clip plane offset.",
+                            "type": "Number",
+                            "optional": true,
+                            "optdefault": "0.2"
+                        },
+                        {
+                            "name": "renderTarget",
+                            "description": "- A render target to use.",
+                            "type": "WebGLRenderTarget",
+                            "optional": true
+                        },
+                        {
+                            "name": "normalMap",
+                            "description": "- A normalmap for the waves.",
+                            "type": "Texture",
+                            "optional": true
+                        },
+                        {
+                            "name": "lowQuality",
+                            "description": "- Falls back to a less expensive water shader.",
+                            "type": "Boolean",
+                            "optional": true,
+                            "optdefault": "false"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "elements": {},
+    "classitems": [
+        {
+            "file": "src\\materials\\planar-water\\index2.js",
+            "line": 21,
+            "description": "The water material.",
+            "itemtype": "property",
+            "name": "material",
+            "type": "{ShaderMaterial}",
+            "class": "Water"
+        },
+        {
+            "file": "src\\passes\\distortion.js",
+            "line": 23,
+            "description": "Noise render texture.",
+            "itemtype": "property",
+            "name": "renderTargetPerturb",
+            "type": "WebGLRenderTarget",
+            "access": "private",
+            "tagname": "",
+            "class": "DistortionPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\distortion.js",
+            "line": 42,
+            "description": "The resolution scale, relative to the on-screen render size.\nYou have to call the reset method of the EffectComposer after modifying this field.",
+            "itemtype": "property",
+            "name": "resolutionScale",
+            "type": "Number",
+            "class": "DistortionPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\distortion.js",
+            "line": 52,
+            "description": "Noise shader material.",
+            "itemtype": "property",
+            "name": "noiseMaterial",
+            "type": "NoiseMaterial",
+            "access": "private",
+            "tagname": "",
+            "class": "DistortionPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\distortion.js",
+            "line": 62,
+            "description": "Distortion shader material.",
+            "itemtype": "property",
+            "name": "distortionMaterial",
+            "type": "DistortionMaterial",
+            "access": "private",
+            "tagname": "",
+            "class": "DistortionPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\distortion.js",
+            "line": 76,
+            "description": "The effect speed.",
+            "itemtype": "property",
+            "name": "speed",
+            "type": "Number",
+            "class": "DistortionPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\distortion.js",
+            "line": 85,
+            "description": "Maximum duration of the dissolution effect in seconds.",
+            "itemtype": "property",
+            "name": "dissolutionEnd",
+            "type": "Number",
+            "access": "private",
+            "tagname": "",
+            "class": "DistortionPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\distortion.js",
+            "line": 95,
+            "description": "Dissolution flag.",
+            "itemtype": "property",
+            "name": "_dissolve",
+            "type": "Boolean",
+            "default": "false",
+            "access": "private",
+            "tagname": "",
+            "class": "DistortionPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\distortion.js",
+            "line": 114,
+            "description": "Dissolution flag.\n\nSet to false for wavy distortion,\nset to true for dissolution into droplets.",
+            "itemtype": "property",
+            "name": "dissolve",
+            "type": "Boolean",
+            "default": "false",
+            "class": "DistortionPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\distortion.js",
+            "line": 146,
+            "description": "Renders the scene.",
+            "itemtype": "method",
+            "name": "render",
+            "params": [
+                {
+                    "name": "renderer",
+                    "description": "- The renderer to use.",
+                    "type": "WebGLRenderer"
+                },
+                {
+                    "name": "writeBuffer",
+                    "description": "- The write buffer.",
+                    "type": "WebGLRenderTarget"
+                },
+                {
+                    "name": "readBuffer",
+                    "description": "- The read buffer.",
+                    "type": "WebGLRenderTarget"
+                }
+            ],
+            "class": "DistortionPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\distortion.js",
+            "line": 184,
+            "description": "Updates the perturbation map render size.",
+            "itemtype": "method",
+            "name": "setSize",
+            "params": [
+                {
+                    "name": "width",
+                    "description": "- The width.",
+                    "type": "Number"
+                },
+                {
+                    "name": "heght",
+                    "description": "- The height.",
+                    "type": "Number"
+                }
+            ],
+            "class": "DistortionPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\distortion.js",
+            "line": 210,
+            "description": "Renders a perturbation map for the droplets.",
+            "itemtype": "method",
+            "name": "renderPerturbationMap",
+            "params": [
+                {
+                    "name": "renderer",
+                    "description": "- The renderer to use.",
+                    "type": "WebGLRenderer"
+                },
+                {
+                    "name": "size",
+                    "description": "- The texture size.",
+                    "type": "Number"
+                }
+            ],
+            "access": "private",
+            "tagname": "",
+            "class": "DistortionPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 42,
+            "description": "The reflection render texture.",
+            "itemtype": "property",
+            "name": "reflectionTexture",
+            "type": "WebGLRenderTarget",
+            "class": "WaterPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 65,
+            "description": "The refraction render texture.",
+            "itemtype": "property",
+            "name": "refractionTexture",
+            "type": "WebGLRenderTarget",
+            "class": "WaterPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 74,
+            "description": "The reflection camera.",
+            "itemtype": "property",
+            "name": "reflectionCamera",
+            "type": "Camera",
+            "access": "private",
+            "tagname": "",
+            "class": "WaterPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 84,
+            "description": "The refraction camera.",
+            "itemtype": "property",
+            "name": "refractionCamera",
+            "type": "Camera",
+            "access": "private",
+            "tagname": "",
+            "class": "WaterPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 94,
+            "description": "Whether the reflection texture should be rendered.",
+            "itemtype": "property",
+            "name": "renderReflection",
+            "type": "Boolean",
+            "class": "WaterPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 103,
+            "description": "Whether the refraction texture should be rendered.",
+            "itemtype": "property",
+            "name": "renderRefraction",
+            "type": "Boolean",
+            "class": "WaterPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 112,
+            "description": "The water material.",
+            "itemtype": "property",
+            "name": "material",
+            "type": "WaterMaterial",
+            "class": "WaterPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 128,
+            "description": "A plane mesh that represents the actual reflection/refraction plane.",
+            "itemtype": "property",
+            "name": "mesh",
+            "type": "Mesh",
+            "class": "WaterPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 182,
+            "description": "The reflection texture matrix for UV-mapping.",
+            "itemtype": "property",
+            "name": "textureMatrix",
+            "type": "Matrix4",
+            "access": "private",
+            "tagname": "",
+            "class": "WaterPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 192,
+            "description": "The reflection plane.",
+            "itemtype": "property",
+            "name": "plane",
+            "type": "Plane",
+            "access": "private",
+            "tagname": "",
+            "class": "WaterPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 202,
+            "description": "The normal of the reflection plane.",
+            "itemtype": "property",
+            "name": "normal",
+            "type": "Vector3",
+            "access": "private",
+            "tagname": "",
+            "class": "WaterPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 212,
+            "description": "The world position of the reflection plane.",
+            "itemtype": "property",
+            "name": "worldPosition",
+            "type": "Vector3",
+            "access": "private",
+            "tagname": "",
+            "class": "WaterPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 222,
+            "description": "The world position of the camera.",
+            "itemtype": "property",
+            "name": "worldPosition",
+            "type": "Vector3",
+            "access": "private",
+            "tagname": "",
+            "class": "WaterPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 232,
+            "description": "A rotation matrix for the plane.",
+            "itemtype": "property",
+            "name": "rotationMatrix",
+            "type": "Matrix4",
+            "access": "private",
+            "tagname": "",
+            "class": "WaterPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 242,
+            "description": "A look-at point.",
+            "itemtype": "property",
+            "name": "lookAtPosition",
+            "type": "Vector3",
+            "access": "private",
+            "tagname": "",
+            "class": "WaterPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 252,
+            "description": "Clip plane.",
+            "itemtype": "property",
+            "name": "clipPlane",
+            "type": "Vector4",
+            "class": "WaterPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 261,
+            "description": "Clip bias.",
+            "itemtype": "property",
+            "name": "clipBias",
+            "type": "Number",
+            "class": "WaterPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 278,
+            "description": "Renders the reflection texture.",
+            "itemtype": "method",
+            "name": "render",
+            "params": [
+                {
+                    "name": "renderer",
+                    "description": "- The renderer to use.",
+                    "type": "WebGLRenderer"
+                }
+            ],
+            "class": "WaterPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\water.js",
+            "line": 304,
+            "description": "Updates the matrices.",
+            "itemtype": "method",
+            "name": "update",
+            "access": "private",
+            "tagname": "",
+            "class": "WaterPass",
+            "module": "solution"
+        }
+    ],
+    "warnings": []
+}
