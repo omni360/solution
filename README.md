@@ -1,5 +1,6 @@
 # Solution 
 [![Build status](https://travis-ci.org/vanruesc/solution.svg?branch=master)](https://travis-ci.org/vanruesc/solution) 
+[![GitHub version](https://badge.fury.io/gh/vanruesc%2Fsolution.svg)](https://badge.fury.io/gh/vanruesc%2Fsolution) 
 [![npm version](https://badge.fury.io/js/solution.svg)](http://badge.fury.io/js/solution) 
 [![Dependencies](https://david-dm.org/vanruesc/solution.svg?branch=master)](https://david-dm.org/vanruesc/solution)
 
