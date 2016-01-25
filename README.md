@@ -63,8 +63,8 @@ camera.lookAt(scene);
 
 
 ## Included Effects
- - [Distortion & Droplet Filter](http://vanruesc.github.io/solution/public/distortion.html) 
- - [Planar Water](http://vanruesc.github.io/solution/public/planar-water.html) 
+ - [Distortion Droplet Filter](http://vanruesc.github.io/solution/public/distortion.html) 
+ - [Planar Water](http://vanruesc.github.io/solution/public/planar-water.html) (WIP) 
  - Oceanic Water 
  - [Waterfall](http://vanruesc.github.io/solution/public/waterfall.html) 
  - [Lava](http://vanruesc.github.io/solution/public/lava.html) 

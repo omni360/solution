@@ -1,5 +1,5 @@
 /**
- * solution v0.0.1 build Jan 21 2016
+ * solution v0.0.1 build Jan 25 2016
  * https://github.com/vanruesc/solution
  * Copyright 2016 Raoul van Rüschen, Zlib
  */
@@ -96,7 +96,7 @@
 	WaterMaterial.prototype = Object.create(THREE.ShaderMaterial.prototype);
 	WaterMaterial.prototype.constructor = WaterMaterial;
 
-	var shader$1 = {
+	var shader$3 = {
 		fragment: "#ifdef USE_FOG\n\n\t#define LOG2 1.442695\n\t#define saturate(a) clamp(a, 0.0, 1.0)\n\t#define whiteCompliment(a) (1.0 - saturate(a))\n\n\tuniform vec3 fogColor;\n\n\t#ifdef FOG_EXP2\n\n\t\tuniform float fogDensity;\n\n\t#else\n\n\t\tuniform float fogNear;\n\t\tuniform float fogFar;\n\n\t#endif\n\n#endif\n\n#ifdef USE_LOGDEPTHBUF\n\n\tuniform float logDepthBufFC;\n\n\t#ifdef USE_LOGDEPTHBUF_EXT\n\n\t\tvarying float vFragDepth;\n\n\t#endif\n\n#endif\n\nuniform float time;\nuniform float timeScale;\n\nuniform float smoothness;\nuniform float fallAccel;\nuniform float spread;\nuniform float drops;\nuniform float shape;\nuniform float power;\nuniform float alpha;\nuniform float height;\nuniform float overflow;\nuniform vec2 scale;\nuniform vec2 strength;\nuniform vec3 waterColor;\n\nvarying vec2 vUv;\n\nconst float K1 = 0.366025404; // (sqrt(3) - 1) / 2\nconst float K2 = 0.211324865; // (3 - sqrt(3)) / 6\n\nvec2 hash(vec2 p) {\n\n\tp = vec2(\n\t\tdot(p, vec2(127.1, 311.7)),\n\t\tdot(p, vec2(269.5, 183.3))\n\t);\n\n\treturn -1.0 + 2.0 * fract(sin(p * smoothness) * 43758.5453123);\n\n}\n\nfloat noise(vec2 p) {\n\n\tvec2 i = floor(p + (p.x + p.y) * K1);\n\n\tvec2 a = p - i + (i.x + i.y) * K2;\n\tfloat z = clamp(ceil(a.x - a.y), 0.0, 1.0); // x > y = 1, else 0\n\tvec2 o = vec2(z, 1.0 - z);\n\tvec2 b = a - o + K2;\n\tvec2 c = a - 1.0 + 2.0 * K2;\n\n\tvec3 h = max(0.5 - vec3(dot(a, a), dot(b, b), dot(c, c)), 0.0);\n\n\tvec3 n = h * h * h * h * vec3(\n\t\tdot(a, hash(i)),\n\t\tdot(b, hash(i + o)),\n\t\tdot(c, hash(i + 1.0))\n\t);\n\n\treturn dot(n, vec3(70.0));\n\n}\n\nfloat fbm(vec2 uv) {\n\n\tmat2 m = mat2(1.6, 1.2, -1.2, 1.6);\n\n\tfloat f = 0.5000 * noise(uv);\n\tuv = m * uv; f += 0.2500 * noise(uv);\n\tuv = m * uv; f += 0.1250 * noise(uv);\n\tuv = m * uv; f += 0.0625 * noise(uv);\n\n\treturn spread + 0.5 * f;\n\n}\n\nvoid main() {\n\n\tvec2 uv = vUv * 2.0 - 1.0;\n\tvec2 q = -uv;\n\n\tfloat t = time * timeScale;\n\n\tq.x *= scale.x;\n\tq.y *= scale.y;\n\n\tfloat T3 = max(3.0, 1.25 * strength.x) * t * 0.6 + pow(abs(q.y), fallAccel) * 2.0;\n\n\tfloat n = fbm(vec2(strength.x * q.x, strength.x * q.y) - vec2(0.0, T3));\n\n\tfloat T3B = max(3.0, 1.25 * strength.y) * t * 0.6 + pow(abs(q.y), fallAccel) * 2.0;\n\n\tn = n * 0.5 + (n * 0.5) / (0.001 + 1.5 * fbm(vec2(strength.y * q.x, strength.y * q.y) - vec2(0.0, T3B)));\n\n\t// This controls width...\n\tfloat intensity = abs(sin(t * overflow));\n\tn *= 1.0 + pow(intensity, 8.0) * 0.5;\n\n\tfloat c = 1.0 - (drops / abs(pow(q.y, 1.0) * 4.0 + 1.0)) * pow(max(0.0, length(q * vec2(1.8 + q.y * 1.5, 0.75)) - n * max(0.0, q.y + 0.25)), shape);\n\tfloat c1 = n * c * ((power + pow(intensity, height) * 0.9 - pow(intensity, 4.0) * 0.4) - pow(uv.y, 2.0));\n\n\tc1 = c1 * 1.05 + sin(c1 * 3.4) * 0.4;\n\tc1 *= 0.95 - pow(q.y, 2.0);\n\tc1 = clamp(c1, 0.4, 1.0);\n\n\tfloat c4 = c1 * c1 * c1 * c1;\n\n\tvec3 color = vec3(\n\t\t(1.0 + waterColor.r) * c4,\n\t\t(1.0 + waterColor.g) * c4,\n\t\t(1.0 + waterColor.b) * c4 / c1\n\t);\n\n\tfloat a = c * (1.0 - pow(abs(uv.y), alpha));\n\n\t#if defined(USE_LOGDEPTHBUF) && defined(USE_LOGDEPTHBUF_EXT)\n\n\t\tgl_FragDepthEXT = log2(vFragDepth) * logDepthBufFC * 0.5;\n\n\t#endif\n\n\t#ifdef USE_FOG\n\n\t\t#ifdef USE_LOGDEPTHBUF_EXT\n\n\t\t\tfloat depth = gl_FragDepthEXT / gl_FragCoord.w;\n\n\t\t#else\n\n\t\t\tfloat depth = gl_FragCoord.z / gl_FragCoord.w;\n\n\t\t#endif\n\n\t\t#ifdef FOG_EXP2\n\n\t\t\tfloat fogFactor = whiteCompliment(exp2(-fogDensity * fogDensity * depth * depth * LOG2));\n\n\t\t#else\n\n\t\t\tfloat fogFactor = smoothstep(fogNear, fogFar, depth);\n\n\t\t#endif\n\n\t\tcolor = mix(color, fogColor, fogFactor);\n\n\t#endif\n\n\tgl_FragColor = vec4(color, a);\n\n}\n",
 		vertex: "#define EPSILON 1e-6\n\n#ifdef USE_LOGDEPTHBUF\n\n\tuniform float logDepthBufFC;\n\n\t#ifdef USE_LOGDEPTHBUF_EXT\n\n\t\tvarying float vFragDepth;\n\n\t#endif\n\n#endif\n\nuniform vec4 offsetRepeat;\n\nvarying vec2 vUv;\n\nvoid main() {\n\n\tvUv = uv * offsetRepeat.zw + offsetRepeat.xy;\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n\n\t#ifdef USE_LOGDEPTHBUF\n\n\t\tgl_Position.z = log2(max(EPSILON, gl_Position.w + 1.0)) * logDepthBufFC;\n\n\t\t#ifdef USE_LOGDEPTHBUF_EXT\n\n\t\t\tvFragDepth = 1.0 + gl_Position.w;\n\n\t\t#else\n\n\t\t\tgl_Position.z = (gl_Position.z - 1.0) * gl_Position.w;\n\n\t\t#endif\n\n\t#endif\n\n}\n",
 	};
@@ -146,8 +146,8 @@
 
 			},
 
-			fragmentShader: shader$1.fragment,
-			vertexShader: shader$1.vertex,
+			fragmentShader: shader$3.fragment,
+			vertexShader: shader$3.vertex,
 
 			side: THREE.DoubleSide,
 			transparent: true,
@@ -160,8 +160,8 @@
 	WaterfallMaterial.prototype = Object.create(THREE.ShaderMaterial.prototype);
 	WaterfallMaterial.prototype.constructor = WaterfallMaterial;
 
-	var shader$3 = {
-		fragment: "#ifdef USE_FOG\n\n\t#define LOG2 1.442695\n\t#define saturate(a) clamp(a, 0.0, 1.0)\n\t#define whiteCompliment(a) (1.0 - saturate(a))\n\n\tuniform vec3 fogColor;\n\n\t#ifdef FOG_EXP2\n\n\t\tuniform float fogDensity;\n\n\t#else\n\n\t\tuniform float fogNear;\n\t\tuniform float fogFar;\n\n\t#endif\n\n#endif\n\n#ifdef USE_LOGDEPTHBUF\n\n\tuniform float logDepthBufFC;\n\n\t#ifdef USE_LOGDEPTHBUF_EXT\n\n\t\tvarying float vFragDepth;\n\n\t#endif\n\n#endif\n\nuniform float time;\nuniform float timeScale;\n\nuniform float primarySpeed;\nuniform float secondarySpeed;\nuniform float displacement;\nuniform float advection;\nuniform float intensity;\n\nuniform vec2 octaveScale;\nuniform vec3 lavaColor;\nuniform sampler2D noiseMap;\n\nvarying vec2 vUv;\n\nfloat hash21(vec2 n) {\n\n\treturn fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);\n\n}\n\nmat2 makem2(float theta) {\n\n\tfloat c = cos(theta);\n\tfloat s = sin(theta);\n\n\treturn mat2(c, -s, s, c);\n\n}\n\nfloat noise(vec2 x) {\n\n\treturn texture2D(noiseMap, x * 0.01).x;\n\n}\n\nvec2 gradn(vec2 p) {\n\n\tfloat ep = 0.09;\n\tfloat gradx = noise(vec2(p.x + ep, p.y)) - noise(vec2(p.x - ep, p.y));\n\tfloat grady = noise(vec2(p.x, p.y + ep)) - noise(vec2(p.x, p.y - ep));\n\n\treturn vec2(gradx, grady);\n\n}\n\nfloat flow(in vec2 p) {\n\n\tfloat t = time * timeScale;\n\tfloat z = 2.0;\n\tfloat rz = 0.0;\n\tvec2 bp = p;\n\n\tfor(float i = 1.0; i < 7.0; ++i) {\n\n\t\tp += t * primarySpeed;\n\t\tbp += t * secondarySpeed;\n\n\t\t// Displacement field.\n\t\tvec2 gr = gradn(i * p * 0.34 + t * displacement);\n\n\t\t// Rotation of the displacement field.\n\t\tgr *= makem2(t * 6.0 - (0.05 * p.x + 0.03 * p.y) * 40.0);\n\n\t\t// Displace the system.\n\t\tp += gr * 0.5;\n\n\t\t// Add noise octave.\n\t\trz += (sin(noise(p) * 7.0) * 0.5 + 0.5) / z;\n\n\t\t// Blend.\n\t\tp = mix(bp, p, advection);\n\n\t\t// Intensity scaling.\n\t\tz *= intensity;\n\n\t\t// Octave scaling.\n\t\tp *= octaveScale.x;\n\t\tbp *= octaveScale.y;\n\n\t}\n\n\treturn rz;\n\n}\n\nvoid main() {\n\n\tfloat rz = flow(vUv);\n\t\n\tvec3 color = lavaColor / rz;\n\tcolor = pow(abs(color), vec3(1.4));\n\n\t#if defined(USE_LOGDEPTHBUF) && defined(USE_LOGDEPTHBUF_EXT)\n\n\t\tgl_FragDepthEXT = log2(vFragDepth) * logDepthBufFC * 0.5;\n\n\t#endif\n\n\t#ifdef USE_FOG\n\n\t\t#ifdef USE_LOGDEPTHBUF_EXT\n\n\t\t\tfloat depth = gl_FragDepthEXT / gl_FragCoord.w;\n\n\t\t#else\n\n\t\t\tfloat depth = gl_FragCoord.z / gl_FragCoord.w;\n\n\t\t#endif\n\n\t\t#ifdef FOG_EXP2\n\n\t\t\tfloat fogFactor = whiteCompliment(exp2(-fogDensity * fogDensity * depth * depth * LOG2));\n\n\t\t#else\n\n\t\t\tfloat fogFactor = smoothstep(fogNear, fogFar, depth);\n\n\t\t#endif\n\n\t\tcolor = mix(color, fogColor, fogFactor);\n\n\t#endif\n\n\tgl_FragColor = vec4(color, 1.0);\n\n}\n",
+	var shader$1 = {
+		fragment: "#ifdef USE_FOG\n\n\t#define LOG2 1.442695\n\t#define saturate(a) clamp(a, 0.0, 1.0)\n\t#define whiteCompliment(a) (1.0 - saturate(a))\n\n\tuniform vec3 fogColor;\n\n\t#ifdef FOG_EXP2\n\n\t\tuniform float fogDensity;\n\n\t#else\n\n\t\tuniform float fogNear;\n\t\tuniform float fogFar;\n\n\t#endif\n\n#endif\n\n#ifdef USE_LOGDEPTHBUF\n\n\tuniform float logDepthBufFC;\n\n\t#ifdef USE_LOGDEPTHBUF_EXT\n\n\t\tvarying float vFragDepth;\n\n\t#endif\n\n#endif\n\nuniform float time;\nuniform float timeScale;\n\nuniform float primarySpeed;\nuniform float secondarySpeed;\nuniform float displacement;\nuniform float advection;\nuniform float intensity;\n\nuniform vec2 octaveScale;\nuniform vec3 lavaColor;\nuniform sampler2D noiseMap;\n\nvarying vec2 vUv;\n\nfloat hash21(vec2 n) {\n\n\treturn fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);\n\n}\n\nmat2 makem2(float theta) {\n\n\tfloat c = cos(theta);\n\tfloat s = sin(theta);\n\n\treturn mat2(c, -s, s, c);\n\n}\n\nfloat noise(vec2 x) {\n\n\treturn texture2D(noiseMap, x * 0.01).x;\n\n}\n\nvec2 gradn(vec2 p) {\n\n\tfloat ep = 0.09;\n\tfloat gradx = noise(vec2(p.x + ep, p.y)) - noise(vec2(p.x - ep, p.y));\n\tfloat grady = noise(vec2(p.x, p.y + ep)) - noise(vec2(p.x, p.y - ep));\n\n\treturn vec2(gradx, grady);\n\n}\n\nfloat flow(vec2 p) {\n\n\tfloat t = time * timeScale;\n\tfloat z = 2.0;\n\tfloat rz = 0.0;\n\tvec2 bp = p;\n\n\tfor(float i = 1.0; i < 7.0; ++i) {\n\n\t\tp += t * primarySpeed;\n\t\tbp += t * secondarySpeed;\n\n\t\t// Displacement field.\n\t\tvec2 gr = gradn(i * p * 0.34 + t * displacement);\n\n\t\t// Rotation of the displacement field.\n\t\tgr *= makem2(t * 6.0 - (0.05 * p.x + 0.03 * p.y) * 40.0);\n\n\t\t// Displace the system.\n\t\tp += gr * 0.5;\n\n\t\t// Add noise octave.\n\t\trz += (sin(noise(p) * 7.0) * 0.5 + 0.5) / z;\n\n\t\t// Blend.\n\t\tp = mix(bp, p, advection);\n\n\t\t// Intensity scaling.\n\t\tz *= intensity;\n\n\t\t// Octave scaling.\n\t\tp *= octaveScale.x;\n\t\tbp *= octaveScale.y;\n\n\t}\n\n\treturn rz;\n\n}\n\nvoid main() {\n\n\tfloat rz = flow(vUv);\n\t\n\tvec3 color = lavaColor / rz;\n\tcolor = pow(abs(color), vec3(1.4));\n\n\t#if defined(USE_LOGDEPTHBUF) && defined(USE_LOGDEPTHBUF_EXT)\n\n\t\tgl_FragDepthEXT = log2(vFragDepth) * logDepthBufFC * 0.5;\n\n\t#endif\n\n\t#ifdef USE_FOG\n\n\t\t#ifdef USE_LOGDEPTHBUF_EXT\n\n\t\t\tfloat depth = gl_FragDepthEXT / gl_FragCoord.w;\n\n\t\t#else\n\n\t\t\tfloat depth = gl_FragCoord.z / gl_FragCoord.w;\n\n\t\t#endif\n\n\t\t#ifdef FOG_EXP2\n\n\t\t\tfloat fogFactor = whiteCompliment(exp2(-fogDensity * fogDensity * depth * depth * LOG2));\n\n\t\t#else\n\n\t\t\tfloat fogFactor = smoothstep(fogNear, fogFar, depth);\n\n\t\t#endif\n\n\t\tcolor = mix(color, fogColor, fogFactor);\n\n\t#endif\n\n\tgl_FragColor = vec4(color, 1.0);\n\n}\n",
 		vertex: "#define EPSILON 1e-6\n\n#ifdef USE_LOGDEPTHBUF\n\n\tuniform float logDepthBufFC;\n\n\t#ifdef USE_LOGDEPTHBUF_EXT\n\n\t\tvarying float vFragDepth;\n\n\t#endif\n\n#endif\n\nuniform vec4 offsetRepeat;\n\nvarying vec2 vUv;\n\nvoid main() {\n\n\tvUv = uv * offsetRepeat.zw + offsetRepeat.xy;\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n\n\t#ifdef USE_LOGDEPTHBUF\n\n\t\tgl_Position.z = log2(max(EPSILON, gl_Position.w + 1.0)) * logDepthBufFC;\n\n\t\t#ifdef USE_LOGDEPTHBUF_EXT\n\n\t\t\tvFragDepth = 1.0 + gl_Position.w;\n\n\t\t#else\n\n\t\t\tgl_Position.z = (gl_Position.z - 1.0) * gl_Position.w;\n\n\t\t#endif\n\n\t#endif\n\n}\n",
 	};
 
@@ -213,8 +213,8 @@
 
 			},
 
-			fragmentShader: shader$3.fragment,
-			vertexShader: shader$3.vertex,
+			fragmentShader: shader$1.fragment,
+			vertexShader: shader$1.vertex,
 
 			fog: true
 
@@ -335,7 +335,7 @@
 	NoiseMaterial.prototype = Object.create(THREE.ShaderMaterial.prototype);
 	NoiseMaterial.prototype.constructor = NoiseMaterial;
 
-	var shader$5 = {
+	var shader$7 = {
 		fragment: "uniform sampler2D tDiffuse;\nuniform float opacity;\n\nvarying vec2 vUv;\n\nvoid main() {\n\n\tvec4 texel = texture2D(tDiffuse, vUv);\n\tgl_FragColor = opacity * texel;\n\n}\n",
 		vertex: "varying vec2 vUv;\n\nvoid main() {\n\n\tvUv = uv;\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n\n}\n",
 	};
@@ -359,8 +359,8 @@
 
 			},
 
-			fragmentShader: shader$5.fragment,
-			vertexShader: shader$5.vertex,
+			fragmentShader: shader$7.fragment,
+			vertexShader: shader$7.vertex,
 
 		});
 
@@ -411,7 +411,7 @@
 	CombineMaterial.prototype = Object.create(THREE.ShaderMaterial.prototype);
 	CombineMaterial.prototype.constructor = CombineMaterial;
 
-	var shader$11 = {
+	var shader$15 = {
 		fragment: "uniform sampler2D tDiffuse;\nuniform vec2 uImageIncrement;\nuniform float cKernel[KERNEL_SIZE_INT];\n\nvarying vec2 vUv;\n\nvoid main() {\n\n\tvec2 coord = vUv;\n\tvec4 sum = vec4(0.0, 0.0, 0.0, 0.0);\n\n\tfor(int i = 0; i < KERNEL_SIZE_INT; ++i) {\n\n\t\tsum += texture2D(tDiffuse, coord) * cKernel[i];\n\t\tcoord += uImageIncrement;\n\n\t}\n\n\tgl_FragColor = sum;\n\n}\n",
 		vertex: "uniform vec2 uImageIncrement;\n\nvarying vec2 vUv;\n\nvoid main() {\n\n\tvUv = uv - ((KERNEL_SIZE_FLOAT - 1.0) / 2.0) * uImageIncrement;\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n\n}\n",
 	};
@@ -457,8 +457,8 @@
 
 			},
 
-			fragmentShader: shader$11.fragment,
-			vertexShader: shader$11.vertex,
+			fragmentShader: shader$15.fragment,
+			vertexShader: shader$15.vertex,
 
 		});
 
@@ -499,7 +499,7 @@
 
 	};
 
-	var shader$15 = {
+	var shader$14 = {
 		fragment: "uniform sampler2D tDiffuse;\nuniform float stepSize;\nuniform float decay;\nuniform float weight;\nuniform float exposure;\nuniform vec3 lightPosition;\n\nvarying vec2 vUv;\n\nvoid main() {\n\n\tvec2 texCoord = vUv;\n\n\t// Calculate vector from pixel to light source in screen space.\n\tvec2 deltaTexCoord = texCoord - lightPosition.st;\n\tfloat distance = length(deltaTexCoord);\n\n\t// Step vector (uv space).\n\tvec2 step = stepSize * deltaTexCoord / distance;\n\n\t// Number of iterations between pixel and sun.\n\tint iterations = int(distance / stepSize);\n\n\t// Set up illumination decay factor.\n\tfloat illuminationDecay = 1.0;\n\n\t// Sample color.\n\tvec4 sample;\n\n\t// Color accumulator.\n\tvec4 color = vec4(0.0);\n\n\t// Estimate the probability of occlusion at each pixel by summing samples along a ray to the light source.\n\tfor(int i = 0; i < NUM_SAMPLES_INT; ++i) {\n\n\t\t// Don't do more than necessary.\n\t\tif(i <= iterations && texCoord.y < 1.0) {\n\n\t\t\tsample = texture2D(tDiffuse, texCoord);\n\n\t\t\t// Apply sample attenuation scale/decay factors.\n\t\t\tsample *= illuminationDecay * weight;\n\n\t\t\tcolor += sample;\n\n\t\t\t// Update exponential decay factor.\n\t\t\tilluminationDecay *= decay;\n\n\t\t}\n\n\t\ttexCoord -= step;\n\n\t}\n\n\t// Output final color with a further scale control factor.\n\tgl_FragColor = (color / NUM_SAMPLES_FLOAT) * exposure;\n\n}\n",
 		vertex: "varying vec2 vUv;\n\nvoid main() {\n\n\tvUv = uv;\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n\n}\n"
 	};
@@ -544,8 +544,8 @@
 
 			},
 
-			fragmentShader: shader$15.fragment,
-			vertexShader: shader$15.vertex
+			fragmentShader: shader$14.fragment,
+			vertexShader: shader$14.vertex
 
 		});
 

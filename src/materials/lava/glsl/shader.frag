@@ -77,7 +77,7 @@ vec2 gradn(vec2 p) {
 
 }
 
-float flow(in vec2 p) {
+float flow(vec2 p) {
 
 	float t = time * timeScale;
 	float z = 2.0;
