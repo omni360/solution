@@ -13,7 +13,7 @@ window.addEventListener("load", function init() {
 
 	// Camera.
 
-	var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 40000);
+	var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
 	var controls = new THREE.OrbitControls(camera, renderer.domElement);
 	controls.target.set(0, 0, 0);
 	controls.damping = 0.2;
@@ -29,6 +29,10 @@ window.addEventListener("load", function init() {
 	var aside = document.getElementById("aside");
 	aside.style.visibility = "visible";
 	aside.appendChild(stats.domElement);
+
+	var gui = new dat.GUI();
+	aside.appendChild(gui.domElement.parentNode);
+
 	document.addEventListener("keydown", function(event) {
 
 		if(event.altKey) {
@@ -50,10 +54,6 @@ window.addEventListener("load", function init() {
 
 	scene.add(directionalLight);
 	scene.add(hemisphereLight);
-
-	// Helpers.
-
-	//scene.add(new THREE.DirectionalLightHelper(directionalLight, 1.0));
 
 	// Sky.
 
@@ -80,7 +80,7 @@ window.addEventListener("load", function init() {
 			fog: false
 		});
 
-		var skyMesh = new THREE.Mesh(new THREE.BoxGeometry(100000, 100000, 100000), skyBoxMaterial);
+		var skyMesh = new THREE.Mesh(new THREE.BoxGeometry(2000, 2000, 2000), skyBoxMaterial);
 
 		camera.add(skyMesh);
 
@@ -112,13 +112,15 @@ window.addEventListener("load", function init() {
 	// Post-Processing.
 
 	var composer = new POSTPROCESSING.EffectComposer(renderer);
-	composer.addPass(new POSTPROCESSING.RenderPass(scene, camera));
+	var renderPass = new POSTPROCESSING.RenderPass(scene, camera);
+	composer.addPass(renderPass);
 
 	var pass = new SOLUTION.DistortionPass({
 		resolution: 0.4,
 		rollOffSpeed: new THREE.Vector2(0.5, 0.004),
 		waveStrength: new THREE.Vector2(0.25, 0.5),
-		speed: 1.0
+		color: new THREE.Color(0.8, 0.07, 0.01),
+		highQuality: false
 	});
 
 	document.addEventListener("keyup", function(event) {
@@ -131,6 +133,46 @@ window.addEventListener("load", function init() {
 
 	pass.renderToScreen = true;
 	composer.addPass(pass);
+
+	// Shader settings.
+
+	var params = {
+		"speed": pass.speed,
+		"resolution": pass.resolutionScale,
+		"drops": pass.distortionMaterial.uniforms.rollOffSpeed.value.x,
+		"droplets": pass.distortionMaterial.uniforms.rollOffSpeed.value.y,
+		"sine": pass.distortionMaterial.uniforms.waveStrength.value.x,
+		"cosine": pass.distortionMaterial.uniforms.waveStrength.value.y,
+		"tint": pass.distortionMaterial.uniforms.tint.value.getHex(),
+		"high quality": pass.noiseMaterial.defines.HIGH_QUALITY !== undefined
+	};
+
+	gui.add(params, "speed").min(0.0).max(3.0).step(0.01).onChange(function() { pass.speed = params["speed"]; });
+	gui.add(params, "resolution").min(0.0).max(1.0).step(0.01).onChange(function() { pass.resolutionScale = params["resolution"]; composer.reset(); });
+
+	var f = gui.addFolder("Roll-off speed");
+	f.add(params, "drops").min(0.5).max(3.0).step(0.01).onChange(function() { pass.distortionMaterial.uniforms.rollOffSpeed.value.x = params["drops"]; });
+	f.add(params, "droplets").min(0.004).max(0.1).step(0.001).onChange(function() { pass.distortionMaterial.uniforms.rollOffSpeed.value.y = params["droplets"]; });
+	f.open();
+
+	f = gui.addFolder("Wave strength");
+	f.add(params, "sine").min(0.0).max(3.0).step(0.01).onChange(function() { pass.distortionMaterial.uniforms.waveStrength.value.x = params["sine"]; });
+	f.add(params, "cosine").min(0.0).max(3.0).step(0.01).onChange(function() { pass.distortionMaterial.uniforms.waveStrength.value.y = params["cosine"]; });
+	f.open();
+
+	gui.addColor(params, "tint").onChange(function() { pass.distortionMaterial.uniforms.tint.value.setHex(params["tint"]); });
+
+	gui.add(params, "high quality").onChange(function() {
+
+		renderPass.renderToScreen = true;
+		pass.enabled = false;
+		pass.noiseMaterial.dispose();
+		pass.noiseMaterial = new SOLUTION.NoiseMaterial(params["high quality"]);
+		composer.reset();
+		pass.enabled = true;
+		renderPass.renderToScreen = false;
+
+	});
 
 	/**
 	 * Handles resizing.
