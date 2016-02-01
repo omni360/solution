@@ -132,9 +132,9 @@ export function WaterfallMaterial(options) {
 			overflow: {type: &quot;f&quot;, value: (options.overflow !== undefined) ? options.overflow : 0.2},
 			scale: {type: &quot;v2&quot;, value: (options.scale !== undefined) ? options.scale : new THREE.Vector2(1.0, 1.0)},
 			strength: {type: &quot;v2&quot;, value: (options.strength !== undefined) ? options.strength : new THREE.Vector2(6.0, 26.0)},
-			waterColor: {type: &quot;c&quot;, value: (options.waterColor !== undefined) ? options.waterColor : new THREE.Color(0.25, 0.5, 0.5)},
+			tint: {type: &quot;c&quot;, value: (options.tint !== undefined) ? options.tint : new THREE.Color(0.25, 0.5, 0.5)},
 
-			offsetRepeat: {type: &quot;v4&quot;, value: new THREE.Vector4(0.0, 0.0, 1.0, 1.0)}
+			offsetRepeat: {type: &quot;v4&quot;, value: new THREE.Vector4(-0.5, -0.75, 1.0, 1.0)}
 
 		},
 

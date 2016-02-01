@@ -134,7 +134,7 @@ export function LavaMaterial(noiseMap, options) {
 			advection: {type: &quot;f&quot;, value: (options.advection !== undefined) ? options.advection : 0.77},
 			intensity: {type: &quot;f&quot;, value: (options.intensity !== undefined) ? options.intensity : 1.4},
 			octaveScale: {type: &quot;v2&quot;, value: (options.octaveScale !== undefined) ? options.octaveScale : new THREE.Vector2(2.0, 1.9)},
-			lavaColor: {type: &quot;c&quot;, value: (options.lavaColor !== undefined) ? options.lavaColor : new THREE.Color(0.2, 0.07, 0.01)},
+			lavaColor: {type: &quot;c&quot;, value: (options.color !== undefined) ? options.color : new THREE.Color(0.2, 0.07, 0.01)},
 
 			noiseMap: {type: &quot;t&quot;, value: noiseMap},
 			offsetRepeat: {type: &quot;v4&quot;, value: new THREE.Vector4(0.0, 0.0, 3.0, 3.0)}

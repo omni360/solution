@@ -199,6 +199,12 @@
                             "description": "- The distortion wave strength. X = sine, Y = cosine.",
                             "type": "Vector2",
                             "optional": true
+                        },
+                        {
+                            "name": "color",
+                            "description": "- The droplet tint.",
+                            "type": "Color",
+                            "optional": true
                         }
                     ]
                 }
@@ -465,6 +471,12 @@
                             "optional": true
                         },
                         {
+                            "name": "highQuality",
+                            "description": "- The effect quality. If set to true, double the amount of noise values will be computed.",
+                            "type": "Boolean",
+                            "optional": true
+                        },
+                        {
                             "name": "speed",
                             "description": "- The effect's animation speed.",
                             "type": "Number",
@@ -583,7 +595,7 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 23,
+            "line": 24,
             "description": "Noise render texture.",
             "itemtype": "property",
             "name": "renderTargetPerturb",
@@ -595,7 +607,7 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 42,
+            "line": 43,
             "description": "The resolution scale, relative to the on-screen render size.\nYou have to call the reset method of the EffectComposer after modifying this field.",
             "itemtype": "property",
             "name": "resolutionScale",
@@ -605,7 +617,7 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 52,
+            "line": 53,
             "description": "Noise shader material.",
             "itemtype": "property",
             "name": "noiseMaterial",
@@ -617,7 +629,7 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 62,
+            "line": 63,
             "description": "Distortion shader material.",
             "itemtype": "property",
             "name": "distortionMaterial",
@@ -629,7 +641,7 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 76,
+            "line": 78,
             "description": "The effect speed.",
             "itemtype": "property",
             "name": "speed",
@@ -639,7 +651,7 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 85,
+            "line": 87,
             "description": "Maximum duration of the dissolution effect in seconds.",
             "itemtype": "property",
             "name": "dissolutionEnd",
@@ -651,7 +663,7 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 95,
+            "line": 97,
             "description": "Dissolution flag.",
             "itemtype": "property",
             "name": "_dissolve",
@@ -664,7 +676,7 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 114,
+            "line": 116,
             "description": "Dissolution flag.\n\nSet to false for wavy distortion,\nset to true for dissolution into droplets.",
             "itemtype": "property",
             "name": "dissolve",
@@ -675,7 +687,7 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 146,
+            "line": 147,
             "description": "Renders the scene.",
             "itemtype": "method",
             "name": "render",
@@ -701,28 +713,7 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 184,
-            "description": "Updates the perturbation map render size.",
-            "itemtype": "method",
-            "name": "setSize",
-            "params": [
-                {
-                    "name": "width",
-                    "description": "- The width.",
-                    "type": "Number"
-                },
-                {
-                    "name": "heght",
-                    "description": "- The height.",
-                    "type": "Number"
-                }
-            ],
-            "class": "DistortionPass",
-            "module": "solution"
-        },
-        {
-            "file": "src\\passes\\distortion.js",
-            "line": 210,
+            "line": 187,
             "description": "Renders a perturbation map for the droplets.",
             "itemtype": "method",
             "name": "renderPerturbationMap",
@@ -740,6 +731,27 @@
             ],
             "access": "private",
             "tagname": "",
+            "class": "DistortionPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\distortion.js",
+            "line": 208,
+            "description": "Updates the perturbation map render size.",
+            "itemtype": "method",
+            "name": "setSize",
+            "params": [
+                {
+                    "name": "width",
+                    "description": "- The width.",
+                    "type": "Number"
+                },
+                {
+                    "name": "heght",
+                    "description": "- The height.",
+                    "type": "Number"
+                }
+            ],
             "class": "DistortionPass",
             "module": "solution"
         },
