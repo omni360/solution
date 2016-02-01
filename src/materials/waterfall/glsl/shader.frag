@@ -45,7 +45,7 @@ uniform float height;
 uniform float overflow;
 uniform vec2 scale;
 uniform vec2 strength;
-uniform vec3 waterColor;
+uniform vec3 tint;
 
 varying vec2 vUv;
 
@@ -100,8 +100,7 @@ float fbm(vec2 uv) {
 
 void main() {
 
-	vec2 uv = vUv * 2.0 - 1.0;
-	vec2 q = -uv;
+	vec2 q = -vec2(vUv);
 
 	float t = time * timeScale;
 
@@ -116,12 +115,11 @@ void main() {
 
 	n = n * 0.5 + (n * 0.5) / (0.001 + 1.5 * fbm(vec2(strength.y * q.x, strength.y * q.y) - vec2(0.0, T3B)));
 
-	// This controls width...
 	float intensity = abs(sin(t * overflow));
 	n *= 1.0 + pow(intensity, 8.0) * 0.5;
 
 	float c = 1.0 - (drops / abs(pow(q.y, 1.0) * 4.0 + 1.0)) * pow(max(0.0, length(q * vec2(1.8 + q.y * 1.5, 0.75)) - n * max(0.0, q.y + 0.25)), shape);
-	float c1 = n * c * ((power + pow(intensity, height) * 0.9 - pow(intensity, 4.0) * 0.4) - pow(uv.y, 2.0));
+	float c1 = n * c * ((power + pow(intensity, height) * 0.9 - pow(intensity, 4.0) * 0.4) - pow(vUv.y, 2.0));
 
 	c1 = c1 * 1.05 + sin(c1 * 3.4) * 0.4;
 	c1 *= 0.95 - pow(q.y, 2.0);
@@ -130,12 +128,12 @@ void main() {
 	float c4 = c1 * c1 * c1 * c1;
 
 	vec3 color = vec3(
-		(1.0 + waterColor.r) * c4,
-		(1.0 + waterColor.g) * c4,
-		(1.0 + waterColor.b) * c4 / c1
+		(1.0 + tint.r) * c4,
+		(1.0 + tint.g) * c4,
+		(1.0 + tint.b) * c4 / c1
 	);
 
-	float a = c * (1.0 - pow(abs(uv.y), alpha));
+	float a = c * (1.0 - pow(abs(vUv.y), alpha));
 
 	#if defined(USE_LOGDEPTHBUF) && defined(USE_LOGDEPTHBUF_EXT)
 
