@@ -1,26 +1,15 @@
-describe("Water", function() {
+var lib = require("../build/solution");
 
-	describe("Sanity checks", function() {
+module.exports = {
 
-		//var water;
+	"the distortion pass can be created and destroyed": function(test) {
 
-		it("is a constructor function", function() {
+		var x = new lib.DistortionPass();
+		test.equals(typeof x, "object");
+		x.dispose();
 
-			//assert(typeof Water === "function");
+		test.done();
 
-		});
+	}
 
-		it("is instancable", function() {
-
-			//water = new Water();
-			//assert(typeof water === "object");
-
-		});
-
-	});
-
-	describe("Functionality", function() {
-
-	});
-
-});
+};
