@@ -42,15 +42,6 @@
             "fors": {},
             "namespaces": {}
         },
-        "src\\materials\\planar-water\\index2.js": {
-            "name": "src\\materials\\planar-water\\index2.js",
-            "modules": {},
-            "classes": {
-                "Water": 1
-            },
-            "fors": {},
-            "namespaces": {}
-        },
         "src\\materials\\waterfall\\index.js": {
             "name": "src\\materials\\waterfall\\index.js",
             "modules": {},
@@ -119,7 +110,6 @@
                 "LavaMaterial": 1,
                 "NoiseMaterial": 1,
                 "WaterMaterial": 1,
-                "Water": 1,
                 "WaterfallMaterial": 1,
                 "DistortionPass": 1,
                 "WaterPass": 1
@@ -355,49 +345,6 @@
                 }
             ]
         },
-        "Water": {
-            "name": "Water",
-            "shortname": "Water",
-            "classitems": [],
-            "plugins": [],
-            "extensions": [],
-            "plugin_for": [],
-            "extension_for": [],
-            "module": "solution",
-            "file": "src\\materials\\planar-water\\index2.js",
-            "line": 4,
-            "description": "The Water class handles reflection and refraction \nprocessing and provides a material to use on \narbitrary meshes.",
-            "is_constructor": 1,
-            "params": [
-                {
-                    "name": "options",
-                    "description": "- The options.",
-                    "type": "Object",
-                    "optional": true,
-                    "props": [
-                        {
-                            "name": "normalMap",
-                            "description": "- The normalmap to use for the waves.",
-                            "type": "Texture",
-                            "optional": true
-                        },
-                        {
-                            "name": "lightPosition",
-                            "description": "- The position of the main light source.",
-                            "type": "Vector3",
-                            "optional": true
-                        },
-                        {
-                            "name": "lowQuality",
-                            "description": "- The quality of the shader.",
-                            "type": "Boolean",
-                            "optional": true,
-                            "optdefault": "false"
-                        }
-                    ]
-                }
-            ]
-        },
         "WaterfallMaterial": {
             "name": "WaterfallMaterial",
             "shortname": "WaterfallMaterial",
@@ -498,7 +445,7 @@
             "namespace": "",
             "file": "src\\passes\\water.js",
             "line": 5,
-            "description": "The water pass renders the reflection and refraction of the given scene to a \ntexture which is then used by a water material during the normal rendering \nprocess. The material's time value is updated automatically.\n\nYou may disable the water material if you don't need it and want to use the \ngenerated textures for something else!\n\nAdd this pass to an EffectComposer and follow it up with a RenderPass. Don't \nforget to set its renderToScreen flag to true!\n\nManipulate the water mesh however you like. You may also add the water material \nto other objects.",
+            "description": "The water pass renders the reflection and refraction of the given scene to a \ntexture which is then used by a water material during the normal rendering \nprocess. The material's time value is updated automatically.\n\nYou may disable the water material if you want to use the generated textures \nfor something else.\n\nAdd this pass to an EffectComposer and follow it up with a RenderPass.\n\nManipulate the water mesh however you like. You may also add the water material \nto other objects.",
             "is_constructor": 1,
             "extends": "Pass",
             "params": [
@@ -584,15 +531,6 @@
     },
     "elements": {},
     "classitems": [
-        {
-            "file": "src\\materials\\planar-water\\index2.js",
-            "line": 21,
-            "description": "The water material.",
-            "itemtype": "property",
-            "name": "material",
-            "type": "{ShaderMaterial}",
-            "class": "Water"
-        },
         {
             "file": "src\\passes\\distortion.js",
             "line": 24,
@@ -757,7 +695,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 42,
+            "line": 41,
             "description": "The reflection render texture.",
             "itemtype": "property",
             "name": "reflectionTexture",
@@ -767,7 +705,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 65,
+            "line": 64,
             "description": "The refraction render texture.",
             "itemtype": "property",
             "name": "refractionTexture",
@@ -777,7 +715,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 74,
+            "line": 73,
             "description": "The reflection camera.",
             "itemtype": "property",
             "name": "reflectionCamera",
@@ -789,7 +727,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 84,
+            "line": 83,
             "description": "The refraction camera.",
             "itemtype": "property",
             "name": "refractionCamera",
@@ -801,7 +739,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 94,
+            "line": 93,
             "description": "Whether the reflection texture should be rendered.",
             "itemtype": "property",
             "name": "renderReflection",
@@ -811,7 +749,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 103,
+            "line": 102,
             "description": "Whether the refraction texture should be rendered.",
             "itemtype": "property",
             "name": "renderRefraction",
@@ -821,7 +759,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 112,
+            "line": 111,
             "description": "The water material.",
             "itemtype": "property",
             "name": "material",
@@ -831,7 +769,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 128,
+            "line": 127,
             "description": "A plane mesh that represents the actual reflection/refraction plane.",
             "itemtype": "property",
             "name": "mesh",
@@ -841,7 +779,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 182,
+            "line": 181,
             "description": "The reflection texture matrix for UV-mapping.",
             "itemtype": "property",
             "name": "textureMatrix",
@@ -853,7 +791,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 192,
+            "line": 191,
             "description": "The reflection plane.",
             "itemtype": "property",
             "name": "plane",
@@ -865,7 +803,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 202,
+            "line": 201,
             "description": "The normal of the reflection plane.",
             "itemtype": "property",
             "name": "normal",
@@ -877,7 +815,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 212,
+            "line": 211,
             "description": "The world position of the reflection plane.",
             "itemtype": "property",
             "name": "worldPosition",
@@ -889,7 +827,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 222,
+            "line": 221,
             "description": "The world position of the camera.",
             "itemtype": "property",
             "name": "worldPosition",
@@ -901,7 +839,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 232,
+            "line": 231,
             "description": "A rotation matrix for the plane.",
             "itemtype": "property",
             "name": "rotationMatrix",
@@ -913,7 +851,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 242,
+            "line": 241,
             "description": "A look-at point.",
             "itemtype": "property",
             "name": "lookAtPosition",
@@ -925,7 +863,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 252,
+            "line": 251,
             "description": "Clip plane.",
             "itemtype": "property",
             "name": "clipPlane",
@@ -935,7 +873,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 261,
+            "line": 260,
             "description": "Clip bias.",
             "itemtype": "property",
             "name": "clipBias",
@@ -945,7 +883,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 278,
+            "line": 277,
             "description": "Renders the reflection texture.",
             "itemtype": "method",
             "name": "render",
@@ -961,7 +899,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 304,
+            "line": 303,
             "description": "Updates the matrices.",
             "itemtype": "method",
             "name": "update",

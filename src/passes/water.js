@@ -7,11 +7,10 @@ import THREE from "three";
  * texture which is then used by a water material during the normal rendering 
  * process. The material's time value is updated automatically.
  *
- * You may disable the water material if you don't need it and want to use the 
- * generated textures for something else!
+ * You may disable the water material if you want to use the generated textures 
+ * for something else.
  *
- * Add this pass to an EffectComposer and follow it up with a RenderPass. Don't 
- * forget to set its renderToScreen flag to true!
+ * Add this pass to an EffectComposer and follow it up with a RenderPass.
  *
  * Manipulate the water mesh however you like. You may also add the water material 
  * to other objects.
