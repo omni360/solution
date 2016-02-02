@@ -5,7 +5,6 @@ YUI.add("yuidoc-meta", function(Y) {
         "DistortionPass",
         "LavaMaterial",
         "NoiseMaterial",
-        "Water",
         "WaterMaterial",
         "WaterPass",
         "WaterfallMaterial"
