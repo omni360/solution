@@ -1,5 +1,5 @@
 /**
- * solution v0.0.1 build Feb 02 2016
+ * solution v0.1.0 build Feb 02 2016
  * https://github.com/vanruesc/solution
  * Copyright 2016 Raoul van Rüschen, Zlib
  */
@@ -335,7 +335,7 @@
 	NoiseMaterial.prototype = Object.create(THREE.ShaderMaterial.prototype);
 	NoiseMaterial.prototype.constructor = NoiseMaterial;
 
-	var shader$5 = {
+	var shader$6 = {
 		fragment: "uniform sampler2D tDiffuse;\nuniform float opacity;\n\nvarying vec2 vUv;\n\nvoid main() {\n\n\tvec4 texel = texture2D(tDiffuse, vUv);\n\tgl_FragColor = opacity * texel;\n\n}\n",
 		vertex: "varying vec2 vUv;\n\nvoid main() {\n\n\tvUv = uv;\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n\n}\n",
 	};
@@ -359,8 +359,8 @@
 
 			},
 
-			fragmentShader: shader$5.fragment,
-			vertexShader: shader$5.vertex,
+			fragmentShader: shader$6.fragment,
+			vertexShader: shader$6.vertex,
 
 		});
 
@@ -369,7 +369,7 @@
 	CopyMaterial.prototype = Object.create(THREE.ShaderMaterial.prototype);
 	CopyMaterial.prototype.constructor = CopyMaterial;
 
-	var shader$6 = {
+	var shader$5 = {
 		fragment: "uniform sampler2D texture1;\nuniform sampler2D texture2;\n\nuniform float opacity1;\nuniform float opacity2;\n\nvarying vec2 vUv;\n\nvoid main() {\n\n\tvec4 texel1 = texture2D(texture1, vUv);\n\tvec4 texel2 = texture2D(texture2, vUv);\n\n\t#ifdef INVERT_TEX1\n\n\t\ttexel1.rgb = vec3(1.0) - texel1.rgb;\n\n\t#endif\n\n\t#ifdef INVERT_TEX2\n\n\t\ttexel2.rgb = vec3(1.0) - texel2.rgb;\n\n\t#endif\n\n\tgl_FragColor = opacity1 * texel1 + opacity2 * texel2;\n\n}\n",
 		vertex: "varying vec2 vUv;\n\nvoid main() {\n\n\tvUv = uv;\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n\n}\n"
 	};
@@ -398,8 +398,8 @@
 
 			},
 
-			fragmentShader: shader$6.fragment,
-			vertexShader: shader$6.vertex
+			fragmentShader: shader$5.fragment,
+			vertexShader: shader$5.vertex
 
 		});
 

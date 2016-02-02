@@ -1,6 +1,51 @@
-window.addEventListener("load", function init() {
+/**
+ * Manual asset loading.
+ */
 
-	window.removeEventListener("load", init);
+window.addEventListener("load", function loadAssets() {
+
+	window.removeEventListener("load", loadAssets);
+
+	var loadingManager = new THREE.LoadingManager();
+	var cubeTextureLoader = new THREE.CubeTextureLoader(loadingManager);
+
+	var assets = {};
+
+	loadingManager.onProgress = function(item, loaded, total) {
+
+		if(loaded === total) { setupScene(assets); }
+
+	};
+
+	var path = "textures/skies/alps/";
+	var format = ".png";
+	var urls = [
+		path + "px" + format, path + "nx" + format,
+		path + "py" + format, path + "ny" + format,
+		path + "pz" + format, path + "nz" + format
+	];
+
+	cubeTextureLoader.load(urls, function(textureCube) {
+
+		var shader = THREE.ShaderLib.cube;
+		shader.uniforms.tCube.value = textureCube;
+
+		var skyBoxMaterial = new THREE.ShaderMaterial( {
+			fragmentShader: shader.fragmentShader,
+			vertexShader: shader.vertexShader,
+			uniforms: shader.uniforms,
+			depthWrite: false,
+			side: THREE.BackSide,
+			fog: false
+		});
+
+		assets.sky = new THREE.Mesh(new THREE.BoxGeometry(2000, 2000, 2000), skyBoxMaterial);
+
+	});
+
+});
+
+function setupScene(assets) {
 
 	// Renderer and Scene.
 
@@ -57,34 +102,7 @@ window.addEventListener("load", function init() {
 
 	// Sky.
 
-	var path = "textures/skies/alps/";
-	var format = ".png";
-	var urls = [
-		path + "pz" + format, path + "nz" + format,
-		path + "py" + format, path + "ny" + format,
-		path + "px" + format, path + "nx" + format
-	];
-
-	var cubeTextureLoader = new THREE.CubeTextureLoader();
-	cubeTextureLoader.load(urls, function(textureCube) {
-
-		var shader = THREE.ShaderLib.cube;
-		shader.uniforms.tCube.value = textureCube;
-
-		var skyBoxMaterial = new THREE.ShaderMaterial( {
-			fragmentShader: shader.fragmentShader,
-			vertexShader: shader.vertexShader,
-			uniforms: shader.uniforms,
-			depthWrite: false,
-			side: THREE.BackSide,
-			fog: false
-		});
-
-		var skyMesh = new THREE.Mesh(new THREE.BoxGeometry(2000, 2000, 2000), skyBoxMaterial);
-
-		camera.add(skyMesh);
-
-	});
+	camera.add(assets.sky);
 
 	// Random objects.
 
@@ -123,14 +141,6 @@ window.addEventListener("load", function init() {
 		highQuality: false
 	});
 
-	document.addEventListener("keyup", function(event) {
-
-		var key = event.keyCode || event.which;
-
-		if(key === 32) { pass.dissolve = !pass.dissolve; }
-
-	});
-
 	pass.renderToScreen = true;
 	composer.addPass(pass);
 
@@ -144,7 +154,8 @@ window.addEventListener("load", function init() {
 		"sine": pass.distortionMaterial.uniforms.waveStrength.value.x,
 		"cosine": pass.distortionMaterial.uniforms.waveStrength.value.y,
 		"tint": pass.distortionMaterial.uniforms.tint.value.getHex(),
-		"high quality": pass.noiseMaterial.defines.HIGH_QUALITY !== undefined
+		"high quality": pass.noiseMaterial.defines.HIGH_QUALITY !== undefined,
+		"dissolve": pass.dissolve
 	};
 
 	gui.add(params, "speed").min(0.0).max(3.0).step(0.01).onChange(function() { pass.speed = params["speed"]; });
@@ -171,6 +182,15 @@ window.addEventListener("load", function init() {
 		composer.reset();
 		pass.enabled = true;
 		renderPass.renderToScreen = false;
+
+	});
+
+	gui.add(params, "dissolve").onChange(function() { pass.dissolve = params["dissolve"]; }).listen();
+
+	document.addEventListener("keyup", function(event) {
+
+		var key = event.keyCode || event.which;
+		if(key === 32) { params["dissolve"] = pass.dissolve = !pass.dissolve; }
 
 	});
 
@@ -215,4 +235,4 @@ window.addEventListener("load", function init() {
 
 	}());
 
-});
+};

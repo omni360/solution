@@ -8,7 +8,6 @@ window.addEventListener("load", function loadAssets() {
 
 	var loadingManager = new THREE.LoadingManager();
 	var textureLoader = new THREE.TextureLoader(loadingManager);
-	var modelLoader = new THREE.ObjectLoader(loadingManager);
 
 	var assets = {};
 

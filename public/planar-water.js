@@ -41,7 +41,7 @@ window.addEventListener("load", function loadAssets() {
 			fog: false
 		});
 
-		assets.skyMesh = new THREE.Mesh(new THREE.BoxGeometry(2000, 2000, 2000), skyBoxMaterial);
+		assets.sky = new THREE.Mesh(new THREE.BoxGeometry(2000, 2000, 2000), skyBoxMaterial);
 
 	});
 
@@ -128,7 +128,7 @@ function setupScene(assets) {
 
 	// Sky.
 
-	scene.add(assets.skyMesh);
+	scene.add(assets.sky);
 
 	// Ground.
 

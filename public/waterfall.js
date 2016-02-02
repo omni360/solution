@@ -7,8 +7,7 @@ window.addEventListener("load", function loadAssets() {
 	window.removeEventListener("load", loadAssets);
 
 	var loadingManager = new THREE.LoadingManager();
-	var textureLoader = new THREE.TextureLoader(loadingManager);
-	var modelLoader = new THREE.ObjectLoader(loadingManager);
+	var cubeTextureLoader = new THREE.CubeTextureLoader(loadingManager);
 
 	var assets = {};
 
