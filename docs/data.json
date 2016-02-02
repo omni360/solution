@@ -2,7 +2,7 @@
     "project": {
         "name": "solution",
         "description": "An animation library for different types of liquids.",
-        "version": "0.0.1",
+        "version": "0.1.0",
         "url": "https://github.com/vanruesc/solution"
     },
     "files": {
