@@ -14,6 +14,7 @@ import THREE from "three";
  * @param {Texture} [options.perturbMap] - If none is provided, the shader will generate perlin noise on the fly.
  * @param {Vector2} [options.rollOffSpeed] - The water roll off speed. X affects the overall roll off, while Y controls the droplets.
  * @param {Vector2} [options.waveStrength] - The distortion wave strength. X = sine, Y = cosine.
+ * @param {Color} [options.color] - The droplet tint.
  */
 
 export function DistortionMaterial(options) {
@@ -23,6 +24,7 @@ export function DistortionMaterial(options) {
 	var map = options.perturbMap;
 	var speed = options.rollOffSpeed;
 	var sinCos = options.waveStrength;
+	var color = options.color;
 
 	THREE.ShaderMaterial.call(this, {
 
@@ -37,15 +39,13 @@ export function DistortionMaterial(options) {
 
 			tPerturb: {type: "t", value: (map !== undefined) ? map : null},
 			tDiffuse: {type: "t", value: null},
-			//tWidth: {type: "f", value: 0},
-			//tHeight: {type: "f", value: 0},
+
+			time: {type: "f", value: Math.random() * 1000.0},
+			resetTimer: {type: "f", value: 0.0},
 
 			rollOffSpeed: {type: "v2", value: (speed !== undefined) ? speed : new THREE.Vector2(0.5, 0.02)},
 			waveStrength: {type: "v2", value: (sinCos !== undefined) ? sinCos : new THREE.Vector2(0.25, 0.5)},
-
-			time: {type: "f", value: Math.random() * 1000.0},
-			resetTimer: {type: "f", value: 0.0}
-			//randomTime: {type: "f", value: Math.random() * 10.0 - 1.0}
+			tint: {type: "c", value: (color !== undefined) ? color : new THREE.Color(1.0, 1.0, 1.0)},
 
 		},
 

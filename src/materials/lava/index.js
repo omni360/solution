@@ -42,7 +42,7 @@ export function LavaMaterial(noiseMap, options) {
 			advection: {type: "f", value: (options.advection !== undefined) ? options.advection : 0.77},
 			intensity: {type: "f", value: (options.intensity !== undefined) ? options.intensity : 1.4},
 			octaveScale: {type: "v2", value: (options.octaveScale !== undefined) ? options.octaveScale : new THREE.Vector2(2.0, 1.9)},
-			lavaColor: {type: "c", value: (options.lavaColor !== undefined) ? options.lavaColor : new THREE.Color(0.2, 0.07, 0.01)},
+			lavaColor: {type: "c", value: (options.color !== undefined) ? options.color : new THREE.Color(0.2, 0.07, 0.01)},
 
 			noiseMap: {type: "t", value: noiseMap},
 			offsetRepeat: {type: "v4", value: new THREE.Vector4(0.0, 0.0, 3.0, 3.0)}

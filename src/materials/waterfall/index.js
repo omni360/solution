@@ -40,9 +40,9 @@ export function WaterfallMaterial(options) {
 			overflow: {type: "f", value: (options.overflow !== undefined) ? options.overflow : 0.2},
 			scale: {type: "v2", value: (options.scale !== undefined) ? options.scale : new THREE.Vector2(1.0, 1.0)},
 			strength: {type: "v2", value: (options.strength !== undefined) ? options.strength : new THREE.Vector2(6.0, 26.0)},
-			waterColor: {type: "c", value: (options.waterColor !== undefined) ? options.waterColor : new THREE.Color(0.25, 0.5, 0.5)},
+			tint: {type: "c", value: (options.tint !== undefined) ? options.tint : new THREE.Color(0.25, 0.5, 0.5)},
 
-			offsetRepeat: {type: "v4", value: new THREE.Vector4(0.0, 0.0, 1.0, 1.0)}
+			offsetRepeat: {type: "v4", value: new THREE.Vector4(-0.5, -0.75, 1.0, 1.0)}
 
 		},
 

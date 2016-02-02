@@ -1,6 +1,5 @@
 # Solution 
 [![Build status](https://travis-ci.org/vanruesc/solution.svg?branch=master)](https://travis-ci.org/vanruesc/solution) 
-[![GitHub version](https://badge.fury.io/gh/vanruesc%2Fsolution.svg)](http://badge.fury.io/gh/vanruesc%2Fsolution) 
 [![npm version](https://badge.fury.io/js/solution.svg)](http://badge.fury.io/js/solution) 
 [![Dependencies](https://david-dm.org/vanruesc/solution.svg?branch=master)](https://david-dm.org/vanruesc/solution)
 
@@ -63,8 +62,8 @@ camera.lookAt(scene);
 
 
 ## Included Effects
- - [Distortion & Droplet Filter](http://vanruesc.github.io/solution/public/distortion.html) 
- - [Planar Water](http://vanruesc.github.io/solution/public/planar-water.html) 
+ - [Distortion Droplet Filter](http://vanruesc.github.io/solution/public/distortion.html) 
+ - [Planar Water](http://vanruesc.github.io/solution/public/planar-water.html) (WIP) 
  - Oceanic Water 
  - [Waterfall](http://vanruesc.github.io/solution/public/waterfall.html) 
  - [Lava](http://vanruesc.github.io/solution/public/lava.html) 
@@ -79,7 +78,7 @@ Maintain the existing coding style. Add unit tests for any new or changed functi
 
 
 ## License
-This library is licensed under the [Zlib license](https://github.com/vanruesc/license/blob/master/LICENSE)  
-The original [lava shader](https://github.com/vanruesc/license/blob/master/src/materials/lava/glsl/shader.frag) 
+This library is licensed under the [Zlib license](https://github.com/vanruesc/solution/blob/master/LICENSE)  
+The original [lava shader](https://github.com/vanruesc/solution/blob/master/src/materials/lava/glsl/shader.frag#L49-L125) 
 was written by [nimitz](https://www.shadertoy.com/user/nimitz) and is licensed under a 
 [Creative Commons license](http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode) 

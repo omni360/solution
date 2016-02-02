@@ -79,13 +79,8 @@ module.exports = function(grunt) {
 			}
 		},
 
-		mocha: {
-			test: {
-				src: ["test/**/*.html"],
-				options: {
-					run: true
-				}
-			}
+		nodeunit: {
+			src: ["test/**/*.js"]
 		},
 
 		yuidoc: {
@@ -108,6 +103,7 @@ module.exports = function(grunt) {
 
 	});
 
+	grunt.loadNpmTasks("grunt-contrib-nodeunit");
 	grunt.loadNpmTasks("grunt-contrib-jshint");
 	grunt.loadNpmTasks("grunt-contrib-uglify");
 	grunt.loadNpmTasks("grunt-contrib-yuidoc");
@@ -116,10 +112,9 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks("grunt-contrib-copy");
 	grunt.loadNpmTasks("grunt-fs-inline");
 	grunt.loadNpmTasks("grunt-rollup");
-	grunt.loadNpmTasks("grunt-mocha");
 
-	grunt.registerTask("default", ["clean", "build", "uglify", "mocha"]);
+	grunt.registerTask("default", ["clean", "build", "uglify", "nodeunit"]);
 	grunt.registerTask("build", ["jshint", "fsinline", "rollup", "copy:main", "clean"]);
-	grunt.registerTask("test", ["jshint", "mocha"]);
+	grunt.registerTask("test", ["jshint", "nodeunit"]);
 
 };

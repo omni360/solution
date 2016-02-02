@@ -11,6 +11,7 @@ import THREE from "three";
  * @param {Number} [options.resolution=1.0] - The size of the generated perturbation map, relative to the main render size.
  * @param {Vector2} [options.rollOffSpeed] - The droplet roll off speed.
  * @param {Vector2} [options.waveStrength] - The sine and cosine wave distortion strength.
+ * @param {Boolean} [options.highQuality] - The effect quality. If set to true, double the amount of noise values will be computed.
  * @param {Number} [options.speed] - The effect's animation speed.
  */
 
@@ -57,7 +58,7 @@ export function DistortionPass(options) {
 	 * @private
 	 */
 
-	this.noiseMaterial = new NoiseMaterial();
+	this.noiseMaterial = new NoiseMaterial(options.highQuality);
 
 	/**
 	 * Distortion shader material.
@@ -68,9 +69,10 @@ export function DistortionPass(options) {
 	 */
 
 	this.distortionMaterial = new DistortionMaterial({
+		perturbMap: this.renderTargetPerturb,
 		rollOffSpeed: options.rollOffSpeed,
 		waveStrength: options.waveStrength,
-		perturbMap: this.renderTargetPerturb
+		tint: options.color
 	});
 
 	/**
@@ -135,7 +137,6 @@ Object.defineProperty(DistortionPass.prototype, "dissolve", {
 			this.distortionMaterial.uniforms.resetTimer.value = 0.0;
 			this.distortionMaterial.uniforms.time.value = Math.random() * 1000.0;
 			this.noiseMaterial.uniforms.randomTime.value = Math.random() * 10.0 - 1.0;
-			//this.distortionMaterial.uniforms.randomTime.value = this.noiseMaterial.uniforms.randomTime.value;
 
 		}
 
@@ -157,14 +158,16 @@ var dt = 1.0 / 60.0;
 
 DistortionPass.prototype.render = function(renderer, writeBuffer, readBuffer) {
 
-	this.distortionMaterial.uniforms.tDiffuse.value = readBuffer;
-	this.distortionMaterial.uniforms.time.value += dt;
+	var t = dt * this.speed;
 
-	//this.renderPerturbationMap(renderer);
+	this.distortionMaterial.uniforms.tDiffuse.value = readBuffer;
+	this.distortionMaterial.uniforms.time.value += t;
+
+	//this.renderPerturbationMap(renderer); // Debug.
 
 	if(this.dissolve && this.distortionMaterial.uniforms.resetTimer.value <= this.dissolutionEnd) {
 
-		this.distortionMaterial.uniforms.resetTimer.value += dt;
+		this.distortionMaterial.uniforms.resetTimer.value += t;
 		this.renderPerturbationMap(renderer);
 
 	}
@@ -178,6 +181,27 @@ DistortionPass.prototype.render = function(renderer, writeBuffer, readBuffer) {
 		renderer.render(this.scene, this.camera, writeBuffer, false);
 
 	}
+
+};
+
+/**
+ * Renders a perturbation map for the droplets.
+ *
+ * @method renderPerturbationMap
+ * @param {WebGLRenderer} renderer - The renderer to use.
+ * @param {Number} size - The texture size.
+ * @private
+ */
+
+DistortionPass.prototype.renderPerturbationMap = function(renderer) {
+
+	this.quad.material = this.noiseMaterial;
+	this.noiseMaterial.uniforms.time.value = this.distortionMaterial.uniforms.time.value;
+
+	//renderer.render(this.scene, this.camera); // Renders the perturb map to screen.
+	renderer.render(this.scene, this.camera, this.renderTargetPerturb, false);
+
+	this.quad.material = this.distortionMaterial;
 
 };
 
@@ -197,33 +221,9 @@ DistortionPass.prototype.setSize = function(width, height) {
 	if(width <= 0) { width = 1; }
 	if(height <= 0) { height = 1; }
 
-	//this.distortionMaterial.uniforms.tWidth.value = width;
-	//this.distortionMaterial.uniforms.tHeight.value = height;
-
 	this.noiseMaterial.uniforms.tWidth.value = width;
 	this.noiseMaterial.uniforms.tHeight.value = height;
 
 	this.renderTargetPerturb.setSize(width, height);
-
-};
-
-/**
- * Renders a perturbation map for the droplets.
- *
- * @method renderPerturbationMap
- * @param {WebGLRenderer} renderer - The renderer to use.
- * @param {Number} size - The texture size.
- * @private
- */
-
-DistortionPass.prototype.renderPerturbationMap = function(renderer) {
-
-	this.quad.material = this.noiseMaterial;
-	this.noiseMaterial.uniforms.time.value = this.distortionMaterial.uniforms.time.value;
-
-	//renderer.render(this.scene, this.camera); // Debug.
-	renderer.render(this.scene, this.camera, this.renderTargetPerturb, true);
-
-	this.quad.material = this.distortionMaterial;
 
 };

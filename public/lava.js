@@ -8,7 +8,6 @@ window.addEventListener("load", function loadAssets() {
 
 	var loadingManager = new THREE.LoadingManager();
 	var textureLoader = new THREE.TextureLoader(loadingManager);
-	var modelLoader = new THREE.ObjectLoader(loadingManager);
 
 	var assets = {};
 
@@ -18,7 +17,7 @@ window.addEventListener("load", function loadAssets() {
 
 	};
 
-	textureLoader.load("textures/tex12.png", function(texture) {
+	textureLoader.load("textures/noise.png", function(texture) {
 
 		texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 		assets.noiseMapLava = texture;
@@ -93,7 +92,7 @@ function setupScene(assets) {
 		advection: 0.77,
 		intensity: 1.4,
 		octaveScale: new THREE.Vector2(2.0, 1.9),
-		lavaColor: new THREE.Color(0.2, 0.07, 0.01)
+		color: new THREE.Color(0.2, 0.07, 0.01)
 	});
 
 	material.uniforms.offsetRepeat.value.set(0, 0, 75, 75);
@@ -139,7 +138,7 @@ function setupScene(assets) {
 
 	var params = {
 		"time scale": material.uniforms.timeScale.value,
-		"primary speed" : material.uniforms.primarySpeed.value,
+		"primary speed": material.uniforms.primarySpeed.value,
 		"secondary speed": material.uniforms.secondarySpeed.value,
 		"displacement": material.uniforms.displacement.value,
 		"advection": material.uniforms.advection.value,
@@ -155,7 +154,7 @@ function setupScene(assets) {
 	gui.add(params, "primary speed").min(0.0).max(4.0).step(0.1).onChange(function() { material.uniforms.primarySpeed.value = params["primary speed"]; });
 	gui.add(params, "secondary speed").min(0.0).max(4.0).step(0.1).onChange(function() { material.uniforms.secondarySpeed.value = params["secondary speed"]; });
 	gui.add(params, "displacement").min(0.0).max(3.0).step(0.1).onChange(function() { material.uniforms.displacement.value = params["displacement"]; });
-	gui.add(params, "advection").min(0.0).max(1.0).step(0.01).onChange(function() { material.uniforms.advection.value = params["advection"]; });
+	gui.add(params, "advection").min(-1.0).max(1.0).step(0.01).onChange(function() { material.uniforms.advection.value = params["advection"]; });
 
 	var f = gui.addFolder("Octave scale");
 	f.add(params, "octave scale X").min(0.0).max(4.0).step(0.1).onChange(function() { material.uniforms.octaveScale.value.x = params["octave scale X"]; });
@@ -167,7 +166,7 @@ function setupScene(assets) {
 
 	gui.add(params, "post processing").onChange(function() {
 
-		pp = params["post processing"];
+		var pp = params["post processing"];
 
 		bloomPass.enabled = pp;
 		filmPass.enabled = pp;
