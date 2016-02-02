@@ -1,6 +1,6 @@
 {
 	"name": "solution",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"description": "An animation library for different types of liquids.",
 	"homepage": "https://github.com/vanruesc/solution",
 	"main": "build/index.js",
