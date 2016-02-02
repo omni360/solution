@@ -14,12 +14,17 @@
 
 uniform vec4 offsetRepeat;
 
+//varying float vViewTheta;
 varying vec2 vUv;
+
+//const vec2 Z = vec2(0.0, 1.0);
 
 void main() {
 
+	vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+	//vViewTheta = clamp((normalize(cameraPosition - position).z + 1.0) * 0.5, 0.0, 1.0);
 	vUv = uv * offsetRepeat.zw + offsetRepeat.xy;
-	gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+	gl_Position = projectionMatrix * mvPosition;
 
 	#ifdef USE_LOGDEPTHBUF
 

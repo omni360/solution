@@ -44,6 +44,7 @@ uniform vec2 octaveScale;
 uniform vec3 lavaColor;
 uniform sampler2D noiseMap;
 
+//varying float vViewTheta;
 varying vec2 vUv;
 
 float hash21(vec2 n) {
@@ -57,7 +58,11 @@ mat2 makem2(float theta) {
 	float c = cos(theta);
 	float s = sin(theta);
 
+	//float a = mix(c, s, vViewTheta);
+	//float b = mix(s, c, vViewTheta);
+
 	return mat2(c, -s, s, c);
+	//return mat2(a, -b, b, a);
 
 }
 
