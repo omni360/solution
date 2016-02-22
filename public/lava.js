@@ -113,19 +113,19 @@ function setupScene(assets) {
 	//renderPass.renderToScreen = true;
 
 	var bloomPass = new POSTPROCESSING.BloomPass({
-		strength: 1.75,
-		kernelSize: 25,
-		sigma: 4,
-		resolution: 256
+		resolutionScale: 0.5,
+		blurriness: 1.0,
+		strength: 1.6
 	});
 
+	bloomPass.toneMappingMaterial.uniforms.averageLuminance.value = 0.075;
 	//bloomPass.renderToScreen = true;
 
 	var filmPass = new POSTPROCESSING.FilmPass({
 		grayscale: false,
 		noiseIntensity: 0.35,
 		scanlinesIntensity: 0.95,
-		scanlinesCount: 2048.0
+		scanlines: 2.0
 	});
 
 	filmPass.renderToScreen = true;
@@ -172,7 +172,6 @@ function setupScene(assets) {
 		filmPass.enabled = pp;
 
 		renderPass.renderToScreen = !pp;
-		filmPass.renderToScreen = pp;
 
 	});
 
@@ -202,6 +201,8 @@ function setupScene(assets) {
 
 	(function render(now) {
 
+		requestAnimationFrame(render);
+
 		stats.begin();
 
 		composer.render();
@@ -209,8 +210,6 @@ function setupScene(assets) {
 		time.value += dt;
 
 		stats.end();
-
-		requestAnimationFrame(render);
 
 	}());
 

@@ -43,7 +43,7 @@ module.exports = function(grunt) {
 					three: "THREE"
 				},
 				plugins: [
-					require("rollup-plugin-npm")({
+					require("rollup-plugin-node-resolve")({
 						jsnext: true,
 						skip: ["three"]
 					})
@@ -113,7 +113,8 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks("grunt-fs-inline");
 	grunt.loadNpmTasks("grunt-rollup");
 
-	grunt.registerTask("default", ["clean", "build", "uglify", "nodeunit"]);
+	//grunt.registerTask("default", ["clean", "build", "uglify", "nodeunit"]);
+	grunt.registerTask("default", ["clean", "build", "nodeunit"]);
 	grunt.registerTask("build", ["jshint", "fsinline", "rollup", "copy:main", "clean"]);
 	grunt.registerTask("test", ["jshint", "nodeunit"]);
 

@@ -134,7 +134,7 @@ function setupScene(assets) {
 	composer.addPass(renderPass);
 
 	var pass = new SOLUTION.DistortionPass({
-		resolution: 0.4,
+		resolutionScale: 0.4,
 		rollOffSpeed: new THREE.Vector2(0.5, 0.004),
 		waveStrength: new THREE.Vector2(0.25, 0.5),
 		color: new THREE.Color(0.8, 0.07, 0.01),
@@ -215,23 +215,24 @@ function setupScene(assets) {
 	 */
 
 	var TWO_PI = 2.0 * Math.PI;
+	var dt = 1.0 / 60.0;
 
 	(function render(now) {
+
+		requestAnimationFrame(render);
 
 		stats.begin();
 
 		object.rotation.x += 0.0005;
 		object.rotation.y += 0.001;
 
-		composer.render();
+		composer.render(dt);
 
 		// Prevent overflow.
 		if(object.rotation.x >= TWO_PI) { object.rotation.x -= TWO_PI; }
 		if(object.rotation.y >= TWO_PI) { object.rotation.y -= TWO_PI; }
 
 		stats.end();
-
-		requestAnimationFrame(render);
 
 	}());
 

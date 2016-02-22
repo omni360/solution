@@ -399,7 +399,7 @@
                     "optional": true,
                     "props": [
                         {
-                            "name": "resolution",
+                            "name": "resolutionScale",
                             "description": "- The size of the generated perturbation map, relative to the main render size.",
                             "type": "Number",
                             "optional": true,
@@ -644,6 +644,11 @@
                     "name": "readBuffer",
                     "description": "- The read buffer.",
                     "type": "WebGLRenderTarget"
+                },
+                {
+                    "name": "delta",
+                    "description": "- The render delta time.",
+                    "type": "Number"
                 }
             ],
             "class": "DistortionPass",
@@ -651,7 +656,7 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 187,
+            "line": 185,
             "description": "Renders a perturbation map for the droplets.",
             "itemtype": "method",
             "name": "renderPerturbationMap",
@@ -674,7 +679,7 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 208,
+            "line": 206,
             "description": "Updates the perturbation map render size.",
             "itemtype": "method",
             "name": "setSize",
@@ -892,6 +897,21 @@
                     "name": "renderer",
                     "description": "- The renderer to use.",
                     "type": "WebGLRenderer"
+                },
+                {
+                    "name": "writeBuffer",
+                    "description": "- The write buffer.",
+                    "type": "WebGLRenderTarget"
+                },
+                {
+                    "name": "readBuffer",
+                    "description": "- The read buffer.",
+                    "type": "WebGLRenderTarget"
+                },
+                {
+                    "name": "delta",
+                    "description": "- The render delta time.",
+                    "type": "Number"
                 }
             ],
             "class": "WaterPass",

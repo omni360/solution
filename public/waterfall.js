@@ -163,14 +163,14 @@ function setupScene(assets) {
 
 	(function render(now) {
 
+		requestAnimationFrame(render);
+
 		stats.begin();
 
 		renderer.render(scene, camera);
 		time.value += dt;
 
 		stats.end();
-
-		requestAnimationFrame(render);
 
 	}());
 

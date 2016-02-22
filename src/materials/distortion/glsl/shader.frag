@@ -10,7 +10,7 @@ uniform vec3 tint;
 
 varying vec2 vUv;
 
-const float fade = 12.0;
+const float FADE = 12.0;
 
 /*vec2 coordRot(vec2 tc, float angle) {
 
@@ -66,13 +66,6 @@ void main() {
 
 	vec2 wave = vec2(0.0);
 
-	vec2 waveCoordR;
-	vec2 waveCoordG;
-	vec2 waveCoordB;
-	vec2 dropCoordR;
-	vec2 dropCoordG;	
-	vec2 dropCoordB;
-
 	if(resetTimer < 1.0) {
 
 		wave.x = sin((vUv.x - vUv.y * 2.0) - time * 1.5) * waveStrength.x;
@@ -89,10 +82,10 @@ void main() {
 
 	// Texture edge bleed removal.
 	vec2 distortFade = vec2(0.0);
-	distortFade.s = clamp(vUv.s * fade, 0.0, 1.0);
-	distortFade.s -= clamp(1.0 - (1.0 - vUv.s) * fade, 0.0, 1.0);
-	distortFade.t = clamp(vUv.t * fade, 0.0, 1.0);
-	distortFade.t -= clamp(1.0 - (1.0 - vUv.t) * fade, 0.0, 1.0); 
+	distortFade.s = clamp(vUv.s * FADE, 0.0, 1.0);
+	distortFade.s -= clamp(1.0 - (1.0 - vUv.s) * FADE, 0.0, 1.0);
+	distortFade.t = clamp(vUv.t * FADE, 0.0, 1.0);
+	distortFade.t -= clamp(1.0 - (1.0 - vUv.t) * FADE, 0.0, 1.0); 
 
 	//vec2 rotCoordsR = coordRot(vUv, angle?);
 
@@ -100,13 +93,13 @@ void main() {
 	wave = wave * dfade;
 	droplets = droplets * dfade;
 
-	waveCoordR = vUv - wave * 0.004;
-	waveCoordG = vUv - wave * 0.006;	
-	waveCoordB = vUv - wave * 0.008;
+	vec2 waveCoordR = vUv - wave * 0.004;
+	vec2 waveCoordG = vUv - wave * 0.006;	
+	vec2 waveCoordB = vUv - wave * 0.008;
 
-	dropCoordR = vUv - droplets * 1.1;
-	dropCoordG = vUv - droplets * 1.2;	
-	dropCoordB = vUv - droplets * 1.3;	
+	vec2 dropCoordR = vUv - droplets * 1.1;
+	vec2 dropCoordG = vUv - droplets * 1.2;	
+	vec2 dropCoordB = vUv - droplets * 1.3;	
 
 	vec3 dropletColor = vec3(0.0);	
 	dropletColor.r = texture2D(tDiffuse, dropCoordR).r;

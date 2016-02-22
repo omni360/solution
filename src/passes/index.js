@@ -5,5 +5,5 @@
  * @submodule passes
  */
 
-export { WaterPass } from "./water";
 export { DistortionPass } from "./distortion";
+export { WaterPass } from "./water";

@@ -45,7 +45,7 @@ export function WaterPass(scene, camera, lightPosition, options) {
 	 * @type WebGLRenderTarget
 	 */
 
-	var resolution = (options.resolution === undefined) ? 256 : options.resolution;
+	let resolution = (options.resolution === undefined) ? 256 : options.resolution;
 
 	if(options.renderTarget === undefined) {
 
@@ -163,9 +163,9 @@ export function WaterPass(scene, camera, lightPosition, options) {
 	geometry.addAttribute("uv", new THREE.BufferAttribute(uvs, 2));
 */
 
-	var geometry = new THREE.PlaneBufferGeometry(1, 1);
+	let geometry = new THREE.PlaneBufferGeometry(1, 1);
 
-	var tangents = new Float32Array(4 * 4);
+	let tangents = new Float32Array(4 * 4);
 	tangents[0] = 1; tangents[1] = 0; tangents[2] = 0; tangents[3] = -1;
 	tangents[4] = 1; tangents[5] = 0; tangents[6] = 0; tangents[7] = -1;
 	tangents[8] = 1; tangents[9] = 0; tangents[10] = 0; tangents[11] = -1;
@@ -279,24 +279,24 @@ WaterPass.prototype.constructor = WaterPass;
  *
  * @method render
  * @param {WebGLRenderer} renderer - The renderer to use.
+ * @param {WebGLRenderTarget} writeBuffer - The write buffer.
+ * @param {WebGLRenderTarget} readBuffer - The read buffer.
+ * @param {Number} delta - The render delta time.
  */
 
-// Make-shift solution.
-var dt = 1.0 / 60.0;
-
-WaterPass.prototype.render = function(renderer) {
+WaterPass.prototype.render = function(renderer, writeBuffer, readBuffer, delta) {
 
 	if(this.mesh.matrixNeedsUpdate) { this.update(); }
 	//this.mesh.matrixNeedsUpdate = true;
 
-	var visible = this.material.visible;
+	let visible = this.material.visible;
 	this.material.visible = false;
 
 	if(this.renderReflection) { renderer.render(this.scene, this.reflectionCamera, this.reflectionTexture, true); }
 	if(this.renderRefraction) { renderer.render(this.scene, this.refractionCamera, this.refractionTexture, true); }
 
 	this.material.visible = visible;
-	if(this.material !== null) { this.material.uniforms.time.value += dt; }
+	if(this.material !== null) { this.material.uniforms.time.value += delta; }
 
 };
 
@@ -307,9 +307,9 @@ WaterPass.prototype.render = function(renderer) {
  * @private
  */
 
-var view = new THREE.Vector3();
-var target = new THREE.Vector3();
-var q = new THREE.Vector4();
+const view = new THREE.Vector3();
+const target = new THREE.Vector3();
+const q = new THREE.Vector4();
 
 WaterPass.prototype.update = function() {
 
@@ -369,7 +369,7 @@ WaterPass.prototype.update = function() {
 
 	this.clipPlane.set(this.plane.normal.x, this.plane.normal.y, this.plane.normal.z, this.plane.constant);
 
-	var projectionMatrix = this.reflectionCamera.projectionMatrix;
+	let projectionMatrix = this.reflectionCamera.projectionMatrix;
 
 	q.x = (Math.sign(this.clipPlane.x) + projectionMatrix.elements[8]) / projectionMatrix.elements[0];
 	q.y = (Math.sign(this.clipPlane.y) + projectionMatrix.elements[9]) / projectionMatrix.elements[5];
@@ -377,7 +377,7 @@ WaterPass.prototype.update = function() {
 	q.w = (1.0 + projectionMatrix.elements[10]) / projectionMatrix.elements[14];
 
 	// Calculate the scaled plane vector.
-	var c = this.clipPlane.multiplyScalar(2.0 / this.clipPlane.dot(q));
+	let c = this.clipPlane.multiplyScalar(2.0 / this.clipPlane.dot(q));
 
 	// Replacing the third row of the projection matrix.
 	projectionMatrix.elements[2] = c.x;
