@@ -5,15 +5,15 @@
  */
 
 export {
-	WaterMaterial,
-	WaterfallMaterial,
-	/*OceanMaterial,*/
-	LavaMaterial,
 	DistortionMaterial,
-	NoiseMaterial
+	LavaMaterial,
+	NoiseMaterial,
+	/*OceanMaterial,*/
+	WaterMaterial,
+	WaterfallMaterial
 } from "./materials";
 
 export {
-	WaterPass,
-	DistortionPass
+	DistortionPass,
+	WaterPass
 } from "./passes";
