@@ -189,15 +189,17 @@ function setupScene(assets) {
 	 * Animation loop.
 	 */
 
+	var dt = 1.0 / 60.0;
+
 	(function render(now) {
+
+		requestAnimationFrame(render);
 
 		stats.begin();
 
-		composer.render(scene, camera);
+		composer.render(dt);
 
 		stats.end();
-
-		requestAnimationFrame(render);
 
 	}());
 
