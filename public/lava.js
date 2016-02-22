@@ -125,7 +125,7 @@ function setupScene(assets) {
 		grayscale: false,
 		noiseIntensity: 0.35,
 		scanlinesIntensity: 0.95,
-		scanlines: 2.0
+		scanlines: 1.4
 	});
 
 	filmPass.renderToScreen = true;
