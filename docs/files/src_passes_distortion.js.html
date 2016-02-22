@@ -99,7 +99,7 @@ import THREE from &quot;three&quot;;
  * @class DistortionPass
  * @constructor
  * @param {Object} [options] - The options.
- * @param {Number} [options.resolution=1.0] - The size of the generated perturbation map, relative to the main render size.
+ * @param {Number} [options.resolutionScale=1.0] - The size of the generated perturbation map, relative to the main render size.
  * @param {Vector2} [options.rollOffSpeed] - The droplet roll off speed.
  * @param {Vector2} [options.waveStrength] - The sine and cosine wave distortion strength.
  * @param {Boolean} [options.highQuality] - The effect quality. If set to true, double the amount of noise values will be computed.
@@ -139,7 +139,7 @@ export function DistortionPass(options) {
 	 * @type Number
 	 */
 
-	this.resolutionScale = (options.resolution === undefined) ? 1.0 : THREE.Math.clamp(options.resolution, 0.0, 1.0);
+	this.resolutionScale = (options.resolutionScale === undefined) ? 1.0 : THREE.Math.clamp(options.resolutionScale, 0.0, 1.0);
 
 	/**
 	 * Noise shader material.
@@ -242,14 +242,12 @@ Object.defineProperty(DistortionPass.prototype, &quot;dissolve&quot;, {
  * @param {WebGLRenderer} renderer - The renderer to use.
  * @param {WebGLRenderTarget} writeBuffer - The write buffer.
  * @param {WebGLRenderTarget} readBuffer - The read buffer.
+ * @param {Number} delta - The render delta time.
  */
 
-// Time constant to add per frame.
-var dt = 1.0 / 60.0;
+DistortionPass.prototype.render = function(renderer, writeBuffer, readBuffer, delta) {
 
-DistortionPass.prototype.render = function(renderer, writeBuffer, readBuffer) {
-
-	var t = dt * this.speed;
+	let t = delta * this.speed;
 
 	this.distortionMaterial.uniforms.tDiffuse.value = readBuffer;
 	this.distortionMaterial.uniforms.time.value += t;
