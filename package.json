@@ -54,16 +54,20 @@
 	},
 
 	"devDependencies": {
-		"grunt": "0.x.x",
+		"grunt": ">= 0.4.0",
 		"grunt-contrib-nodeunit": "x.x.x",
-		"grunt-contrib-jshint": "0.x.x",
-		"grunt-contrib-uglify": "0.x.x",
-		"grunt-contrib-yuidoc": "0.x.x",
-		"grunt-contrib-watch": "0.x.x",
-		"grunt-contrib-clean": "0.x.x",
-		"grunt-contrib-copy": "0.x.x",
+		"grunt-contrib-jshint": "x.x.x",
+		"grunt-contrib-uglify": "x.x.x",
+		"grunt-contrib-yuidoc": "x.x.x",
+		"grunt-contrib-watch": "x.x.x",
+		"grunt-contrib-clean": "x.x.x",
+		"grunt-contrib-copy": "x.x.x",
 		"grunt-fs-inline": "x.x.x",
 		"grunt-rollup": "x.x.x",
-		"rollup-plugin-npm": "x.x.x"
+		"rollup-plugin-node-resolve": "x.x.x"
+	},
+
+	"peerDependencies": {
+		"grunt": ">= 0.4.0"
 	}
 }
