@@ -1,13 +1,13 @@
 uniform float tWidth;
 uniform float tHeight;
 
+uniform float texelSize;
+uniform float halfTexelSize;
+
 uniform float time;
 uniform float randomTime;
 
 varying vec2 vUv;
-
-const float permTexUnit = 1.0 / 256.0;
-const float permTexUnitHalf = 0.5 / 256.0;
 
 vec3 randRGB(vec2 tc) {
 
@@ -35,9 +35,9 @@ float fade(float t) {
 
 float perlinNoise(vec3 p) {
 
-	// Integer part, scaled so +1 moves permTexUnit texel.
+	// Integer part, scaled so +1 moves texelSize texel.
 	// Add 1/2 texel to sample texel centers.
-	vec3 pi = permTexUnit * floor(p) + permTexUnitHalf;
+	vec3 pi = texelSize * floor(p) + halfTexelSize;
 
 	// Fractional part for interpolation.
 	vec3 pf = fract(p);
@@ -46,28 +46,28 @@ float perlinNoise(vec3 p) {
 	float perm00 = randA(pi.xy);
 	vec3  grad000 = randRGB(vec2(perm00, pi.z)) * 4.0 - 1.0;
 	float n000 = dot(grad000, pf);
-	vec3  grad001 = randRGB(vec2(perm00, pi.z + permTexUnit)) * 4.0 - 1.0;
+	vec3  grad001 = randRGB(vec2(perm00, pi.z + texelSize)) * 4.0 - 1.0;
 	float n001 = dot(grad001, pf - vec3(0.0, 0.0, 1.0));
 
 	// Noise contributions from (x=0, y=1), z=0 and z=1.
-	float perm01 = randA(pi.xy + vec2(0.0, permTexUnit));
+	float perm01 = randA(pi.xy + vec2(0.0, texelSize));
 	vec3  grad010 = randRGB(vec2(perm01, pi.z)) * 4.0 - 1.0;
 	float n010 = dot(grad010, pf - vec3(0.0, 1.0, 0.0));
-	vec3  grad011 = randRGB(vec2(perm01, pi.z + permTexUnit)) * 4.0 - 1.0;
+	vec3  grad011 = randRGB(vec2(perm01, pi.z + texelSize)) * 4.0 - 1.0;
 	float n011 = dot(grad011, pf - vec3(0.0, 1.0, 1.0));
 
 	// Noise contributions from (x=1, y=0), z=0 and z=1.
-	float perm10 = randA(pi.xy + vec2(permTexUnit, 0.0));
+	float perm10 = randA(pi.xy + vec2(texelSize, 0.0));
 	vec3  grad100 = randRGB(vec2(perm10, pi.z)) * 4.0 - 1.0;
 	float n100 = dot(grad100, pf - vec3(1.0, 0.0, 0.0));
-	vec3  grad101 = randRGB(vec2(perm10, pi.z + permTexUnit)) * 4.0 - 1.0;
+	vec3  grad101 = randRGB(vec2(perm10, pi.z + texelSize)) * 4.0 - 1.0;
 	float n101 = dot(grad101, pf - vec3(1.0, 0.0, 1.0));
 
 	// Noise contributions from (x=1, y=1), z=0 and z=1.
-	float perm11 = randA(pi.xy + vec2(permTexUnit));
+	float perm11 = randA(pi.xy + vec2(texelSize));
 	vec3  grad110 = randRGB(vec2(perm11, pi.z)) * 4.0 - 1.0;
 	float n110 = dot(grad110, pf - vec3(1.0, 1.0, 0.0));
-	vec3  grad111 = randRGB(vec2(perm11, pi.z + permTexUnit)) * 4.0 - 1.0;
+	vec3  grad111 = randRGB(vec2(perm11, pi.z + texelSize)) * 4.0 - 1.0;
 	float n111 = dot(grad111, pf - vec3(1.0, 1.0, 1.0));
 
 	// Blend contributions along x.
