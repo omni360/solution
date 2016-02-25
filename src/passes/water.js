@@ -279,12 +279,11 @@ WaterPass.prototype.constructor = WaterPass;
  *
  * @method render
  * @param {WebGLRenderer} renderer - The renderer to use.
- * @param {WebGLRenderTarget} writeBuffer - The write buffer.
- * @param {WebGLRenderTarget} readBuffer - The read buffer.
+ * @param {WebGLRenderTarget} buffer - The read/write buffer. Ignored in this pass.
  * @param {Number} delta - The render delta time.
  */
 
-WaterPass.prototype.render = function(renderer, writeBuffer, readBuffer, delta) {
+WaterPass.prototype.render = function(renderer, buffer, delta) {
 
 	if(this.mesh.matrixNeedsUpdate) { this.update(); }
 	//this.mesh.matrixNeedsUpdate = true;

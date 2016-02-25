@@ -22,6 +22,9 @@ export function NoiseMaterial(highQuality) {
 			tWidth: {type: "f", value: 0},
 			tHeight: {type: "f", value: 0},
 
+			texelSize: {type: "f", value: 1.0},
+			halfTexelSize: {type: "f", value: 0.5},
+
 			time: {type: "f", value: 0.0},
 			randomTime: {type: "f", value: Math.random() * 10.0 - 1.0}
 

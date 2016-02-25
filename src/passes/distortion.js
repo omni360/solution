@@ -8,7 +8,7 @@ import THREE from "three";
  * @class DistortionPass
  * @constructor
  * @param {Object} [options] - The options.
- * @param {Number} [options.resolutionScale=1.0] - The size of the generated perturbation map, relative to the main render size.
+ * @param {Number} [options.resolution=512] - The size of the generated perturbation map, power of two.
  * @param {Vector2} [options.rollOffSpeed] - The droplet roll off speed.
  * @param {Vector2} [options.waveStrength] - The sine and cosine wave distortion strength.
  * @param {Boolean} [options.highQuality] - The effect quality. If set to true, double the amount of noise values will be computed.
@@ -39,16 +39,6 @@ export function DistortionPass(options) {
 	});
 
 	this.renderTargetPerturb.texture.generateMipmaps = false;
-
-	/**
-	 * The resolution scale, relative to the on-screen render size.
-	 * You have to call the reset method of the EffectComposer after modifying this field.
-	 *
-	 * @property resolutionScale
-	 * @type Number
-	 */
-
-	this.resolutionScale = (options.resolutionScale === undefined) ? 1.0 : THREE.Math.clamp(options.resolutionScale, 0.0, 1.0);
 
 	/**
 	 * Noise shader material.
@@ -105,6 +95,9 @@ export function DistortionPass(options) {
 
 	this._dissolve = false;
 
+	// Set the resolution if already provided.
+	this.resolution = (options.resolution === undefined) ? 512 : options.resolution;
+
 	// Set the material for the rendering quad.
 	this.quad.material = this.distortionMaterial;
 
@@ -112,6 +105,36 @@ export function DistortionPass(options) {
 
 DistortionPass.prototype = Object.create(Pass.prototype);
 DistortionPass.prototype.constructor = DistortionPass;
+
+/**
+ * The resolution of the noise texture.
+ * The value should be a power of two.
+ *
+ * @property resolution
+ * @type Number
+ * @default 512
+ */
+
+Object.defineProperty(DistortionPass.prototype, "resolution", {
+
+	get: function() { return this.renderTargetPerturb.width; },
+
+	set: function(x) {
+
+		if(typeof x === "number" && x > 0) {
+
+			this.noiseMaterial.uniforms.tWidth.value = x;
+			this.noiseMaterial.uniforms.tHeight.value = x;
+			this.noiseMaterial.uniforms.texelSize.value = 1.0 / x;
+			this.noiseMaterial.uniforms.halfTexelSize.value = 0.5 / x;
+
+			this.renderTargetPerturb.setSize(x, x);
+
+		}
+
+	}
+
+});
 
 /**
  * Dissolution flag.
@@ -145,20 +168,19 @@ Object.defineProperty(DistortionPass.prototype, "dissolve", {
 });
 
 /**
- * Renders the scene.
+ * Renders the effect.
  *
  * @method render
  * @param {WebGLRenderer} renderer - The renderer to use.
- * @param {WebGLRenderTarget} writeBuffer - The write buffer.
- * @param {WebGLRenderTarget} readBuffer - The read buffer.
+ * @param {WebGLRenderTarget} buffer - The read/write buffer.
  * @param {Number} delta - The render delta time.
  */
 
-DistortionPass.prototype.render = function(renderer, writeBuffer, readBuffer, delta) {
+DistortionPass.prototype.render = function(renderer, buffer, delta) {
 
 	let t = delta * this.speed;
 
-	this.distortionMaterial.uniforms.tDiffuse.value = readBuffer;
+	this.distortionMaterial.uniforms.tDiffuse.value = buffer;
 	this.distortionMaterial.uniforms.time.value += t;
 
 	//this.renderPerturbationMap(renderer); // Debug.
@@ -176,7 +198,7 @@ DistortionPass.prototype.render = function(renderer, writeBuffer, readBuffer, de
 
 	} else {
 
-		renderer.render(this.scene, this.camera, writeBuffer, false);
+		renderer.render(this.scene, this.camera, buffer, false);
 
 	}
 
@@ -196,6 +218,7 @@ DistortionPass.prototype.renderPerturbationMap = function(renderer) {
 	this.quad.material = this.noiseMaterial;
 	this.noiseMaterial.uniforms.time.value = this.distortionMaterial.uniforms.time.value;
 
+	// Slow first time, maybe introduce init hook?
 	//renderer.render(this.scene, this.camera); // Renders the perturb map to screen.
 	renderer.render(this.scene, this.camera, this.renderTargetPerturb, false);
 
@@ -219,9 +242,9 @@ DistortionPass.prototype.setSize = function(width, height) {
 	if(width <= 0) { width = 1; }
 	if(height <= 0) { height = 1; }
 
-	this.noiseMaterial.uniforms.tWidth.value = width;
-	this.noiseMaterial.uniforms.tHeight.value = height;
+	this.noiseMaterial.uniforms.tWidth.value = 512;
+	this.noiseMaterial.uniforms.tHeight.value = 512;
 
-	this.renderTargetPerturb.setSize(width, height);
+	this.renderTargetPerturb.setSize(512, 512);
 
 };

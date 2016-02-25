@@ -134,10 +134,9 @@ function setupScene(assets) {
 	composer.addPass(renderPass);
 
 	var pass = new SOLUTION.DistortionPass({
-		resolutionScale: 0.4,
+		resolution: 512,
 		rollOffSpeed: new THREE.Vector2(0.5, 0.004),
 		waveStrength: new THREE.Vector2(0.25, 0.5),
-		color: new THREE.Color(0.8, 0.07, 0.01),
 		highQuality: false
 	});
 
@@ -148,7 +147,7 @@ function setupScene(assets) {
 
 	var params = {
 		"speed": pass.speed,
-		"resolution": pass.resolutionScale,
+		"resolution": Math.round(Math.log(pass.resolution) / Math.log(2)),
 		"drops": pass.distortionMaterial.uniforms.rollOffSpeed.value.x,
 		"droplets": pass.distortionMaterial.uniforms.rollOffSpeed.value.y,
 		"sine": pass.distortionMaterial.uniforms.waveStrength.value.x,
@@ -159,11 +158,11 @@ function setupScene(assets) {
 	};
 
 	gui.add(params, "speed").min(0.0).max(3.0).step(0.01).onChange(function() { pass.speed = params["speed"]; });
-	gui.add(params, "resolution").min(0.0).max(1.0).step(0.01).onChange(function() { pass.resolutionScale = params["resolution"]; composer.reset(); });
+	gui.add(params, "resolution").min(6).max(11).step(1).onChange(function() { pass.resolution = Math.pow(2, params["resolution"]); });
 
 	var f = gui.addFolder("Roll-off speed");
-	f.add(params, "drops").min(0.5).max(3.0).step(0.01).onChange(function() { pass.distortionMaterial.uniforms.rollOffSpeed.value.x = params["drops"]; });
-	f.add(params, "droplets").min(0.004).max(0.1).step(0.001).onChange(function() { pass.distortionMaterial.uniforms.rollOffSpeed.value.y = params["droplets"]; });
+	f.add(params, "drops").min(0.5).max(1.5).step(0.01).onChange(function() { pass.distortionMaterial.uniforms.rollOffSpeed.value.x = params["drops"]; });
+	f.add(params, "droplets").min(0.0).max(0.05).step(0.001).onChange(function() { pass.distortionMaterial.uniforms.rollOffSpeed.value.y = params["droplets"]; });
 	f.open();
 
 	f = gui.addFolder("Wave strength");
@@ -179,7 +178,7 @@ function setupScene(assets) {
 		pass.enabled = false;
 		pass.noiseMaterial.dispose();
 		pass.noiseMaterial = new SOLUTION.NoiseMaterial(params["high quality"]);
-		composer.reset();
+		pass.resolution = Math.pow(2, params["resolution"]);
 		pass.enabled = true;
 		renderPass.renderToScreen = false;
 
@@ -203,10 +202,9 @@ function setupScene(assets) {
 		var width = window.innerWidth;
 		var height = window.innerHeight;
 
-		renderer.setSize(width, height);
+		composer.setSize(width, height);
 		camera.aspect = width / height;
 		camera.updateProjectionMatrix();
-		composer.reset();
 
 	});
 

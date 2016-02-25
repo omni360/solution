@@ -399,11 +399,11 @@
                     "optional": true,
                     "props": [
                         {
-                            "name": "resolutionScale",
-                            "description": "- The size of the generated perturbation map, relative to the main render size.",
+                            "name": "resolution",
+                            "description": "- The size of the generated perturbation map, power of two.",
                             "type": "Number",
                             "optional": true,
-                            "optdefault": "1.0"
+                            "optdefault": "512"
                         },
                         {
                             "name": "rollOffSpeed",
@@ -546,16 +546,6 @@
         {
             "file": "src\\passes\\distortion.js",
             "line": 43,
-            "description": "The resolution scale, relative to the on-screen render size.\nYou have to call the reset method of the EffectComposer after modifying this field.",
-            "itemtype": "property",
-            "name": "resolutionScale",
-            "type": "Number",
-            "class": "DistortionPass",
-            "module": "solution"
-        },
-        {
-            "file": "src\\passes\\distortion.js",
-            "line": 53,
             "description": "Noise shader material.",
             "itemtype": "property",
             "name": "noiseMaterial",
@@ -567,7 +557,7 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 63,
+            "line": 53,
             "description": "Distortion shader material.",
             "itemtype": "property",
             "name": "distortionMaterial",
@@ -579,7 +569,7 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 78,
+            "line": 68,
             "description": "The effect speed.",
             "itemtype": "property",
             "name": "speed",
@@ -589,7 +579,7 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 87,
+            "line": 77,
             "description": "Maximum duration of the dissolution effect in seconds.",
             "itemtype": "property",
             "name": "dissolutionEnd",
@@ -601,7 +591,7 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 97,
+            "line": 87,
             "description": "Dissolution flag.",
             "itemtype": "property",
             "name": "_dissolve",
@@ -614,7 +604,18 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 116,
+            "line": 109,
+            "description": "The resolution of the noise texture.\nThe value should be a power of two.",
+            "itemtype": "property",
+            "name": "resolution",
+            "type": "Number",
+            "default": "512",
+            "class": "DistortionPass",
+            "module": "solution"
+        },
+        {
+            "file": "src\\passes\\distortion.js",
+            "line": 139,
             "description": "Dissolution flag.\n\nSet to false for wavy distortion,\nset to true for dissolution into droplets.",
             "itemtype": "property",
             "name": "dissolve",
@@ -625,8 +626,8 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 147,
-            "description": "Renders the scene.",
+            "line": 170,
+            "description": "Renders the effect.",
             "itemtype": "method",
             "name": "render",
             "params": [
@@ -636,13 +637,8 @@
                     "type": "WebGLRenderer"
                 },
                 {
-                    "name": "writeBuffer",
-                    "description": "- The write buffer.",
-                    "type": "WebGLRenderTarget"
-                },
-                {
-                    "name": "readBuffer",
-                    "description": "- The read buffer.",
+                    "name": "buffer",
+                    "description": "- The read/write buffer.",
                     "type": "WebGLRenderTarget"
                 },
                 {
@@ -656,7 +652,7 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 185,
+            "line": 207,
             "description": "Renders a perturbation map for the droplets.",
             "itemtype": "method",
             "name": "renderPerturbationMap",
@@ -679,7 +675,7 @@
         },
         {
             "file": "src\\passes\\distortion.js",
-            "line": 206,
+            "line": 229,
             "description": "Updates the perturbation map render size.",
             "itemtype": "method",
             "name": "setSize",
@@ -899,13 +895,8 @@
                     "type": "WebGLRenderer"
                 },
                 {
-                    "name": "writeBuffer",
-                    "description": "- The write buffer.",
-                    "type": "WebGLRenderTarget"
-                },
-                {
-                    "name": "readBuffer",
-                    "description": "- The read buffer.",
+                    "name": "buffer",
+                    "description": "- The read/write buffer. Ignored in this pass.",
                     "type": "WebGLRenderTarget"
                 },
                 {
@@ -919,7 +910,7 @@
         },
         {
             "file": "src\\passes\\water.js",
-            "line": 303,
+            "line": 302,
             "description": "Updates the matrices.",
             "itemtype": "method",
             "name": "update",

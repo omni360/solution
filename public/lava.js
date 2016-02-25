@@ -125,7 +125,7 @@ function setupScene(assets) {
 		grayscale: false,
 		noiseIntensity: 0.35,
 		scanlinesIntensity: 0.95,
-		scanlines: 1.4
+		scanlines: 1.8
 	});
 
 	filmPass.renderToScreen = true;
@@ -186,10 +186,9 @@ function setupScene(assets) {
 		var width = window.innerWidth;
 		var height = window.innerHeight;
 
-		renderer.setSize(width, height);
+		composer.setSize(width, height);
 		camera.aspect = width / height;
 		camera.updateProjectionMatrix();
-		composer.reset();
 
 	});
 

@@ -1,5 +1,5 @@
 /**
- * solution v0.1.0 build Feb 22 2016
+ * solution v0.1.0 build Feb 25 2016
  * https://github.com/vanruesc/solution
  * Copyright 2016 Raoul van Rüschen, Zlib
  */
@@ -145,7 +145,7 @@
 	LavaMaterial.prototype.constructor = LavaMaterial;
 
 	var shader$2 = {
-		fragment: "uniform float tWidth;\r\nuniform float tHeight;\r\n\r\nuniform float time;\r\nuniform float randomTime;\r\n\r\nvarying vec2 vUv;\r\n\r\nconst float permTexUnit = 1.0 / 256.0;\r\nconst float permTexUnitHalf = 0.5 / 256.0;\r\n\r\nvec3 randRGB(vec2 tc) {\r\n\r\n\tfloat noise = sin(dot(tc, vec2(12.9898, 78.233))) * 43758.5453;\r\n\r\n\treturn vec3(\r\n\t\tfract(noise) * 2.0 - 1.0,\r\n\t\tfract(noise * 1.2154) * 2.0 - 1.0,\r\n\t\tfract(noise * 1.3453) * 2.0 - 1.0\r\n\t);\r\n\r\n}\r\n\r\nfloat randA(vec2 tc) {\r\n\r\n\treturn fract(sin(dot(tc, vec2(12.9898, 78.233))) * 43758.5453 * 1.3647) * 2.0 - 1.0;\r\n\r\n}\r\n\r\nfloat fade(float t) {\r\n\r\n\treturn t * t * t * (t * (t * 6.0 - 15.0) + 10.0);\r\n\r\n}\r\n\r\nfloat perlinNoise(vec3 p) {\r\n\r\n\t// Integer part, scaled so +1 moves permTexUnit texel.\r\n\t// Add 1/2 texel to sample texel centers.\r\n\tvec3 pi = permTexUnit * floor(p) + permTexUnitHalf;\r\n\r\n\t// Fractional part for interpolation.\r\n\tvec3 pf = fract(p);\r\n\r\n\t// Noise contributions from (x=0, y=0), z=0 and z=1.\r\n\tfloat perm00 = randA(pi.xy);\r\n\tvec3  grad000 = randRGB(vec2(perm00, pi.z)) * 4.0 - 1.0;\r\n\tfloat n000 = dot(grad000, pf);\r\n\tvec3  grad001 = randRGB(vec2(perm00, pi.z + permTexUnit)) * 4.0 - 1.0;\r\n\tfloat n001 = dot(grad001, pf - vec3(0.0, 0.0, 1.0));\r\n\r\n\t// Noise contributions from (x=0, y=1), z=0 and z=1.\r\n\tfloat perm01 = randA(pi.xy + vec2(0.0, permTexUnit));\r\n\tvec3  grad010 = randRGB(vec2(perm01, pi.z)) * 4.0 - 1.0;\r\n\tfloat n010 = dot(grad010, pf - vec3(0.0, 1.0, 0.0));\r\n\tvec3  grad011 = randRGB(vec2(perm01, pi.z + permTexUnit)) * 4.0 - 1.0;\r\n\tfloat n011 = dot(grad011, pf - vec3(0.0, 1.0, 1.0));\r\n\r\n\t// Noise contributions from (x=1, y=0), z=0 and z=1.\r\n\tfloat perm10 = randA(pi.xy + vec2(permTexUnit, 0.0));\r\n\tvec3  grad100 = randRGB(vec2(perm10, pi.z)) * 4.0 - 1.0;\r\n\tfloat n100 = dot(grad100, pf - vec3(1.0, 0.0, 0.0));\r\n\tvec3  grad101 = randRGB(vec2(perm10, pi.z + permTexUnit)) * 4.0 - 1.0;\r\n\tfloat n101 = dot(grad101, pf - vec3(1.0, 0.0, 1.0));\r\n\r\n\t// Noise contributions from (x=1, y=1), z=0 and z=1.\r\n\tfloat perm11 = randA(pi.xy + vec2(permTexUnit));\r\n\tvec3  grad110 = randRGB(vec2(perm11, pi.z)) * 4.0 - 1.0;\r\n\tfloat n110 = dot(grad110, pf - vec3(1.0, 1.0, 0.0));\r\n\tvec3  grad111 = randRGB(vec2(perm11, pi.z + permTexUnit)) * 4.0 - 1.0;\r\n\tfloat n111 = dot(grad111, pf - vec3(1.0, 1.0, 1.0));\r\n\r\n\t// Blend contributions along x.\r\n\tvec4 nX = mix(vec4(n000, n001, n010, n011), vec4(n100, n101, n110, n111), fade(pf.x));\r\n\r\n\t// Blend contributions along y.\r\n\tvec2 nXY = mix(nX.xy, nX.zw, fade(pf.y));\r\n\r\n\t// Blend contributions along z and return the final noise value.\r\n\treturn mix(nXY.x, nXY.y, fade(pf.z));\r\n\r\n}\r\n\r\nvoid main() {\r\n\r\n\tfloat r = 0.0;\r\n\tfloat g = 0.0;\r\n\r\n\tr += perlinNoise(vec3(vUv * vec2(tWidth / 90.0, tHeight / 200.0) + vec2(0.0, time * 0.6), 1.0 + time * 0.2)) * 0.25;\r\n\tr += perlinNoise(vec3(vUv * vec2(tWidth / 1200.0, tHeight / 1800.0) + vec2(0.0, time * 0.5), 3.0 + time * 0.3)) * 0.75;\r\n\r\n\tg += perlinNoise(vec3(vUv * vec2(tWidth / 40.0, tHeight / 60.0), randomTime / 8.0 + time * 0.02)) * 0.2;\r\n\tg += perlinNoise(vec3(vUv * vec2(tWidth / 80.0, tHeight / 200.0), randomTime * 2.1 + time * 0.03)) * 0.25;\r\n\r\n\t#ifdef HIGH_QUALITY\r\n\r\n\t\tr += perlinNoise(vec3(vUv * vec2(tWidth / 50.0, tHeight / 80.0) + vec2(0.0, time * 0.8), time * 0.2)) * 0.1;\r\n\t\tr += perlinNoise(vec3(vUv * vec2(tWidth / 200.0, tHeight / 400.0) + vec2(0.0, time * 0.4), 2.0 + time * 0.4)) * 0.25;\r\n\r\n\t\tg += perlinNoise(vec3(vUv * vec2(tWidth / 200.0, tHeight / 400.0), randomTime * 0.23 + time * 0.04)) * 0.2;\r\n\t\tg += perlinNoise(vec3(vUv * vec2(tWidth / 800.0, tHeight / 1800.0), randomTime * 1.64 + time * 0.05)) * 0.1;\r\n\r\n\t#endif\r\n\r\n\tr = r * 0.5 + 0.5;\r\n\tg = g * 0.5 + 0.5;\r\n\r\n\tgl_FragColor = vec4(r, g, 0.0, 1.0);\r\n\r\n}\r\n",
+		fragment: "uniform float tWidth;\r\nuniform float tHeight;\r\n\r\nuniform float texelSize;\r\nuniform float halfTexelSize;\r\n\r\nuniform float time;\r\nuniform float randomTime;\r\n\r\nvarying vec2 vUv;\r\n\r\nvec3 randRGB(vec2 tc) {\r\n\r\n\tfloat noise = sin(dot(tc, vec2(12.9898, 78.233))) * 43758.5453;\r\n\r\n\treturn vec3(\r\n\t\tfract(noise) * 2.0 - 1.0,\r\n\t\tfract(noise * 1.2154) * 2.0 - 1.0,\r\n\t\tfract(noise * 1.3453) * 2.0 - 1.0\r\n\t);\r\n\r\n}\r\n\r\nfloat randA(vec2 tc) {\r\n\r\n\treturn fract(sin(dot(tc, vec2(12.9898, 78.233))) * 43758.5453 * 1.3647) * 2.0 - 1.0;\r\n\r\n}\r\n\r\nfloat fade(float t) {\r\n\r\n\treturn t * t * t * (t * (t * 6.0 - 15.0) + 10.0);\r\n\r\n}\r\n\r\nfloat perlinNoise(vec3 p) {\r\n\r\n\t// Integer part, scaled so +1 moves texelSize texel.\r\n\t// Add 1/2 texel to sample texel centers.\r\n\tvec3 pi = texelSize * floor(p) + halfTexelSize;\r\n\r\n\t// Fractional part for interpolation.\r\n\tvec3 pf = fract(p);\r\n\r\n\t// Noise contributions from (x=0, y=0), z=0 and z=1.\r\n\tfloat perm00 = randA(pi.xy);\r\n\tvec3  grad000 = randRGB(vec2(perm00, pi.z)) * 4.0 - 1.0;\r\n\tfloat n000 = dot(grad000, pf);\r\n\tvec3  grad001 = randRGB(vec2(perm00, pi.z + texelSize)) * 4.0 - 1.0;\r\n\tfloat n001 = dot(grad001, pf - vec3(0.0, 0.0, 1.0));\r\n\r\n\t// Noise contributions from (x=0, y=1), z=0 and z=1.\r\n\tfloat perm01 = randA(pi.xy + vec2(0.0, texelSize));\r\n\tvec3  grad010 = randRGB(vec2(perm01, pi.z)) * 4.0 - 1.0;\r\n\tfloat n010 = dot(grad010, pf - vec3(0.0, 1.0, 0.0));\r\n\tvec3  grad011 = randRGB(vec2(perm01, pi.z + texelSize)) * 4.0 - 1.0;\r\n\tfloat n011 = dot(grad011, pf - vec3(0.0, 1.0, 1.0));\r\n\r\n\t// Noise contributions from (x=1, y=0), z=0 and z=1.\r\n\tfloat perm10 = randA(pi.xy + vec2(texelSize, 0.0));\r\n\tvec3  grad100 = randRGB(vec2(perm10, pi.z)) * 4.0 - 1.0;\r\n\tfloat n100 = dot(grad100, pf - vec3(1.0, 0.0, 0.0));\r\n\tvec3  grad101 = randRGB(vec2(perm10, pi.z + texelSize)) * 4.0 - 1.0;\r\n\tfloat n101 = dot(grad101, pf - vec3(1.0, 0.0, 1.0));\r\n\r\n\t// Noise contributions from (x=1, y=1), z=0 and z=1.\r\n\tfloat perm11 = randA(pi.xy + vec2(texelSize));\r\n\tvec3  grad110 = randRGB(vec2(perm11, pi.z)) * 4.0 - 1.0;\r\n\tfloat n110 = dot(grad110, pf - vec3(1.0, 1.0, 0.0));\r\n\tvec3  grad111 = randRGB(vec2(perm11, pi.z + texelSize)) * 4.0 - 1.0;\r\n\tfloat n111 = dot(grad111, pf - vec3(1.0, 1.0, 1.0));\r\n\r\n\t// Blend contributions along x.\r\n\tvec4 nX = mix(vec4(n000, n001, n010, n011), vec4(n100, n101, n110, n111), fade(pf.x));\r\n\r\n\t// Blend contributions along y.\r\n\tvec2 nXY = mix(nX.xy, nX.zw, fade(pf.y));\r\n\r\n\t// Blend contributions along z and return the final noise value.\r\n\treturn mix(nXY.x, nXY.y, fade(pf.z));\r\n\r\n}\r\n\r\nvoid main() {\r\n\r\n\tfloat r = 0.0;\r\n\tfloat g = 0.0;\r\n\r\n\tr += perlinNoise(vec3(vUv * vec2(tWidth / 90.0, tHeight / 200.0) + vec2(0.0, time * 0.6), 1.0 + time * 0.2)) * 0.25;\r\n\tr += perlinNoise(vec3(vUv * vec2(tWidth / 1200.0, tHeight / 1800.0) + vec2(0.0, time * 0.5), 3.0 + time * 0.3)) * 0.75;\r\n\r\n\tg += perlinNoise(vec3(vUv * vec2(tWidth / 40.0, tHeight / 60.0), randomTime / 8.0 + time * 0.02)) * 0.2;\r\n\tg += perlinNoise(vec3(vUv * vec2(tWidth / 80.0, tHeight / 200.0), randomTime * 2.1 + time * 0.03)) * 0.25;\r\n\r\n\t#ifdef HIGH_QUALITY\r\n\r\n\t\tr += perlinNoise(vec3(vUv * vec2(tWidth / 50.0, tHeight / 80.0) + vec2(0.0, time * 0.8), time * 0.2)) * 0.1;\r\n\t\tr += perlinNoise(vec3(vUv * vec2(tWidth / 200.0, tHeight / 400.0) + vec2(0.0, time * 0.4), 2.0 + time * 0.4)) * 0.25;\r\n\r\n\t\tg += perlinNoise(vec3(vUv * vec2(tWidth / 200.0, tHeight / 400.0), randomTime * 0.23 + time * 0.04)) * 0.2;\r\n\t\tg += perlinNoise(vec3(vUv * vec2(tWidth / 800.0, tHeight / 1800.0), randomTime * 1.64 + time * 0.05)) * 0.1;\r\n\r\n\t#endif\r\n\r\n\tr = r * 0.5 + 0.5;\r\n\tg = g * 0.5 + 0.5;\r\n\r\n\tgl_FragColor = vec4(r, g, 0.0, 1.0);\r\n\r\n}\r\n",
 		vertex: "varying vec2 vUv;\n\nvoid main() {\n\n\tvUv = uv;\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n\n}\n",
 	};
 
@@ -169,6 +169,9 @@
 
 				tWidth: {type: "f", value: 0},
 				tHeight: {type: "f", value: 0},
+
+				texelSize: {type: "f", value: 1.0},
+				halfTexelSize: {type: "f", value: 0.5},
 
 				time: {type: "f", value: 0.0},
 				randomTime: {type: "f", value: Math.random() * 10.0 - 1.0}
@@ -379,7 +382,7 @@
 
 	var shader$8 = {
 		fragment: "uniform sampler2D tDiffuse;\r\n\r\nvarying vec2 vUv0;\r\nvarying vec2 vUv1;\r\nvarying vec2 vUv2;\r\nvarying vec2 vUv3;\r\n\r\nvoid main() {\r\n\r\n\t// Sample top left texel.\r\n\tvec4 sum = texture2D(tDiffuse, vUv0);\r\n\r\n\t// Sample top right texel.\r\n\tsum += texture2D(tDiffuse, vUv1);\r\n\r\n\t// Sample bottom right texel.\r\n\tsum += texture2D(tDiffuse, vUv2);\r\n\r\n\t// Sample bottom left texel.\r\n\tsum += texture2D(tDiffuse, vUv3);\r\n\r\n\t// Compute the average.\r\n\tgl_FragColor = sum * 0.25;\r\n\r\n}\r\n",
-		vertex: "uniform vec2 texelSize;\r\nuniform vec2 halfTexelSize;\r\nuniform float kernel;\r\n\r\nvarying vec2 vUv0;\r\nvarying vec2 vUv1;\r\nvarying vec2 vUv2;\r\nvarying vec2 vUv3;\r\n\r\nvoid main() {\r\n\r\n\tvec2 dUv = (texelSize * vec2(kernel)) + halfTexelSize;\r\n\r\n\tvUv0 = vec2(uv.x - dUv.x, uv.y + dUv.y);\r\n\tvUv1 = vec2(uv.x + dUv.x, uv.y + dUv.y);\r\n\tvUv2 = vec2(uv.x + dUv.x, uv.y - dUv.y);\r\n\tvUv3 = vec2(uv.x - dUv.x, uv.y - dUv.y);\r\n\r\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\r\n\r\n}\r\n",
+		vertex: "uniform vec2 texelSize;\r\nuniform vec2 halfTexelSize;\r\nuniform float kernel;\r\n\r\nvarying vec2 vUv0;\r\nvarying vec2 vUv1;\r\nvarying vec2 vUv2;\r\nvarying vec2 vUv3;\r\n\r\nvoid main() {\r\n\r\n\tvec2 dUv = (texelSize * vec2(kernel)) + halfTexelSize;\r\n\r\n\tvUv0 = vec2(uv.x - dUv.x, uv.y + dUv.y);\r\n\tvUv1 = vec2(uv.x + dUv.x, uv.y + dUv.y);\r\n\tvUv2 = vec2(uv.x + dUv.x, uv.y - dUv.y);\r\n\tvUv3 = vec2(uv.x - dUv.x, uv.y - dUv.y);\r\n\r\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\r\n\r\n}\r\n"
 	};
 
 	/**
@@ -417,7 +420,7 @@
 			},
 
 			fragmentShader: shader$8.fragment,
-			vertexShader: shader$8.vertex,
+			vertexShader: shader$8.vertex
 
 		});
 
@@ -494,7 +497,7 @@
 
 	var shader$9 = {
 		fragment: "uniform sampler2D tDiffuse;\r\nuniform float opacity;\r\n\r\nvarying vec2 vUv;\r\n\r\nvoid main() {\r\n\r\n\tvec4 texel = texture2D(tDiffuse, vUv);\r\n\tgl_FragColor = opacity * texel;\r\n\r\n}\r\n",
-		vertex: "varying vec2 vUv;\r\n\r\nvoid main() {\r\n\r\n\tvUv = uv;\r\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\r\n\r\n}\r\n",
+		vertex: "varying vec2 vUv;\r\n\r\nvoid main() {\r\n\r\n\tvUv = uv;\r\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\r\n\r\n}\r\n"
 	};
 
 	/**
@@ -517,7 +520,7 @@
 			},
 
 			fragmentShader: shader$9.fragment,
-			vertexShader: shader$9.vertex,
+			vertexShader: shader$9.vertex
 
 		});
 
@@ -528,7 +531,7 @@
 
 	var shader$12 = {
 		fragment: "uniform sampler2D tDiffuse;\r\nuniform sampler2D tPerturb;\r\n\r\nuniform bool active;\r\n\r\nuniform float amount;\r\nuniform float angle;\r\nuniform float seed;\r\nuniform float seedX;\r\nuniform float seedY;\r\nuniform float distortionX;\r\nuniform float distortionY;\r\nuniform float colS;\r\n\r\nvarying vec2 vUv;\r\n\r\nfloat rand(vec2 co) {\r\n\r\n\treturn fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);\r\n\r\n}\r\n\r\nvoid main() {\r\n\r\n\tvec2 coord = vUv;\r\n\r\n\tfloat xs, ys;\r\n\tvec4 normal;\r\n\r\n\tvec2 offset;\r\n\tvec4 cr, cga, cb;\r\n\tvec4 snow, color;\r\n\r\n\tfloat sx, sy;\r\n\r\n\tif(active) {\r\n\r\n\t\txs = floor(gl_FragCoord.x / 0.5);\r\n\t\tys = floor(gl_FragCoord.y / 0.5);\r\n\r\n\t\tnormal = texture2D(tPerturb, coord * seed * seed);\r\n\r\n\t\tif(coord.y < distortionX + colS && coord.y > distortionX - colS * seed) {\r\n\r\n\t\t\tsx = clamp(ceil(seedX), 0.0, 1.0);\r\n\t\t\tcoord.y = sx * (1.0 - (coord.y + distortionY)) + (1.0 - sx) * distortionY;\r\n\r\n\t\t}\r\n\r\n\t\tif(coord.x < distortionY + colS && coord.x > distortionY - colS * seed) {\r\n\r\n\t\t\tsy = clamp(ceil(seedY), 0.0, 1.0);\r\n\t\t\tcoord.x = sy * distortionX + (1.0 - sy) * (1.0 - (coord.x + distortionX));\r\n\r\n\t\t}\r\n\r\n\t\tcoord.x += normal.x * seedX * (seed / 5.0);\r\n\t\tcoord.y += normal.y * seedY * (seed / 5.0);\r\n\r\n\t\toffset = amount * vec2(cos(angle), sin(angle));\r\n\r\n\t\tcr = texture2D(tDiffuse, coord + offset);\r\n\t\tcga = texture2D(tDiffuse, coord);\r\n\t\tcb = texture2D(tDiffuse, coord - offset);\r\n\r\n\t\tcolor = vec4(cr.r, cga.g, cb.b, cga.a);\r\n\t\tsnow = 200.0 * amount * vec4(rand(vec2(xs * seed, ys * seed * 50.0)) * 0.2);\r\n\t\tcolor += snow;\r\n\r\n\t} else {\r\n\r\n\t\tcolor = texture2D(tDiffuse, vUv);\r\n\r\n\t}\r\n\r\n\tgl_FragColor = color;\r\n\r\n}\r\n",
-		vertex: "varying vec2 vUv;\r\n\r\nvoid main() {\r\n\r\n\tvUv = uv;\r\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\r\n\r\n}\r\n",
+		vertex: "varying vec2 vUv;\r\n\r\nvoid main() {\r\n\r\n\tvUv = uv;\r\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\r\n\r\n}\r\n"
 	};
 
 	/**
@@ -563,7 +566,7 @@
 			},
 
 			fragmentShader: shader$12.fragment,
-			vertexShader: shader$12.vertex,
+			vertexShader: shader$12.vertex
 
 		});
 
@@ -631,7 +634,7 @@
 
 	var shader$15 = {
 		fragment: "uniform sampler2D tDiffuse;\r\nuniform float middleGrey;\r\nuniform float maxLuminance;\r\n\r\n#ifdef ADAPTED_LUMINANCE\r\n\r\n\tuniform sampler2D luminanceMap;\r\n\r\n#else\r\n\r\n\tuniform float averageLuminance;\r\n\r\n#endif\r\n\r\nvarying vec2 vUv;\r\n\r\nconst vec3 LUM_CONVERT = vec3(0.299, 0.587, 0.114);\r\nconst vec2 CENTER = vec2(0.5, 0.5);\r\n\r\nvec3 toneMap(vec3 c) {\r\n\r\n\t#ifdef ADAPTED_LUMINANCE\r\n\r\n\t\t// Get the calculated average luminance.\r\n\t\tfloat lumAvg = texture2D(luminanceMap, CENTER).r;\r\n\r\n\t#else\r\n\r\n\t\tfloat lumAvg = averageLuminance;\r\n\r\n\t#endif\r\n\r\n\t// Calculate the luminance of the current pixel.\r\n\tfloat lumPixel = dot(c, LUM_CONVERT);\r\n\r\n\t// Apply the modified operator (Eq. 4).\r\n\tfloat lumScaled = (lumPixel * middleGrey) / lumAvg;\r\n\r\n\tfloat lumCompressed = (lumScaled * (1.0 + (lumScaled / (maxLuminance * maxLuminance)))) / (1.0 + lumScaled);\r\n\treturn lumCompressed * c;\r\n\r\n}\r\n\r\nvoid main() {\r\n\r\n\tvec4 texel = texture2D(tDiffuse, vUv);\r\n\tgl_FragColor = vec4(toneMap(texel.rgb), texel.a);\r\n\r\n}\r\n",
-		vertex: "varying vec2 vUv;\r\n\r\nvoid main() {\r\n\r\n\tvUv = uv;\r\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\r\n\r\n}\r\n",
+		vertex: "varying vec2 vUv;\r\n\r\nvoid main() {\r\n\r\n\tvUv = uv;\r\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\r\n\r\n}\r\n"
 	};
 
 	/**
@@ -658,7 +661,7 @@
 			},
 
 			fragmentShader: shader$15.fragment,
-			vertexShader: shader$15.vertex,
+			vertexShader: shader$15.vertex
 
 		});
 
@@ -744,22 +747,6 @@
 
 		this.renderToScreen = false;
 
-		/**
-		 * Render target swap flag.
-		 *
-		 * When set to true, the read and write buffers will be swapped 
-		 * after this pass is done with rendering so that any following  
-		 * pass can find the rendered result in the read buffer.
-		 * Swapping is not necessary if, for example, a pass additively 
-		 * renders into the read buffer.
-		 *
-		 * @property needsSwap
-		 * @type Boolean
-		 * @default false
-		 */
-
-		this.needsSwap = false;
-
 		// Finally, add the camera and the quad to the scene.
 		if(this.scene !== null) {
 
@@ -778,13 +765,12 @@
 	 * @method render
 	 * @throws {Error} An error is thrown if the method is not overridden.
 	 * @param {WebGLRenderer} renderer - The renderer to use.
-	 * @param {WebGLRenderTarget} writeBuffer - The write buffer.
-	 * @param {WebGLRenderTarget} readBuffer - The read buffer.
-	 * @param {Number} [delta] - The render delta time.
-	 * @param {Boolean} [maskActive] - Disable stencil test.
+	 * @param {WebGLRenderTarget} buffer - A read/write buffer.
+	 * @param {Number} [delta] - The delta time.
+	 * @param {Boolean} [maskActive] - Indicates whether the stencil test is active or not.
 	 */
 
-	Pass.prototype.render = function(renderer, writeBuffer, readBuffer, delta, maskActive) {
+	Pass.prototype.render = function(renderer, buffer, delta, maskActive) {
 
 		throw new Error("Render method not implemented!");
 
@@ -827,8 +813,8 @@
 
 	Pass.prototype.dispose = function() {
 
-		var i, p;
-		var keys = Object.keys(this);
+		let i, p;
+		let keys = Object.keys(this);
 
 		for(i = keys.length - 1; i >= 0; --i) {
 
@@ -1004,19 +990,18 @@
 	 *
 	 * @method render
 	 * @param {WebGLRenderer} renderer - The renderer to use.
-	 * @param {WebGLRenderTarget} writeBuffer - The write buffer.
-	 * @param {WebGLRenderTarget} readBuffer - The read buffer.
+	 * @param {WebGLRenderTarget} buffer - The read/write buffer.
 	 * @param {Number} delta - The render delta time.
 	 * @param {Boolean} maskActive - Disable stencil test.
 	 */
 
-	BloomPass.prototype.render = function(renderer, writeBuffer, readBuffer, delta, maskActive) {
+	BloomPass.prototype.render = function(renderer, buffer, delta, maskActive) {
 
 		if(maskActive) { renderer.context.disable(renderer.context.STENCIL_TEST); }
 
 		// Tone-mapping.
 		this.quad.material = this.toneMappingMaterial;
-		this.toneMappingMaterial.uniforms.tDiffuse.value = readBuffer;
+		this.toneMappingMaterial.uniforms.tDiffuse.value = buffer;
 		renderer.render(this.scene, this.camera, this.renderTargetX);
 
 		// Convolution blur (5 passes).
@@ -1048,7 +1033,7 @@
 		if(this.renderToScreen) {
 
 			this.quad.material = this.combineMaterial;
-			this.combineMaterial.uniforms.texture1.value = readBuffer;
+			this.combineMaterial.uniforms.texture1.value = buffer;
 			//this.combineMaterial.uniforms.opacity1.value = 0.0;
 			this.combineMaterial.uniforms.texture2.value = this.renderTargetY;
 
@@ -1059,7 +1044,7 @@
 			this.quad.material = this.copyMaterial;
 			this.copyMaterial.uniforms.tDiffuse.value = this.renderTargetY;
 
-			renderer.render(this.scene, this.camera, readBuffer, false);
+			renderer.render(this.scene, this.camera, buffer, false);
 
 		}
 
@@ -1166,9 +1151,6 @@
 		// Set the material of the rendering quad.
 		this.quad.material = this.material;
 
-		// Swap read and write buffer when done.
-		this.needsSwap = true;
-
 		// Create a new glitch point.
 		this.generateTrigger();
 
@@ -1182,15 +1164,14 @@
 	 *
 	 * @method render
 	 * @param {WebGLRenderer} renderer - The renderer to use.
-	 * @param {WebGLRenderTarget} writeBuffer - The write buffer.
-	 * @param {WebGLRenderTarget} readBuffer - The read buffer.
+	 * @param {WebGLRenderTarget} buffer - The read/write buffer.
 	 */
 
-	GlitchPass.prototype.render = function(renderer, writeBuffer, readBuffer) {
+	GlitchPass.prototype.render = function(renderer, buffer) {
 
 		let uniforms = this.material.uniforms;
 
-		uniforms.tDiffuse.value = readBuffer;
+		uniforms.tDiffuse.value = buffer;
 		uniforms.seed.value = Math.random();
 		uniforms.active.value = true;
 
@@ -1228,7 +1209,7 @@
 
 		} else {
 
-			renderer.render(this.scene, this.camera, writeBuffer, false);
+			renderer.render(this.scene, this.camera, buffer, false);
 
 		}
 
@@ -1271,7 +1252,6 @@
 
 		}
 
-		// If there's a texture, delete it.
 		if(this.perturbMap !== null) { this.perturbMap.dispose(); }
 
 		this.perturbMap = new THREE.DataTexture(data, size, size, THREE.RGBFormat, THREE.FloatType);
@@ -1602,11 +1582,10 @@
 	 *
 	 * @method render
 	 * @param {WebGLRenderer} renderer - The renderer to use.
-	 * @param {WebGLRenderTarget} writeBuffer - The write buffer.
-	 * @param {WebGLRenderTarget} readBuffer - The read buffer.
+	 * @param {WebGLRenderTarget} buffer - The read/write buffer.
 	 */
 
-	GodRaysPass.prototype.render = function(renderer, writeBuffer, readBuffer) {
+	GodRaysPass.prototype.render = function(renderer, buffer) {
 
 		let clearAlpha;
 
@@ -1657,7 +1636,7 @@
 		if(this.renderToScreen) {
 
 			this.quad.material = this.combineMaterial;
-			this.combineMaterial.uniforms.texture1.value = readBuffer;
+			this.combineMaterial.uniforms.texture1.value = buffer;
 			this.combineMaterial.uniforms.texture2.value = this.renderTargetX;
 
 			renderer.render(this.scene, this.camera);
@@ -1667,7 +1646,7 @@
 			this.quad.material = this.copyMaterial;
 			this.copyMaterial.uniforms.tDiffuse.value = this.renderTargetX;
 
-			renderer.render(this.scene, this.camera, readBuffer);
+			renderer.render(this.scene, this.camera, buffer);
 
 		}
 
@@ -1714,7 +1693,7 @@
 	 * @class DistortionPass
 	 * @constructor
 	 * @param {Object} [options] - The options.
-	 * @param {Number} [options.resolutionScale=1.0] - The size of the generated perturbation map, relative to the main render size.
+	 * @param {Number} [options.resolution=512] - The size of the generated perturbation map, power of two.
 	 * @param {Vector2} [options.rollOffSpeed] - The droplet roll off speed.
 	 * @param {Vector2} [options.waveStrength] - The sine and cosine wave distortion strength.
 	 * @param {Boolean} [options.highQuality] - The effect quality. If set to true, double the amount of noise values will be computed.
@@ -1745,16 +1724,6 @@
 		});
 
 		this.renderTargetPerturb.texture.generateMipmaps = false;
-
-		/**
-		 * The resolution scale, relative to the on-screen render size.
-		 * You have to call the reset method of the EffectComposer after modifying this field.
-		 *
-		 * @property resolutionScale
-		 * @type Number
-		 */
-
-		this.resolutionScale = (options.resolutionScale === undefined) ? 1.0 : THREE.Math.clamp(options.resolutionScale, 0.0, 1.0);
 
 		/**
 		 * Noise shader material.
@@ -1811,6 +1780,9 @@
 
 		this._dissolve = false;
 
+		// Set the resolution if already provided.
+		this.resolution = (options.resolution === undefined) ? 512 : options.resolution;
+
 		// Set the material for the rendering quad.
 		this.quad.material = this.distortionMaterial;
 
@@ -1818,6 +1790,36 @@
 
 	DistortionPass.prototype = Object.create(Pass.prototype);
 	DistortionPass.prototype.constructor = DistortionPass;
+
+	/**
+	 * The resolution of the noise texture.
+	 * The value should be a power of two.
+	 *
+	 * @property resolution
+	 * @type Number
+	 * @default 512
+	 */
+
+	Object.defineProperty(DistortionPass.prototype, "resolution", {
+
+		get: function() { return this.renderTargetPerturb.width; },
+
+		set: function(x) {
+
+			if(typeof x === "number" && x > 0) {
+
+				this.noiseMaterial.uniforms.tWidth.value = x;
+				this.noiseMaterial.uniforms.tHeight.value = x;
+				this.noiseMaterial.uniforms.texelSize.value = 1.0 / x;
+				this.noiseMaterial.uniforms.halfTexelSize.value = 0.5 / x;
+
+				this.renderTargetPerturb.setSize(x, x);
+
+			}
+
+		}
+
+	});
 
 	/**
 	 * Dissolution flag.
@@ -1851,20 +1853,19 @@
 	});
 
 	/**
-	 * Renders the scene.
+	 * Renders the effect.
 	 *
 	 * @method render
 	 * @param {WebGLRenderer} renderer - The renderer to use.
-	 * @param {WebGLRenderTarget} writeBuffer - The write buffer.
-	 * @param {WebGLRenderTarget} readBuffer - The read buffer.
+	 * @param {WebGLRenderTarget} buffer - The read/write buffer.
 	 * @param {Number} delta - The render delta time.
 	 */
 
-	DistortionPass.prototype.render = function(renderer, writeBuffer, readBuffer, delta) {
+	DistortionPass.prototype.render = function(renderer, buffer, delta) {
 
 		let t = delta * this.speed;
 
-		this.distortionMaterial.uniforms.tDiffuse.value = readBuffer;
+		this.distortionMaterial.uniforms.tDiffuse.value = buffer;
 		this.distortionMaterial.uniforms.time.value += t;
 
 		//this.renderPerturbationMap(renderer); // Debug.
@@ -1882,7 +1883,7 @@
 
 		} else {
 
-			renderer.render(this.scene, this.camera, writeBuffer, false);
+			renderer.render(this.scene, this.camera, buffer, false);
 
 		}
 
@@ -1902,6 +1903,7 @@
 		this.quad.material = this.noiseMaterial;
 		this.noiseMaterial.uniforms.time.value = this.distortionMaterial.uniforms.time.value;
 
+		// Slow first time, maybe introduce init hook?
 		//renderer.render(this.scene, this.camera); // Renders the perturb map to screen.
 		renderer.render(this.scene, this.camera, this.renderTargetPerturb, false);
 
@@ -1925,10 +1927,10 @@
 		if(width <= 0) { width = 1; }
 		if(height <= 0) { height = 1; }
 
-		this.noiseMaterial.uniforms.tWidth.value = width;
-		this.noiseMaterial.uniforms.tHeight.value = height;
+		this.noiseMaterial.uniforms.tWidth.value = 512;
+		this.noiseMaterial.uniforms.tHeight.value = 512;
 
-		this.renderTargetPerturb.setSize(width, height);
+		this.renderTargetPerturb.setSize(512, 512);
 
 	};
 
@@ -2209,12 +2211,11 @@
 	 *
 	 * @method render
 	 * @param {WebGLRenderer} renderer - The renderer to use.
-	 * @param {WebGLRenderTarget} writeBuffer - The write buffer.
-	 * @param {WebGLRenderTarget} readBuffer - The read buffer.
+	 * @param {WebGLRenderTarget} buffer - The read/write buffer. Ignored in this pass.
 	 * @param {Number} delta - The render delta time.
 	 */
 
-	WaterPass.prototype.render = function(renderer, writeBuffer, readBuffer, delta) {
+	WaterPass.prototype.render = function(renderer, buffer, delta) {
 
 		if(this.mesh.matrixNeedsUpdate) { this.update(); }
 		//this.mesh.matrixNeedsUpdate = true;

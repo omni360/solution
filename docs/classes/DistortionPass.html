@@ -156,13 +156,13 @@
 
                         <ul class="params-list">
                             <li class="param">
-                                    <code class="param-name optional">[resolutionScale=1.0]</code>
+                                    <code class="param-name optional">[resolution=512]</code>
                                     <span class="type">Number</span>
                                     <span class="flag optional" title="This parameter is optional.">optional</span>
 
                                 <div class="param-description">
                                     <ul>
-<li>The size of the generated perturbation map, relative to the main render size.</li>
+<li>The size of the generated perturbation map, power of two.</li>
 </ul>
 
                                 </div>
@@ -290,7 +290,7 @@
 
                             </li>
                             <li class="index-item property">
-                                <a href="#property_resolutionScale">resolutionScale</a>
+                                <a href="#property_resolution">resolution</a>
 
                             </li>
                             <li class="index-item property">
@@ -315,10 +315,7 @@
                         <code>renderer</code>
                 </li>
                 <li class="arg">
-                        <code>writeBuffer</code>
-                </li>
-                <li class="arg">
-                        <code>readBuffer</code>
+                        <code>buffer</code>
                 </li>
                 <li class="arg">
                         <code>delta</code>
@@ -336,7 +333,7 @@
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_distortion.js.html#l147"><code>src\passes\distortion.js:147</code></a>
+        <a href="../files/src_passes_distortion.js.html#l170"><code>src\passes\distortion.js:170</code></a>
         </p>
 
 
@@ -344,7 +341,7 @@
     </div>
 
     <div class="description">
-        <p>Renders the scene.</p>
+        <p>Renders the effect.</p>
 
     </div>
 
@@ -366,26 +363,13 @@
 
                 </li>
                 <li class="param">
-                        <code class="param-name">writeBuffer</code>
+                        <code class="param-name">buffer</code>
                         <span class="type">WebGLRenderTarget</span>
 
 
                     <div class="param-description">
                         <ul>
-<li>The write buffer.</li>
-</ul>
-
-                    </div>
-
-                </li>
-                <li class="param">
-                        <code class="param-name">readBuffer</code>
-                        <span class="type">WebGLRenderTarget</span>
-
-
-                    <div class="param-description">
-                        <ul>
-<li>The read buffer.</li>
+<li>The read/write buffer.</li>
 </ul>
 
                     </div>
@@ -435,7 +419,7 @@
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_distortion.js.html#l185"><code>src\passes\distortion.js:185</code></a>
+        <a href="../files/src_passes_distortion.js.html#l207"><code>src\passes\distortion.js:207</code></a>
         </p>
 
 
@@ -507,7 +491,7 @@
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_distortion.js.html#l206"><code>src\passes\distortion.js:206</code></a>
+        <a href="../files/src_passes_distortion.js.html#l229"><code>src\passes\distortion.js:229</code></a>
         </p>
 
 
@@ -572,7 +556,7 @@
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_distortion.js.html#l97"><code>src\passes\distortion.js:97</code></a>
+        <a href="../files/src_passes_distortion.js.html#l87"><code>src\passes\distortion.js:87</code></a>
         </p>
 
 
@@ -599,7 +583,7 @@
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_distortion.js.html#l87"><code>src\passes\distortion.js:87</code></a>
+        <a href="../files/src_passes_distortion.js.html#l77"><code>src\passes\distortion.js:77</code></a>
         </p>
 
 
@@ -624,7 +608,7 @@
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_distortion.js.html#l116"><code>src\passes\distortion.js:116</code></a>
+        <a href="../files/src_passes_distortion.js.html#l139"><code>src\passes\distortion.js:139</code></a>
         </p>
 
 
@@ -653,7 +637,7 @@ set to true for dissolution into droplets.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_distortion.js.html#l63"><code>src\passes\distortion.js:63</code></a>
+        <a href="../files/src_passes_distortion.js.html#l53"><code>src\passes\distortion.js:53</code></a>
         </p>
 
 
@@ -679,7 +663,7 @@ set to true for dissolution into droplets.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_distortion.js.html#l53"><code>src\passes\distortion.js:53</code></a>
+        <a href="../files/src_passes_distortion.js.html#l43"><code>src\passes\distortion.js:43</code></a>
         </p>
 
 
@@ -719,8 +703,8 @@ set to true for dissolution into droplets.</p>
 
 
 </div>
-<div id="property_resolutionScale" class="property item">
-    <h3 class="name"><code>resolutionScale</code></h3>
+<div id="property_resolution" class="property item">
+    <h3 class="name"><code>resolution</code></h3>
     <span class="type">Number</span>
 
 
@@ -730,18 +714,19 @@ set to true for dissolution into droplets.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_distortion.js.html#l43"><code>src\passes\distortion.js:43</code></a>
+        <a href="../files/src_passes_distortion.js.html#l109"><code>src\passes\distortion.js:109</code></a>
         </p>
 
 
     </div>
 
     <div class="description">
-        <p>The resolution scale, relative to the on-screen render size.
-You have to call the reset method of the EffectComposer after modifying this field.</p>
+        <p>The resolution of the noise texture.
+The value should be a power of two.</p>
 
     </div>
 
+        <p><strong>Default:</strong> 512</p>
 
 
 </div>
@@ -756,7 +741,7 @@ You have to call the reset method of the EffectComposer after modifying this fie
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_distortion.js.html#l78"><code>src\passes\distortion.js:78</code></a>
+        <a href="../files/src_passes_distortion.js.html#l68"><code>src\passes\distortion.js:68</code></a>
         </p>
 
 
