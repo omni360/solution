@@ -12,17 +12,6 @@ varying vec2 vUv;
 
 const float FADE = 12.0;
 
-/*vec2 coordRot(vec2 tc, float angle) {
-
-	float rotX = ((tc.x * 2.0 - 1.0) * (tWidth / tHeight) * cos(angle)) - ((tc.y * 2.0 - 1.0) * sin(angle));
-	float rotY = ((tc.y * 2.0 - 1.0) * cos(angle)) + ((tc.x * 2.0 - 1.0) * (tWidth / tHeight) * sin(angle));
-	rotX = ((rotX / (tWidth / tHeight)) * 0.5 + 0.5);
-	rotY = rotY * 0.5 + 0.5;
-
-	return vec2(rotX, rotY);
-
-}*/
-
 void main() {
 
 	float n = 0.0;
@@ -30,12 +19,6 @@ void main() {
 
 	float resetTimerFaster = resetTimer * rollOffSpeed.x;
 	float resetTimerSlow = resetTimer * rollOffSpeed.y;
-
-	//n *= clamp(ceil(resetTimer / T_DISSOLVE), 0.0, 1.0);
-	//drop *= clamp(ceil(resetTimer / T_DROPLETS), 0.0, 1.0);
-	// Translate noise values to [0.0, 1.0].
-	//n = n * 0.5 + 0.5;
-	//drop = drop * 0.5 + 0.5;
 
 	vec2 perturbSample;
 
@@ -56,6 +39,13 @@ void main() {
 		}
 
 	}
+
+	// if-less alternative.
+	//perturbSample = texture2D(tPerturb, vUv).rg;
+	//n = perturbSample.r;
+	//drop = perturbSample.g;
+	//n *= clamp(ceil(resetTimer / T_DISSOLVE), 0.0, 1.0);
+	//drop *= clamp(ceil(resetTimer / T_DROPLETS), 0.0, 1.0);
 
 	float drops = clamp(smoothstep(resetTimerFaster, 0.5 + resetTimerFaster, n), 0.0, 1.0);
 	float droplet = clamp(smoothstep(0.75 + resetTimerSlow, 1.0 + resetTimerSlow, drop), 0.0, 1.0);
@@ -86,8 +76,6 @@ void main() {
 	distortFade.s -= clamp(1.0 - (1.0 - vUv.s) * FADE, 0.0, 1.0);
 	distortFade.t = clamp(vUv.t * FADE, 0.0, 1.0);
 	distortFade.t -= clamp(1.0 - (1.0 - vUv.t) * FADE, 0.0, 1.0); 
-
-	//vec2 rotCoordsR = coordRot(vUv, angle?);
 
 	float dfade = 1.0 - pow(1.0 - distortFade.s * distortFade.t, 2.0);
 	wave = wave * dfade;

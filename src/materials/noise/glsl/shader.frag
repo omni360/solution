@@ -9,6 +9,17 @@ uniform float randomTime;
 
 varying vec2 vUv;
 
+/*vec2 coordRot(vec2 tc, float angle) {
+
+	float rotX = ((tc.x * 2.0 - 1.0) * (tWidth / tHeight) * cos(angle)) - ((tc.y * 2.0 - 1.0) * sin(angle));
+	float rotY = ((tc.y * 2.0 - 1.0) * cos(angle)) + ((tc.x * 2.0 - 1.0) * (tWidth / tHeight) * sin(angle));
+	rotX = ((rotX / (tWidth / tHeight)) * 0.5 + 0.5);
+	rotY = rotY * 0.5 + 0.5;
+
+	return vec2(rotX, rotY);
+
+}*/
+
 vec3 randRGB(vec2 tc) {
 
 	float noise = sin(dot(tc, vec2(12.9898, 78.233))) * 43758.5453;
