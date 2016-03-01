@@ -61,6 +61,7 @@ mat2 makem2(float theta) {
 	//float a = mix(c, s, vViewTheta);
 	//float b = mix(s, c, vViewTheta);
 
+	//return mat2(-c, -s, s, c);
 	return mat2(c, -s, s, c);
 	//return mat2(a, -b, b, a);
 
@@ -85,14 +86,17 @@ vec2 gradn(vec2 p) {
 float flow(vec2 p) {
 
 	float t = time * timeScale;
+	float t1 = t * primarySpeed;
+	float t2 = t * secondarySpeed;
+
 	float z = 2.0;
 	float rz = 0.0;
 	vec2 bp = p;
 
 	for(float i = 1.0; i < 7.0; ++i) {
 
-		p += t * primarySpeed;
-		bp += t * secondarySpeed;
+		p += t1;
+		bp += t2;
 
 		// Displacement field.
 		vec2 gr = gradn(i * p * 0.34 + t * displacement);
