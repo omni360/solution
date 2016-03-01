@@ -91,8 +91,8 @@ function setupScene(assets) {
 		displacement: 1.0,
 		advection: 0.77,
 		intensity: 1.4,
-		octaveScale: new THREE.Vector2(2.0, 1.9),
-		color: new THREE.Color(0.2, 0.07, 0.01)
+		octaveScale: new THREE.Vector2(2.6, 1.9),
+		color: new THREE.Color(0x521900)
 	});
 
 	material.uniforms.offsetRepeat.value.set(0, 0, 75, 75);
@@ -115,10 +115,10 @@ function setupScene(assets) {
 	var bloomPass = new POSTPROCESSING.BloomPass({
 		resolutionScale: 0.5,
 		blurriness: 1.0,
-		strength: 1.6
+		strength: 1.4,
+		distinction: 1.0
 	});
 
-	bloomPass.toneMappingMaterial.uniforms.averageLuminance.value = 0.075;
 	//bloomPass.renderToScreen = true;
 
 	var filmPass = new POSTPROCESSING.FilmPass({
