@@ -27,7 +27,6 @@ import THREE from "three";
  * @param {Boolean} [options.refraction=true] - Whether the refraction should be rendered.
  * @param {Number} [options.resolution=256] - The render texture resolution.
  * @param {Number} [options.clipBias=0.2] - The clip plane offset.
- * @param {WebGLRenderTarget} [options.renderTarget] - A render target to use.
  * @param {Texture} [options.normalMap] - A normalmap for the waves.
  * @param {Boolean} [options.lowQuality=false] - Falls back to a less expensive water shader.
  */
@@ -41,34 +40,27 @@ export function WaterPass(scene, camera, lightPosition, options) {
 	/**
 	 * The reflection render texture.
 	 *
-	 * @property reflectionTexture
+	 * @property renderTargetReflection
 	 * @type WebGLRenderTarget
 	 */
 
-	let resolution = (options.resolution === undefined) ? 256 : options.resolution;
+	this.renderTargetReflection = new THREE.WebGLRenderTarget(1, 1, {
+		minFilter: THREE.LinearFilter,
+		magFilter: THREE.LinearFilter
+	});
 
-	if(options.renderTarget === undefined) {
-
-		options.renderTarget = new THREE.WebGLRenderTarget(resolution, resolution, {
-			minFilter: THREE.LinearFilter,
-			magFilter: THREE.LinearFilter,
-			format: THREE.RGBFormat,
-			stencilBuffer: false,
-			depthBuffer: false
-		});
-
-	}
-
-	this.reflectionTexture = options.renderTarget;
+	this.renderTargetReflection.texture.generateMipmaps = false;
 
 	/**
 	 * The refraction render texture.
 	 *
-	 * @property refractionTexture
+	 * @property renderTargetRefraction
 	 * @type WebGLRenderTarget
 	 */
 
-	this.refractionTexture = this.reflectionTexture.clone();
+	this.renderTargetRefraction = this.renderTargetReflection.clone();
+
+	this.resolution = (options.resolution === undefined) ? 256 : options.resolution;
 
 	/**
 	 * The reflection camera.
@@ -97,7 +89,7 @@ export function WaterPass(scene, camera, lightPosition, options) {
 	 * @type Boolean
 	 */
 
-	this.renderReflection = options.reflection;
+	this.renderReflection = (options.reflection !== undefined) ? options.reflection : true;
 
 	/**
 	 * Whether the refraction texture should be rendered.
@@ -106,7 +98,7 @@ export function WaterPass(scene, camera, lightPosition, options) {
 	 * @type Boolean
 	 */
 
-	this.renderRefraction = options.refraction;
+	this.renderRefraction = (options.refraction !== undefined) ? options.refraction : true;
 
 	/**
 	 * The water material.
@@ -121,8 +113,12 @@ export function WaterPass(scene, camera, lightPosition, options) {
 		lowQuality: options.lowQuality
 	});
 
-	this.material.uniforms.reflectionMap.value = this.reflectionTexture;
-	this.material.uniforms.refractionMap.value = this.refractionTexture;
+	if(this.material !== null) {
+
+		this.material.uniforms.reflectionMap.value = this.renderTargetReflection;
+		this.material.uniforms.refractionMap.value = this.renderTargetRefraction;
+
+	}
 
 	/**
 	 * A plane mesh that represents the actual reflection/refraction plane.
@@ -275,15 +271,42 @@ WaterPass.prototype = Object.create(Pass.prototype);
 WaterPass.prototype.constructor = WaterPass;
 
 /**
- * Renders the reflection texture.
+ * The resolution of the render targets.
+ * The value should be a power of two.
+ *
+ * @property resolution
+ * @type Number
+ * @default 256
+ */
+
+Object.defineProperty(WaterPass.prototype, "resolution", {
+
+	get: function() { return this.renderTargetReflection.width; },
+
+	set: function(x) {
+
+		if(typeof x === "number" && x > 0) {
+
+			this.renderTargetReflection.setSize(x, x);
+			this.renderTargetRefraction.setSize(x, x);
+
+		}
+
+	}
+
+});
+
+/**
+ * Renders the reflection and refraction textures.
  *
  * @method render
  * @param {WebGLRenderer} renderer - The renderer to use.
- * @param {WebGLRenderTarget} buffer - The read/write buffer. Ignored in this pass.
+ * @param {WebGLRenderTarget} readBuffer - The read buffer.
+ * @param {WebGLRenderTarget} writeBuffer - The write buffer.
  * @param {Number} delta - The render delta time.
  */
 
-WaterPass.prototype.render = function(renderer, buffer, delta) {
+WaterPass.prototype.render = function(renderer, readBuffer, writeBuffer, delta) {
 
 	if(this.mesh.matrixNeedsUpdate) { this.update(); }
 	//this.mesh.matrixNeedsUpdate = true;
@@ -291,8 +314,8 @@ WaterPass.prototype.render = function(renderer, buffer, delta) {
 	let visible = this.material.visible;
 	this.material.visible = false;
 
-	if(this.renderReflection) { renderer.render(this.scene, this.reflectionCamera, this.reflectionTexture, true); }
-	if(this.renderRefraction) { renderer.render(this.scene, this.refractionCamera, this.refractionTexture, true); }
+	if(this.renderReflection) { renderer.render(this.scene, this.reflectionCamera, this.renderTargetReflection, true); }
+	if(this.renderRefraction) { renderer.render(this.scene, this.refractionCamera, this.renderTargetRefraction, true); }
 
 	this.material.visible = visible;
 	if(this.material !== null) { this.material.uniforms.time.value += delta; }
@@ -383,5 +406,24 @@ WaterPass.prototype.update = function() {
 	projectionMatrix.elements[6] = c.y;
 	projectionMatrix.elements[10] = c.z + 1.0 + this.clipBias;// minus?
 	projectionMatrix.elements[14] = c.w;
+
+};
+
+/**
+ * Adjusts the format of the render targets.
+ *
+ * @method initialise
+ * @param {WebGLRenderer} renderer - The renderer.
+ * @param {Boolean} alpha - Whether the renderer uses the alpha channel or not.
+ */
+
+WaterPass.prototype.initialise = function(renderer, alpha) {
+
+	if(!alpha) {
+
+		this.renderTargetReflection.texture.format = THREE.RGBFormat;
+		this.renderTargetRefraction.texture.format = THREE.RGBFormat;
+
+	}
 
 };
