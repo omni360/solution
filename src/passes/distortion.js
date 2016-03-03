@@ -19,6 +19,8 @@ export function DistortionPass(options) {
 
 	Pass.call(this);
 
+	this.needsSwap = true;
+
 	if(options === undefined) { options = {}; }
 
 	/**
@@ -32,7 +34,7 @@ export function DistortionPass(options) {
 	this.renderTargetPerturb = new THREE.WebGLRenderTarget(1, 1, {
 		minFilter: THREE.LinearFilter,
 		magFilter: THREE.LinearFilter,
-		format: THREE.RGBFormat,
+		format: THREE.RGBFormat, // want RG16F or RG32F.
 		type: THREE.FloatType,
 		stencilBuffer: false,
 		depthBuffer: false
@@ -50,6 +52,8 @@ export function DistortionPass(options) {
 
 	this.noiseMaterial = new NoiseMaterial(options.highQuality);
 
+	this.resolution = (options.resolution === undefined) ? 512 : options.resolution;
+
 	/**
 	 * Distortion shader material.
 	 *
@@ -64,6 +68,8 @@ export function DistortionPass(options) {
 		waveStrength: options.waveStrength,
 		tint: options.color
 	});
+
+	this.quad.material = this.distortionMaterial;
 
 	/**
 	 * The effect speed.
@@ -94,12 +100,6 @@ export function DistortionPass(options) {
 	 */
 
 	this._dissolve = false;
-
-	// Set the resolution if already provided.
-	this.resolution = (options.resolution === undefined) ? 512 : options.resolution;
-
-	// Set the material for the rendering quad.
-	this.quad.material = this.distortionMaterial;
 
 }
 
@@ -172,15 +172,16 @@ Object.defineProperty(DistortionPass.prototype, "dissolve", {
  *
  * @method render
  * @param {WebGLRenderer} renderer - The renderer to use.
- * @param {WebGLRenderTarget} buffer - The read/write buffer.
+ * @param {WebGLRenderTarget} readBuffer - The read buffer.
+ * @param {WebGLRenderTarget} writeBuffer - The write buffer.
  * @param {Number} delta - The render delta time.
  */
 
-DistortionPass.prototype.render = function(renderer, buffer, delta) {
+DistortionPass.prototype.render = function(renderer, readBuffer, writeBuffer, delta) {
 
 	let t = delta * this.speed;
 
-	this.distortionMaterial.uniforms.tDiffuse.value = buffer;
+	this.distortionMaterial.uniforms.tDiffuse.value = readBuffer;
 	this.distortionMaterial.uniforms.time.value += t;
 
 	//this.renderPerturbationMap(renderer); // Debug.
@@ -198,18 +199,17 @@ DistortionPass.prototype.render = function(renderer, buffer, delta) {
 
 	} else {
 
-		renderer.render(this.scene, this.camera, buffer, false);
+		renderer.render(this.scene, this.camera, writeBuffer, false);
 
 	}
 
 };
 
 /**
- * Renders a perturbation map for the droplets.
+ * Renders a perturbation noise map.
  *
  * @method renderPerturbationMap
  * @param {WebGLRenderer} renderer - The renderer to use.
- * @param {Number} size - The texture size.
  * @private
  */
 
@@ -218,7 +218,6 @@ DistortionPass.prototype.renderPerturbationMap = function(renderer) {
 	this.quad.material = this.noiseMaterial;
 	this.noiseMaterial.uniforms.time.value = this.distortionMaterial.uniforms.time.value;
 
-	// Slow first time, maybe introduce init hook?
 	//renderer.render(this.scene, this.camera); // Renders the perturb map to screen.
 	renderer.render(this.scene, this.camera, this.renderTargetPerturb, false);
 
@@ -227,24 +226,14 @@ DistortionPass.prototype.renderPerturbationMap = function(renderer) {
 };
 
 /**
- * Updates the perturbation map render size.
+ * Warms up the perturbation render target to avoid start-up hiccups.
  *
- * @method setSize
- * @param {Number} width - The width.
- * @param {Number} heght - The height.
+ * @method initialise
+ * @param {WebGLRenderer} renderer - The renderer.
  */
 
-DistortionPass.prototype.setSize = function(width, height) {
+DistortionPass.prototype.initialise = function(renderer) {
 
-	width = Math.floor(width * this.resolutionScale);
-	height = Math.floor(height * this.resolutionScale);
-
-	if(width <= 0) { width = 1; }
-	if(height <= 0) { height = 1; }
-
-	this.noiseMaterial.uniforms.tWidth.value = 512;
-	this.noiseMaterial.uniforms.tHeight.value = 512;
-
-	this.renderTargetPerturb.setSize(512, 512);
+	this.renderPerturbationMap(renderer);
 
 };

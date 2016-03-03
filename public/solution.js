@@ -1,5 +1,5 @@
 /**
- * solution v0.1.0 build Feb 27 2016
+ * solution v0.1.0 build Mar 03 2016
  * https://github.com/vanruesc/solution
  * Copyright 2016 Raoul van Rüschen, Zlib
  */
@@ -13,7 +13,7 @@
 	THREE = 'default' in THREE ? THREE['default'] : THREE;
 
 	var shader = {
-		fragment: "uniform sampler2D tPerturb;\r\nuniform sampler2D tDiffuse;\r\n\r\nuniform float time;\r\nuniform float resetTimer;\r\n\r\nuniform vec2 rollOffSpeed;\r\nuniform vec2 waveStrength;\r\nuniform vec3 tint;\r\n\r\nvarying vec2 vUv;\r\n\r\nconst float FADE = 12.0;\r\n\r\n/*vec2 coordRot(vec2 tc, float angle) {\r\n\r\n\tfloat rotX = ((tc.x * 2.0 - 1.0) * (tWidth / tHeight) * cos(angle)) - ((tc.y * 2.0 - 1.0) * sin(angle));\r\n\tfloat rotY = ((tc.y * 2.0 - 1.0) * cos(angle)) + ((tc.x * 2.0 - 1.0) * (tWidth / tHeight) * sin(angle));\r\n\trotX = ((rotX / (tWidth / tHeight)) * 0.5 + 0.5);\r\n\trotY = rotY * 0.5 + 0.5;\r\n\r\n\treturn vec2(rotX, rotY);\r\n\r\n}*/\r\n\r\nvoid main() {\r\n\r\n\tfloat n = 0.0;\r\n\tfloat drop = 0.0;\r\n\r\n\tfloat resetTimerFaster = resetTimer * rollOffSpeed.x;\r\n\tfloat resetTimerSlow = resetTimer * rollOffSpeed.y;\r\n\r\n\t//n *= clamp(ceil(resetTimer / T_DISSOLVE), 0.0, 1.0);\r\n\t//drop *= clamp(ceil(resetTimer / T_DROPLETS), 0.0, 1.0);\r\n\t// Translate noise values to [0.0, 1.0].\r\n\t//n = n * 0.5 + 0.5;\r\n\t//drop = drop * 0.5 + 0.5;\r\n\r\n\tvec2 perturbSample;\r\n\r\n\tif(resetTimer > 0.0) {\r\n\r\n\t\tperturbSample = texture2D(tPerturb, vUv).rg;\r\n\r\n\t\tif(resetTimer < T_DISSOLVE) {\r\n\r\n\t\t\tn = perturbSample.r;\r\n\r\n\t\t}\r\n\r\n\t\tif(resetTimer < T_DROPLETS) {\r\n\r\n\t\t\tdrop = perturbSample.g;\r\n\r\n\t\t}\r\n\r\n\t}\r\n\r\n\tfloat drops = clamp(smoothstep(resetTimerFaster, 0.5 + resetTimerFaster, n), 0.0, 1.0);\r\n\tfloat droplet = clamp(smoothstep(0.75 + resetTimerSlow, 1.0 + resetTimerSlow, drop), 0.0, 1.0);\r\n\r\n\tdroplet = pow(clamp(droplet + drops, 0.0, 1.0), 0.1) * 3.0;\r\n\r\n\tvec2 droplets = vec2(dFdx(vUv + droplet).r, dFdy(vUv + droplet).g);\t\t\r\n\r\n\tvec2 wave = vec2(0.0);\r\n\r\n\tif(resetTimer < 1.0) {\r\n\r\n\t\twave.x = sin((vUv.x - vUv.y * 2.0) - time * 1.5) * waveStrength.x;\r\n\t\twave.x += cos((vUv.y * 4.0 - vUv.x * 6.0) + time * 4.2) * waveStrength.y;\r\n\t\twave.x += sin((vUv.x * 9.0 + vUv.y * 8.0) + time * 3.5) * waveStrength.x;\r\n\r\n\t\twave.y = sin((vUv.x * 2.0 + vUv.x * 2.5) + time * 2.5) * waveStrength.x;\r\n\t\twave.y += cos((vUv.y * 3.0 + vUv.x * 6.0) - time * 2.5) * waveStrength.y;\r\n\t\twave.y += sin((vUv.x * 11.0 - vUv.y * 12.0) + time * 4.5) * waveStrength.x;\r\n\r\n\t}\r\n\r\n\t//wave *= clamp(ceil(1.0 - resetTimer), 0.0, 1.0);\r\n\r\n\t// Texture edge bleed removal.\r\n\tvec2 distortFade = vec2(0.0);\r\n\tdistortFade.s = clamp(vUv.s * FADE, 0.0, 1.0);\r\n\tdistortFade.s -= clamp(1.0 - (1.0 - vUv.s) * FADE, 0.0, 1.0);\r\n\tdistortFade.t = clamp(vUv.t * FADE, 0.0, 1.0);\r\n\tdistortFade.t -= clamp(1.0 - (1.0 - vUv.t) * FADE, 0.0, 1.0); \r\n\r\n\t//vec2 rotCoordsR = coordRot(vUv, angle?);\r\n\r\n\tfloat dfade = 1.0 - pow(1.0 - distortFade.s * distortFade.t, 2.0);\r\n\twave = wave * dfade;\r\n\tdroplets = droplets * dfade;\r\n\r\n\tvec2 waveCoordR = vUv - wave * 0.004;\r\n\tvec2 waveCoordG = vUv - wave * 0.006;\t\r\n\tvec2 waveCoordB = vUv - wave * 0.008;\r\n\r\n\tvec2 dropCoordR = vUv - droplets * 1.1;\r\n\tvec2 dropCoordG = vUv - droplets * 1.2;\t\r\n\tvec2 dropCoordB = vUv - droplets * 1.3;\t\r\n\r\n\tvec3 dropletColor = vec3(0.0);\t\r\n\tdropletColor.r = texture2D(tDiffuse, dropCoordR).r;\r\n\tdropletColor.g = texture2D(tDiffuse, dropCoordG).g;\r\n\tdropletColor.b = texture2D(tDiffuse, dropCoordB).b;\r\n\r\n\tvec3 waveColor = vec3(0.0);\r\n\twaveColor.r = texture2D(tDiffuse, waveCoordR).r;\r\n\twaveColor.g = texture2D(tDiffuse, waveCoordG).g;\r\n\twaveColor.b = texture2D(tDiffuse, waveCoordB).b;\r\n\r\n\tfloat dropFade = clamp(resetTimer * 10.0, 0.0, 1.0);\r\n\tfloat dropletMask = smoothstep(0.77 + resetTimerSlow, 0.79 + resetTimerSlow, drop);\r\n\tfloat mask = smoothstep(0.02 + resetTimerFaster, 0.03 + resetTimerFaster, n);\r\n\r\n\tvec4 c = texture2D(tDiffuse, vUv);\r\n\r\n\tvec3 color = mix(waveColor, c.rgb, dropFade);\r\n\tcolor = mix(color, dropletColor * tint, clamp(dropletMask + mask, 0.0, 1.0) * dropFade);\r\n\r\n\tgl_FragColor = vec4(color, c.a);\r\n\r\n}\r\n",
+		fragment: "uniform sampler2D tPerturb;\r\nuniform sampler2D tDiffuse;\r\n\r\nuniform float time;\r\nuniform float resetTimer;\r\n\r\nuniform vec2 rollOffSpeed;\r\nuniform vec2 waveStrength;\r\nuniform vec3 tint;\r\n\r\nvarying vec2 vUv;\r\n\r\nconst float FADE = 12.0;\r\n\r\nvoid main() {\r\n\r\n\tfloat n = 0.0;\r\n\tfloat drop = 0.0;\r\n\r\n\tfloat resetTimerFaster = resetTimer * rollOffSpeed.x;\r\n\tfloat resetTimerSlow = resetTimer * rollOffSpeed.y;\r\n\r\n\tvec2 perturbSample;\r\n\r\n\tif(resetTimer > 0.0) {\r\n\r\n\t\tperturbSample = texture2D(tPerturb, vUv).rg;\r\n\r\n\t\tif(resetTimer < T_DISSOLVE) {\r\n\r\n\t\t\tn = perturbSample.r;\r\n\r\n\t\t}\r\n\r\n\t\tif(resetTimer < T_DROPLETS) {\r\n\r\n\t\t\tdrop = perturbSample.g;\r\n\r\n\t\t}\r\n\r\n\t}\r\n\r\n\t// if-less alternative.\r\n\t//perturbSample = texture2D(tPerturb, vUv).rg;\r\n\t//n = perturbSample.r;\r\n\t//drop = perturbSample.g;\r\n\t//n *= clamp(ceil(resetTimer / T_DISSOLVE), 0.0, 1.0);\r\n\t//drop *= clamp(ceil(resetTimer / T_DROPLETS), 0.0, 1.0);\r\n\r\n\tfloat drops = clamp(smoothstep(resetTimerFaster, 0.5 + resetTimerFaster, n), 0.0, 1.0);\r\n\tfloat droplet = clamp(smoothstep(0.75 + resetTimerSlow, 1.0 + resetTimerSlow, drop), 0.0, 1.0);\r\n\r\n\tdroplet = pow(clamp(droplet + drops, 0.0, 1.0), 0.1) * 3.0;\r\n\r\n\tvec2 droplets = vec2(dFdx(vUv + droplet).r, dFdy(vUv + droplet).g);\t\t\r\n\r\n\tvec2 wave = vec2(0.0);\r\n\r\n\tif(resetTimer < 1.0) {\r\n\r\n\t\twave.x = sin((vUv.x - vUv.y * 2.0) - time * 1.5) * waveStrength.x;\r\n\t\twave.x += cos((vUv.y * 4.0 - vUv.x * 6.0) + time * 4.2) * waveStrength.y;\r\n\t\twave.x += sin((vUv.x * 9.0 + vUv.y * 8.0) + time * 3.5) * waveStrength.x;\r\n\r\n\t\twave.y = sin((vUv.x * 2.0 + vUv.x * 2.5) + time * 2.5) * waveStrength.x;\r\n\t\twave.y += cos((vUv.y * 3.0 + vUv.x * 6.0) - time * 2.5) * waveStrength.y;\r\n\t\twave.y += sin((vUv.x * 11.0 - vUv.y * 12.0) + time * 4.5) * waveStrength.x;\r\n\r\n\t}\r\n\r\n\t//wave *= clamp(ceil(1.0 - resetTimer), 0.0, 1.0);\r\n\r\n\t// Texture edge bleed removal.\r\n\tvec2 distortFade = vec2(0.0);\r\n\tdistortFade.s = clamp(vUv.s * FADE, 0.0, 1.0);\r\n\tdistortFade.s -= clamp(1.0 - (1.0 - vUv.s) * FADE, 0.0, 1.0);\r\n\tdistortFade.t = clamp(vUv.t * FADE, 0.0, 1.0);\r\n\tdistortFade.t -= clamp(1.0 - (1.0 - vUv.t) * FADE, 0.0, 1.0); \r\n\r\n\tfloat dfade = 1.0 - pow(1.0 - distortFade.s * distortFade.t, 2.0);\r\n\twave = wave * dfade;\r\n\tdroplets = droplets * dfade;\r\n\r\n\tvec2 waveCoordR = vUv - wave * 0.004;\r\n\tvec2 waveCoordG = vUv - wave * 0.006;\t\r\n\tvec2 waveCoordB = vUv - wave * 0.008;\r\n\r\n\tvec2 dropCoordR = vUv - droplets * 1.1;\r\n\tvec2 dropCoordG = vUv - droplets * 1.2;\t\r\n\tvec2 dropCoordB = vUv - droplets * 1.3;\t\r\n\r\n\tvec3 dropletColor = vec3(0.0);\t\r\n\tdropletColor.r = texture2D(tDiffuse, dropCoordR).r;\r\n\tdropletColor.g = texture2D(tDiffuse, dropCoordG).g;\r\n\tdropletColor.b = texture2D(tDiffuse, dropCoordB).b;\r\n\r\n\tvec3 waveColor = vec3(0.0);\r\n\twaveColor.r = texture2D(tDiffuse, waveCoordR).r;\r\n\twaveColor.g = texture2D(tDiffuse, waveCoordG).g;\r\n\twaveColor.b = texture2D(tDiffuse, waveCoordB).b;\r\n\r\n\tfloat dropFade = clamp(resetTimer * 10.0, 0.0, 1.0);\r\n\tfloat dropletMask = smoothstep(0.77 + resetTimerSlow, 0.79 + resetTimerSlow, drop);\r\n\tfloat mask = smoothstep(0.02 + resetTimerFaster, 0.03 + resetTimerFaster, n);\r\n\r\n\tvec4 c = texture2D(tDiffuse, vUv);\r\n\r\n\tvec3 color = mix(waveColor, c.rgb, dropFade);\r\n\tcolor = mix(color, dropletColor * tint, clamp(dropletMask + mask, 0.0, 1.0) * dropFade);\r\n\r\n\tgl_FragColor = vec4(color, c.a);\r\n\r\n}\r\n",
 		vertex: "varying vec2 vUv;\n\nvoid main() {\n\n\tvUv = uv;\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n\n}\n",
 	};
 
@@ -80,7 +80,7 @@
 	DistortionMaterial.prototype.constructor = DistortionMaterial;
 
 	var shader$1 = {
-		fragment: "#ifdef USE_FOG\n\n\t#define LOG2 1.442695\n\t#define saturate(a) clamp(a, 0.0, 1.0)\n\t#define whiteCompliment(a) (1.0 - saturate(a))\n\n\tuniform vec3 fogColor;\n\n\t#ifdef FOG_EXP2\n\n\t\tuniform float fogDensity;\n\n\t#else\n\n\t\tuniform float fogNear;\n\t\tuniform float fogFar;\n\n\t#endif\n\n#endif\n\n#ifdef USE_LOGDEPTHBUF\n\n\tuniform float logDepthBufFC;\n\n\t#ifdef USE_LOGDEPTHBUF_EXT\n\n\t\tvarying float vFragDepth;\n\n\t#endif\n\n#endif\n\nuniform float time;\nuniform float timeScale;\n\nuniform float primarySpeed;\nuniform float secondarySpeed;\nuniform float displacement;\nuniform float advection;\nuniform float intensity;\n\nuniform vec2 octaveScale;\nuniform vec3 lavaColor;\nuniform sampler2D noiseMap;\n\n//varying float vViewTheta;\nvarying vec2 vUv;\n\nfloat hash21(vec2 n) {\n\n\treturn fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);\n\n}\n\nmat2 makem2(float theta) {\n\n\tfloat c = cos(theta);\n\tfloat s = sin(theta);\n\n\t//float a = mix(c, s, vViewTheta);\n\t//float b = mix(s, c, vViewTheta);\n\n\t//return mat2(-c, -s, s, c);\n\treturn mat2(c, -s, s, c);\n\t//return mat2(a, -b, b, a);\n\n}\n\nfloat noise(vec2 x) {\n\n\treturn texture2D(noiseMap, x * 0.01).x;\n\n}\n\nvec2 gradn(vec2 p) {\n\n\tfloat ep = 0.09;\n\tfloat gradx = noise(vec2(p.x + ep, p.y)) - noise(vec2(p.x - ep, p.y));\n\tfloat grady = noise(vec2(p.x, p.y + ep)) - noise(vec2(p.x, p.y - ep));\n\n\treturn vec2(gradx, grady);\n\n}\n\nfloat flow(vec2 p) {\n\n\tfloat t = time * timeScale;\n\tfloat z = 2.0;\n\tfloat rz = 0.0;\n\tvec2 bp = p;\n\n\tfor(float i = 1.0; i < 7.0; ++i) {\n\n\t\tp += t * primarySpeed;\n\t\tbp += t * secondarySpeed;\n\n\t\t// Displacement field.\n\t\tvec2 gr = gradn(i * p * 0.34 + t * displacement);\n\n\t\t// Rotation of the displacement field.\n\t\tgr *= makem2(t * 6.0 - (0.05 * p.x + 0.03 * p.y) * 40.0);\n\n\t\t// Displace the system.\n\t\tp += gr * 0.5;\n\n\t\t// Add noise octave.\n\t\trz += (sin(noise(p) * 7.0) * 0.5 + 0.5) / z;\n\n\t\t// Blend.\n\t\tp = mix(bp, p, advection);\n\n\t\t// Intensity scaling.\n\t\tz *= intensity;\n\n\t\t// Octave scaling.\n\t\tp *= octaveScale.x;\n\t\tbp *= octaveScale.y;\n\n\t}\n\n\treturn rz;\n\n}\n\nvoid main() {\n\n\tfloat rz = flow(vUv);\n\t\n\tvec3 color = lavaColor / rz;\n\tcolor = pow(abs(color), vec3(1.4));\n\n\t#if defined(USE_LOGDEPTHBUF) && defined(USE_LOGDEPTHBUF_EXT)\n\n\t\tgl_FragDepthEXT = log2(vFragDepth) * logDepthBufFC * 0.5;\n\n\t#endif\n\n\t#ifdef USE_FOG\n\n\t\t#ifdef USE_LOGDEPTHBUF_EXT\n\n\t\t\tfloat depth = gl_FragDepthEXT / gl_FragCoord.w;\n\n\t\t#else\n\n\t\t\tfloat depth = gl_FragCoord.z / gl_FragCoord.w;\n\n\t\t#endif\n\n\t\t#ifdef FOG_EXP2\n\n\t\t\tfloat fogFactor = whiteCompliment(exp2(-fogDensity * fogDensity * depth * depth * LOG2));\n\n\t\t#else\n\n\t\t\tfloat fogFactor = smoothstep(fogNear, fogFar, depth);\n\n\t\t#endif\n\n\t\tcolor = mix(color, fogColor, fogFactor);\n\n\t#endif\n\n\tgl_FragColor = vec4(color, 1.0);\n\n}\n",
+		fragment: "#ifdef USE_FOG\n\n\t#define LOG2 1.442695\n\t#define saturate(a) clamp(a, 0.0, 1.0)\n\t#define whiteCompliment(a) (1.0 - saturate(a))\n\n\tuniform vec3 fogColor;\n\n\t#ifdef FOG_EXP2\n\n\t\tuniform float fogDensity;\n\n\t#else\n\n\t\tuniform float fogNear;\n\t\tuniform float fogFar;\n\n\t#endif\n\n#endif\n\n#ifdef USE_LOGDEPTHBUF\n\n\tuniform float logDepthBufFC;\n\n\t#ifdef USE_LOGDEPTHBUF_EXT\n\n\t\tvarying float vFragDepth;\n\n\t#endif\n\n#endif\n\nuniform float time;\nuniform float timeScale;\n\nuniform float primarySpeed;\nuniform float secondarySpeed;\nuniform float displacement;\nuniform float advection;\nuniform float intensity;\n\nuniform vec2 octaveScale;\nuniform vec3 lavaColor;\nuniform sampler2D noiseMap;\n\n//varying float vViewTheta;\nvarying vec2 vUv;\n\nfloat hash21(vec2 n) {\n\n\treturn fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);\n\n}\n\nmat2 makem2(float theta) {\n\n\tfloat c = cos(theta);\n\tfloat s = sin(theta);\n\n\t//float a = mix(c, s, vViewTheta);\n\t//float b = mix(s, c, vViewTheta);\n\n\t//return mat2(-c, -s, s, c);\n\treturn mat2(c, -s, s, c);\n\t//return mat2(a, -b, b, a);\n\n}\n\nfloat noise(vec2 x) {\n\n\treturn texture2D(noiseMap, x * 0.01).x;\n\n}\n\nvec2 gradn(vec2 p) {\n\n\tfloat ep = 0.09;\n\tfloat gradx = noise(vec2(p.x + ep, p.y)) - noise(vec2(p.x - ep, p.y));\n\tfloat grady = noise(vec2(p.x, p.y + ep)) - noise(vec2(p.x, p.y - ep));\n\n\treturn vec2(gradx, grady);\n\n}\n\nfloat flow(vec2 p) {\n\n\tfloat t = time * timeScale;\n\tfloat t1 = t * primarySpeed;\n\tfloat t2 = t * secondarySpeed;\n\n\tfloat z = 2.0;\n\tfloat rz = 0.0;\n\tvec2 bp = p;\n\n\tfor(float i = 1.0; i < 7.0; ++i) {\n\n\t\tp += t1;\n\t\tbp += t2;\n\n\t\t// Displacement field.\n\t\tvec2 gr = gradn(i * p * 0.34 + t * displacement);\n\n\t\t// Rotation of the displacement field.\n\t\tgr *= makem2(t * 6.0 - (0.05 * p.x + 0.03 * p.y) * 40.0);\n\n\t\t// Displace the system.\n\t\tp += gr * 0.5;\n\n\t\t// Add noise octave.\n\t\trz += (sin(noise(p) * 7.0) * 0.5 + 0.5) / z;\n\n\t\t// Blend.\n\t\tp = mix(bp, p, advection);\n\n\t\t// Intensity scaling.\n\t\tz *= intensity;\n\n\t\t// Octave scaling.\n\t\tp *= octaveScale.x;\n\t\tbp *= octaveScale.y;\n\n\t}\n\n\treturn rz;\n\n}\n\nvoid main() {\n\n\tfloat rz = flow(vUv);\n\t\n\tvec3 color = lavaColor / rz;\n\tcolor = pow(abs(color), vec3(1.4));\n\n\t#if defined(USE_LOGDEPTHBUF) && defined(USE_LOGDEPTHBUF_EXT)\n\n\t\tgl_FragDepthEXT = log2(vFragDepth) * logDepthBufFC * 0.5;\n\n\t#endif\n\n\t#ifdef USE_FOG\n\n\t\t#ifdef USE_LOGDEPTHBUF_EXT\n\n\t\t\tfloat depth = gl_FragDepthEXT / gl_FragCoord.w;\n\n\t\t#else\n\n\t\t\tfloat depth = gl_FragCoord.z / gl_FragCoord.w;\n\n\t\t#endif\n\n\t\t#ifdef FOG_EXP2\n\n\t\t\tfloat fogFactor = whiteCompliment(exp2(-fogDensity * fogDensity * depth * depth * LOG2));\n\n\t\t#else\n\n\t\t\tfloat fogFactor = smoothstep(fogNear, fogFar, depth);\n\n\t\t#endif\n\n\t\tcolor = mix(color, fogColor, fogFactor);\n\n\t#endif\n\n\tgl_FragColor = vec4(color, 1.0);\n\n}\n",
 		vertex: "#define EPSILON 1e-6\n\n#ifdef USE_LOGDEPTHBUF\n\n\tuniform float logDepthBufFC;\n\n\t#ifdef USE_LOGDEPTHBUF_EXT\n\n\t\tvarying float vFragDepth;\n\n\t#endif\n\n#endif\n\nuniform vec4 offsetRepeat;\n\n//varying float vViewTheta;\nvarying vec2 vUv;\n\n//const vec2 Z = vec2(0.0, 1.0);\n\nvoid main() {\n\n\tvec4 mvPosition = modelViewMatrix * vec4(position, 1.0);\n\t//vViewTheta = clamp((normalize(cameraPosition - position).z + 1.0) * 0.5, 0.0, 1.0);\n\tvUv = uv * offsetRepeat.zw + offsetRepeat.xy;\n\tgl_Position = projectionMatrix * mvPosition;\n\n\t#ifdef USE_LOGDEPTHBUF\n\n\t\tgl_Position.z = log2(max(EPSILON, gl_Position.w + 1.0)) * logDepthBufFC;\n\n\t\t#ifdef USE_LOGDEPTHBUF_EXT\n\n\t\t\tvFragDepth = 1.0 + gl_Position.w;\n\n\t\t#else\n\n\t\t\tgl_Position.z = (gl_Position.z - 1.0) * gl_Position.w;\n\n\t\t#endif\n\n\t#endif\n\n}\n",
 	};
 
@@ -145,7 +145,7 @@
 	LavaMaterial.prototype.constructor = LavaMaterial;
 
 	var shader$2 = {
-		fragment: "uniform float tWidth;\r\nuniform float tHeight;\r\n\r\nuniform float texelSize;\r\nuniform float halfTexelSize;\r\n\r\nuniform float time;\r\nuniform float randomTime;\r\n\r\nvarying vec2 vUv;\r\n\r\nvec3 randRGB(vec2 tc) {\r\n\r\n\tfloat noise = sin(dot(tc, vec2(12.9898, 78.233))) * 43758.5453;\r\n\r\n\treturn vec3(\r\n\t\tfract(noise) * 2.0 - 1.0,\r\n\t\tfract(noise * 1.2154) * 2.0 - 1.0,\r\n\t\tfract(noise * 1.3453) * 2.0 - 1.0\r\n\t);\r\n\r\n}\r\n\r\nfloat randA(vec2 tc) {\r\n\r\n\treturn fract(sin(dot(tc, vec2(12.9898, 78.233))) * 43758.5453 * 1.3647) * 2.0 - 1.0;\r\n\r\n}\r\n\r\nfloat fade(float t) {\r\n\r\n\treturn t * t * t * (t * (t * 6.0 - 15.0) + 10.0);\r\n\r\n}\r\n\r\nfloat perlinNoise(vec3 p) {\r\n\r\n\t// Integer part, scaled so +1 moves texelSize texel.\r\n\t// Add 1/2 texel to sample texel centers.\r\n\tvec3 pi = texelSize * floor(p) + halfTexelSize;\r\n\r\n\t// Fractional part for interpolation.\r\n\tvec3 pf = fract(p);\r\n\r\n\t// Noise contributions from (x=0, y=0), z=0 and z=1.\r\n\tfloat perm00 = randA(pi.xy);\r\n\tvec3  grad000 = randRGB(vec2(perm00, pi.z)) * 4.0 - 1.0;\r\n\tfloat n000 = dot(grad000, pf);\r\n\tvec3  grad001 = randRGB(vec2(perm00, pi.z + texelSize)) * 4.0 - 1.0;\r\n\tfloat n001 = dot(grad001, pf - vec3(0.0, 0.0, 1.0));\r\n\r\n\t// Noise contributions from (x=0, y=1), z=0 and z=1.\r\n\tfloat perm01 = randA(pi.xy + vec2(0.0, texelSize));\r\n\tvec3  grad010 = randRGB(vec2(perm01, pi.z)) * 4.0 - 1.0;\r\n\tfloat n010 = dot(grad010, pf - vec3(0.0, 1.0, 0.0));\r\n\tvec3  grad011 = randRGB(vec2(perm01, pi.z + texelSize)) * 4.0 - 1.0;\r\n\tfloat n011 = dot(grad011, pf - vec3(0.0, 1.0, 1.0));\r\n\r\n\t// Noise contributions from (x=1, y=0), z=0 and z=1.\r\n\tfloat perm10 = randA(pi.xy + vec2(texelSize, 0.0));\r\n\tvec3  grad100 = randRGB(vec2(perm10, pi.z)) * 4.0 - 1.0;\r\n\tfloat n100 = dot(grad100, pf - vec3(1.0, 0.0, 0.0));\r\n\tvec3  grad101 = randRGB(vec2(perm10, pi.z + texelSize)) * 4.0 - 1.0;\r\n\tfloat n101 = dot(grad101, pf - vec3(1.0, 0.0, 1.0));\r\n\r\n\t// Noise contributions from (x=1, y=1), z=0 and z=1.\r\n\tfloat perm11 = randA(pi.xy + vec2(texelSize));\r\n\tvec3  grad110 = randRGB(vec2(perm11, pi.z)) * 4.0 - 1.0;\r\n\tfloat n110 = dot(grad110, pf - vec3(1.0, 1.0, 0.0));\r\n\tvec3  grad111 = randRGB(vec2(perm11, pi.z + texelSize)) * 4.0 - 1.0;\r\n\tfloat n111 = dot(grad111, pf - vec3(1.0, 1.0, 1.0));\r\n\r\n\t// Blend contributions along x.\r\n\tvec4 nX = mix(vec4(n000, n001, n010, n011), vec4(n100, n101, n110, n111), fade(pf.x));\r\n\r\n\t// Blend contributions along y.\r\n\tvec2 nXY = mix(nX.xy, nX.zw, fade(pf.y));\r\n\r\n\t// Blend contributions along z and return the final noise value.\r\n\treturn mix(nXY.x, nXY.y, fade(pf.z));\r\n\r\n}\r\n\r\nvoid main() {\r\n\r\n\tfloat r = 0.0;\r\n\tfloat g = 0.0;\r\n\r\n\tr += perlinNoise(vec3(vUv * vec2(tWidth / 90.0, tHeight / 200.0) + vec2(0.0, time * 0.6), 1.0 + time * 0.2)) * 0.25;\r\n\tr += perlinNoise(vec3(vUv * vec2(tWidth / 1200.0, tHeight / 1800.0) + vec2(0.0, time * 0.5), 3.0 + time * 0.3)) * 0.75;\r\n\r\n\tg += perlinNoise(vec3(vUv * vec2(tWidth / 40.0, tHeight / 60.0), randomTime / 8.0 + time * 0.02)) * 0.2;\r\n\tg += perlinNoise(vec3(vUv * vec2(tWidth / 80.0, tHeight / 200.0), randomTime * 2.1 + time * 0.03)) * 0.25;\r\n\r\n\t#ifdef HIGH_QUALITY\r\n\r\n\t\tr += perlinNoise(vec3(vUv * vec2(tWidth / 50.0, tHeight / 80.0) + vec2(0.0, time * 0.8), time * 0.2)) * 0.1;\r\n\t\tr += perlinNoise(vec3(vUv * vec2(tWidth / 200.0, tHeight / 400.0) + vec2(0.0, time * 0.4), 2.0 + time * 0.4)) * 0.25;\r\n\r\n\t\tg += perlinNoise(vec3(vUv * vec2(tWidth / 200.0, tHeight / 400.0), randomTime * 0.23 + time * 0.04)) * 0.2;\r\n\t\tg += perlinNoise(vec3(vUv * vec2(tWidth / 800.0, tHeight / 1800.0), randomTime * 1.64 + time * 0.05)) * 0.1;\r\n\r\n\t#endif\r\n\r\n\tr = r * 0.5 + 0.5;\r\n\tg = g * 0.5 + 0.5;\r\n\r\n\tgl_FragColor = vec4(r, g, 0.0, 1.0);\r\n\r\n}\r\n",
+		fragment: "uniform float tWidth;\r\nuniform float tHeight;\r\n\r\nuniform float texelSize;\r\nuniform float halfTexelSize;\r\n\r\nuniform float time;\r\nuniform float randomTime;\r\n\r\nvarying vec2 vUv;\r\n\r\n/*vec2 coordRot(vec2 tc, float angle) {\r\n\r\n\tfloat rotX = ((tc.x * 2.0 - 1.0) * (tWidth / tHeight) * cos(angle)) - ((tc.y * 2.0 - 1.0) * sin(angle));\r\n\tfloat rotY = ((tc.y * 2.0 - 1.0) * cos(angle)) + ((tc.x * 2.0 - 1.0) * (tWidth / tHeight) * sin(angle));\r\n\trotX = ((rotX / (tWidth / tHeight)) * 0.5 + 0.5);\r\n\trotY = rotY * 0.5 + 0.5;\r\n\r\n\treturn vec2(rotX, rotY);\r\n\r\n}*/\r\n\r\nvec3 randRGB(vec2 tc) {\r\n\r\n\tfloat noise = sin(dot(tc, vec2(12.9898, 78.233))) * 43758.5453;\r\n\r\n\treturn vec3(\r\n\t\tfract(noise) * 2.0 - 1.0,\r\n\t\tfract(noise * 1.2154) * 2.0 - 1.0,\r\n\t\tfract(noise * 1.3453) * 2.0 - 1.0\r\n\t);\r\n\r\n}\r\n\r\nfloat randA(vec2 tc) {\r\n\r\n\treturn fract(sin(dot(tc, vec2(12.9898, 78.233))) * 43758.5453 * 1.3647) * 2.0 - 1.0;\r\n\r\n}\r\n\r\nfloat fade(float t) {\r\n\r\n\treturn t * t * t * (t * (t * 6.0 - 15.0) + 10.0);\r\n\r\n}\r\n\r\nfloat perlinNoise(vec3 p) {\r\n\r\n\t// Integer part, scaled so +1 moves texelSize texel.\r\n\t// Add 1/2 texel to sample texel centers.\r\n\tvec3 pi = texelSize * floor(p) + halfTexelSize;\r\n\r\n\t// Fractional part for interpolation.\r\n\tvec3 pf = fract(p);\r\n\r\n\t// Noise contributions from (x=0, y=0), z=0 and z=1.\r\n\tfloat perm00 = randA(pi.xy);\r\n\tvec3  grad000 = randRGB(vec2(perm00, pi.z)) * 4.0 - 1.0;\r\n\tfloat n000 = dot(grad000, pf);\r\n\tvec3  grad001 = randRGB(vec2(perm00, pi.z + texelSize)) * 4.0 - 1.0;\r\n\tfloat n001 = dot(grad001, pf - vec3(0.0, 0.0, 1.0));\r\n\r\n\t// Noise contributions from (x=0, y=1), z=0 and z=1.\r\n\tfloat perm01 = randA(pi.xy + vec2(0.0, texelSize));\r\n\tvec3  grad010 = randRGB(vec2(perm01, pi.z)) * 4.0 - 1.0;\r\n\tfloat n010 = dot(grad010, pf - vec3(0.0, 1.0, 0.0));\r\n\tvec3  grad011 = randRGB(vec2(perm01, pi.z + texelSize)) * 4.0 - 1.0;\r\n\tfloat n011 = dot(grad011, pf - vec3(0.0, 1.0, 1.0));\r\n\r\n\t// Noise contributions from (x=1, y=0), z=0 and z=1.\r\n\tfloat perm10 = randA(pi.xy + vec2(texelSize, 0.0));\r\n\tvec3  grad100 = randRGB(vec2(perm10, pi.z)) * 4.0 - 1.0;\r\n\tfloat n100 = dot(grad100, pf - vec3(1.0, 0.0, 0.0));\r\n\tvec3  grad101 = randRGB(vec2(perm10, pi.z + texelSize)) * 4.0 - 1.0;\r\n\tfloat n101 = dot(grad101, pf - vec3(1.0, 0.0, 1.0));\r\n\r\n\t// Noise contributions from (x=1, y=1), z=0 and z=1.\r\n\tfloat perm11 = randA(pi.xy + vec2(texelSize));\r\n\tvec3  grad110 = randRGB(vec2(perm11, pi.z)) * 4.0 - 1.0;\r\n\tfloat n110 = dot(grad110, pf - vec3(1.0, 1.0, 0.0));\r\n\tvec3  grad111 = randRGB(vec2(perm11, pi.z + texelSize)) * 4.0 - 1.0;\r\n\tfloat n111 = dot(grad111, pf - vec3(1.0, 1.0, 1.0));\r\n\r\n\t// Blend contributions along x.\r\n\tvec4 nX = mix(vec4(n000, n001, n010, n011), vec4(n100, n101, n110, n111), fade(pf.x));\r\n\r\n\t// Blend contributions along y.\r\n\tvec2 nXY = mix(nX.xy, nX.zw, fade(pf.y));\r\n\r\n\t// Blend contributions along z and return the final noise value.\r\n\treturn mix(nXY.x, nXY.y, fade(pf.z));\r\n\r\n}\r\n\r\nvoid main() {\r\n\r\n\tfloat r = 0.0;\r\n\tfloat g = 0.0;\r\n\r\n\tr += perlinNoise(vec3(vUv * vec2(tWidth / 90.0, tHeight / 200.0) + vec2(0.0, time * 0.6), 1.0 + time * 0.2)) * 0.25;\r\n\tr += perlinNoise(vec3(vUv * vec2(tWidth / 1200.0, tHeight / 1800.0) + vec2(0.0, time * 0.5), 3.0 + time * 0.3)) * 0.75;\r\n\r\n\tg += perlinNoise(vec3(vUv * vec2(tWidth / 40.0, tHeight / 60.0), randomTime / 8.0 + time * 0.02)) * 0.2;\r\n\tg += perlinNoise(vec3(vUv * vec2(tWidth / 80.0, tHeight / 200.0), randomTime * 2.1 + time * 0.03)) * 0.25;\r\n\r\n\t#ifdef HIGH_QUALITY\r\n\r\n\t\tr += perlinNoise(vec3(vUv * vec2(tWidth / 50.0, tHeight / 80.0) + vec2(0.0, time * 0.8), time * 0.2)) * 0.1;\r\n\t\tr += perlinNoise(vec3(vUv * vec2(tWidth / 200.0, tHeight / 400.0) + vec2(0.0, time * 0.4), 2.0 + time * 0.4)) * 0.25;\r\n\r\n\t\tg += perlinNoise(vec3(vUv * vec2(tWidth / 200.0, tHeight / 400.0), randomTime * 0.23 + time * 0.04)) * 0.2;\r\n\t\tg += perlinNoise(vec3(vUv * vec2(tWidth / 800.0, tHeight / 1800.0), randomTime * 1.64 + time * 0.05)) * 0.1;\r\n\r\n\t#endif\r\n\r\n\tr = r * 0.5 + 0.5;\r\n\tg = g * 0.5 + 0.5;\r\n\r\n\tgl_FragColor = vec4(r, g, 0.0, 1.0);\r\n\r\n}\r\n",
 		vertex: "varying vec2 vUv;\n\nvoid main() {\n\n\tvUv = uv;\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n\n}\n",
 	};
 
@@ -396,14 +396,12 @@
 	 * Frame Buffer Postprocessing Effects in DOUBLE-S.T.E.A.L (Wreckless)
 	 *
 	 * Further modified according to:
-	 *  https://developer.apple.com/library/ios/documentation/3DDrawing/Conceptual/
-	 *  OpenGLES_ProgrammingGuide/BestPracticesforShaders/BestPracticesforShaders.html#//
-	 *  apple_ref/doc/uid/TP40008793-CH7-SW15
+	 *  https://developer.apple.com/library/ios/documentation/3DDrawing/Conceptual/OpenGLES_ProgrammingGuide/BestPracticesforShaders/BestPracticesforShaders.html#//apple_ref/doc/uid/TP40008793-CH7-SW15
 	 *
 	 * @class ConvolutionMaterial
 	 * @constructor
 	 * @extends ShaderMaterial
-	 * @param {Vector2} texelSize - The absolute screen texel size.
+	 * @param {Vector2} [texelSize] - The absolute screen texel size.
 	 */
 
 	function ConvolutionMaterial(texelSize) {
@@ -438,25 +436,25 @@
 		/**
 		 * Scales the kernels.
 		 *
-		 * @property blurriness
+		 * @property scale
 		 * @type Number
 		 * @default 1.0
 		 */
 
-		this.blurriness = 1.0;
+		this.scale = 1.0;
 
 		/**
 		 * The current kernel.
 		 *
-		 * @property i
+		 * @property step
 		 * @type Number
 		 * @private
 		 */
 
-		this.i = 0;
+		this.currentKernel = 0;
 
 		// Set the texel size if already provided.
-		this.setTexelSize(texelSize);
+		if(texelSize !== undefined) { this.setTexelSize(texelSize.x, texelSize.y); }
 
 	}
 
@@ -467,17 +465,14 @@
 	 * Sets the texel size.
 	 *
 	 * @method setTexelSize
-	 * @param {Vector2} texelSize - The new texel size.
+	 * @param {Number} x - The texel width.
+	 * @param {Number} y - The texel height.
 	 */
 
-	ConvolutionMaterial.prototype.setTexelSize = function(texelSize) {
+	ConvolutionMaterial.prototype.setTexelSize = function(x, y) {
 
-		if(texelSize !== undefined) {
-
-			this.uniforms.texelSize.value.copy(texelSize);
-			this.uniforms.halfTexelSize.value.copy(texelSize).multiplyScalar(0.5);
-
-		}
+		this.uniforms.texelSize.value.set(x, y);
+		this.uniforms.halfTexelSize.value.set(x, y).multiplyScalar(0.5);
 
 	};
 
@@ -490,8 +485,8 @@
 
 	ConvolutionMaterial.prototype.adjustKernel = function() {
 
-		this.uniforms.kernel.value = this.kernels[this.i] * this.blurriness;
-		if(++this.i >= this.kernels.length) { this.i = 0; }
+		this.uniforms.kernel.value = this.kernels[this.currentKernel] * this.scale;
+		if(++this.currentKernel >= this.kernels.length) { this.currentKernel = 0; }
 
 	};
 
@@ -632,43 +627,52 @@
 	GodRaysMaterial.prototype = Object.create(THREE.ShaderMaterial.prototype);
 	GodRaysMaterial.prototype.constructor = GodRaysMaterial;
 
-	var shader$15 = {
-		fragment: "uniform sampler2D tDiffuse;\r\nuniform float middleGrey;\r\nuniform float maxLuminance;\r\n\r\n#ifdef ADAPTED_LUMINANCE\r\n\r\n\tuniform sampler2D luminanceMap;\r\n\r\n#else\r\n\r\n\tuniform float averageLuminance;\r\n\r\n#endif\r\n\r\nvarying vec2 vUv;\r\n\r\nconst vec3 LUM_CONVERT = vec3(0.299, 0.587, 0.114);\r\nconst vec2 CENTER = vec2(0.5, 0.5);\r\n\r\nvec3 toneMap(vec3 c) {\r\n\r\n\t#ifdef ADAPTED_LUMINANCE\r\n\r\n\t\t// Get the calculated average luminance.\r\n\t\tfloat lumAvg = texture2D(luminanceMap, CENTER).r;\r\n\r\n\t#else\r\n\r\n\t\tfloat lumAvg = averageLuminance;\r\n\r\n\t#endif\r\n\r\n\t// Calculate the luminance of the current pixel.\r\n\tfloat lumPixel = dot(c, LUM_CONVERT);\r\n\r\n\t// Apply the modified operator (Eq. 4).\r\n\tfloat lumScaled = (lumPixel * middleGrey) / lumAvg;\r\n\r\n\tfloat lumCompressed = (lumScaled * (1.0 + (lumScaled / (maxLuminance * maxLuminance)))) / (1.0 + lumScaled);\r\n\treturn lumCompressed * c;\r\n\r\n}\r\n\r\nvoid main() {\r\n\r\n\tvec4 texel = texture2D(tDiffuse, vUv);\r\n\tgl_FragColor = vec4(toneMap(texel.rgb), texel.a);\r\n\r\n}\r\n",
+	var shader$14 = {
+		fragment: "uniform sampler2D tDiffuse;\r\nuniform float distinction;\r\nuniform vec2 range;\r\n\r\nvarying vec2 vUv;\r\n\r\nconst vec4 LUM_COEFF = vec4(0.299, 0.587, 0.114, 0.0);\r\n\r\nvoid main() {\r\n\r\n\tvec4 texel = texture2D(tDiffuse, vUv);\r\n\tfloat v = dot(texel, LUM_COEFF);\r\n\r\n\t#ifdef RANGE\r\n\r\n\t\tfloat low = step(range.x, v);\r\n\t\tfloat high = step(v, range.y);\r\n\r\n\t\t// Apply the mask.\r\n\t\tv *= low * high;\r\n\r\n\t#endif\r\n\r\n\tv = pow(v, distinction);\r\n\r\n\t#ifdef COLOR\r\n\r\n\t\tgl_FragColor = vec4(texel.rgb * v, texel.a);\r\n\r\n\t#else\r\n\r\n\t\tgl_FragColor = vec4(v, v, v, texel.a);\r\n\r\n\t#endif\r\n\r\n}\r\n",
 		vertex: "varying vec2 vUv;\r\n\r\nvoid main() {\r\n\r\n\tvUv = uv;\r\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\r\n\r\n}\r\n"
 	};
 
 	/**
-	 * Full-screen tone-mapping shader material.
-	 * http://www.graphics.cornell.edu/~jaf/publications/sig02_paper.pdf
+	 * A luminance shader material.
 	 *
-	 * @class ToneMappingMaterial
+	 * This shader produces a greyscale luminance map. 
+	 * It can also be configured to output colors that are scaled with their 
+	 * respective luminance value. Additionally, a range may be provided to 
+	 * mask out undesired texels.
+	 *
+	 * The alpha channel will remain unaffected in all cases.
+	 *
+	 * @class LuminosityMaterial
 	 * @constructor
 	 * @extends ShaderMaterial
+	 * @params {Boolean} [color=false] - Defines whether the shader should output colors scaled with their luminance value.
+	 * @params {Vector2} [range] - If provided, the shader will mask out texels that aren't in the specified range.
 	 */
 
-	function ToneMappingMaterial() {
+	function LuminosityMaterial(color, range) {
 
 		THREE.ShaderMaterial.call(this, {
 
 			uniforms: {
 
 				tDiffuse: {type: "t", value: null},
-				luminanceMap: {type: "t", value: null},
-				averageLuminance: {type: "f", value: 1.0},
-				maxLuminance: {type: "f", value: 16.0},
-				middleGrey: {type: "f", value: 0.6}
+				distinction: {type: "f", value: 1.0},
+				range: {type: "v2", value: (range !== undefined) ? range : new THREE.Vector2()}
 
 			},
 
-			fragmentShader: shader$15.fragment,
-			vertexShader: shader$15.vertex
+			fragmentShader: shader$14.fragment,
+			vertexShader: shader$14.vertex
 
 		});
 
+		if(color !== undefined) { this.defines.COLOR = "1"; }
+		if(range !== undefined) { this.defines.RANGE = "1"; }
+
 	}
 
-	ToneMappingMaterial.prototype = Object.create(THREE.ShaderMaterial.prototype);
-	ToneMappingMaterial.prototype.constructor = ToneMappingMaterial;
+	LuminosityMaterial.prototype = Object.create(THREE.ShaderMaterial.prototype);
+	LuminosityMaterial.prototype.constructor = LuminosityMaterial;
 
 	/**
 	 * An abstract pass.
@@ -679,8 +683,8 @@
 	 * For this mechanism to work properly, please assign your render targets, 
 	 * materials or textures directly to your pass!
 	 *
-	 * You can prevent your disposable objects from being deleted by keeping 
-	 * them inside deeper structures such as arrays or objects.
+	 * You can prevent your disposable objects from being deleted by keeping them 
+	 * inside deeper structures such as arrays or objects.
 	 *
 	 * @class Pass
 	 * @constructor
@@ -715,6 +719,7 @@
 
 		/**
 		 * The quad mesh to use for rendering.
+		 *
 		 * Assign your shader material to this mesh!
 		 *
 		 * @property quad
@@ -726,6 +731,20 @@
 		 */
 
 		this.quad = (quad !== undefined) ? quad : new THREE.Mesh(new THREE.PlaneBufferGeometry(2, 2), null);
+
+		/**
+		 * Indicates whether the read and write buffers should be swapped after this 
+		 * pass has finished rendering.
+		 *
+		 * Set this to true if this pass renders to the write buffer so that a 
+		 * following pass can find the result in the read buffer.
+		 *
+		 * @property needsSwap
+		 * @type Boolean
+		 * @default false
+		 */
+
+		this.needsSwap = false;
 
 		/**
 		 * Enabled flag.
@@ -758,16 +777,17 @@
 	}
 
 	/**
-	 * Renders the scene.
+	 * Renders the effect.
 	 *
-	 * This is an abstract method that must be overriden.
+	 * This is an abstract method that must be overridden.
 	 *
 	 * @method render
 	 * @throws {Error} An error is thrown if the method is not overridden.
 	 * @param {WebGLRenderer} renderer - The renderer to use.
-	 * @param {WebGLRenderTarget} buffer - A read/write buffer.
+	 * @param {WebGLRenderTarget} readBuffer - A read buffer. Contains the result of the previous pass.
+	 * @param {WebGLRenderTarget} writeBuffer - A write buffer. Normally used as the render target.
 	 * @param {Number} [delta] - The delta time.
-	 * @param {Boolean} [maskActive] - Indicates whether the stencil test is active or not.
+	 * @param {Boolean} [maskActive] - Indicates whether a stencil test mask is active or not.
 	 */
 
 	Pass.prototype.render = function(renderer, buffer, delta, maskActive) {
@@ -777,17 +797,33 @@
 	};
 
 	/**
-	 * Updates this pass with the main render target's size.
+	 * Performs advanced initialisation tasks.
 	 *
-	 * This is an abstract method that may be overriden in case 
-	 * you want to be informed about the main render size.
+	 * By implementing this abstract method you gain access to the renderer.
+	 * You'll also be able to configure your custom render targets to use the 
+	 * appropriate format (RGB or RGBA).
 	 *
-	 * The effect composer calls this method when the pass is added 
-	 * and when the effect composer is reset.
+	 * The provided renderer can be used to warm up special off-screen render 
+	 * targets by performing a preliminary render operation.
+	 *
+	 * @method initialise
+	 * @param {WebGLRenderer} renderer - The renderer.
+	 * @param {Boolean} alpha - Whether the renderer uses the alpha channel or not.
+	 */
+
+	Pass.prototype.initialise = function(renderer, alpha) {};
+
+	/**
+	 * Updates this pass with the renderer's size.
+	 *
+	 * This is an abstract method that may be overriden in case you want to be 
+	 * informed about the main render size.
+	 *
+	 * The effect composer calls this method when its own size is updated.
 	 *
 	 * @method setSize
-	 * @param {Number} width - The width.
-	 * @param {Number} height - The height.
+	 * @param {Number} width - The renderer's width.
+	 * @param {Number} height - The renderer's height.
 	 * @example
 	 *  this.myRenderTarget.width = width / 2;
 	 */
@@ -795,9 +831,8 @@
 	Pass.prototype.setSize = function(width, height) {};
 
 	/**
-	 * Performs a shallow search for properties that define a dispose
-	 * method and deletes them. The pass will be inoperative after 
-	 * this method was called!
+	 * Performs a shallow search for properties that define a dispose method and 
+	 * deletes them. The pass will be inoperative after this method was called!
 	 *
 	 * Disposable objects:
 	 *  - render targets
@@ -842,8 +877,9 @@
 	 * @extends Pass
 	 * @param {Object} [options] - The options.
 	 * @param {Number} [options.resolutionScale=0.5] - The render texture resolution scale, relative to the screen render size.
-	 * @param {Number} [options.blurriness=1.0] - The scale of the blur kernels.
+	 * @param {Number} [options.blurriness=1.0] - The scale of the blur.
 	 * @param {Number} [options.strength=1.0] - The bloom strength.
+	 * @param {Number} [options.distinction=1.0] - The luminance distinction factor. Raise this value to bring out the brighter elements in the scene.
 	 */
 
 	function BloomPass(options) {
@@ -863,7 +899,6 @@
 		this.renderTargetX = new THREE.WebGLRenderTarget(1, 1, {
 			minFilter: THREE.LinearFilter,
 			magFilter: THREE.LinearFilter,
-			format: THREE.RGBFormat,
 			stencilBuffer: false,
 			depthBuffer: false
 		});
@@ -871,7 +906,7 @@
 		this.renderTargetX.texture.generateMipmaps = false;
 
 		/**
-		 * Another render target.
+		 * A second render target.
 		 *
 		 * @property renderTargetY
 		 * @type WebGLRenderTarget
@@ -892,16 +927,6 @@
 		 */
 
 		this.resolutionScale = (options.resolutionScale === undefined) ? 0.5 : options.resolutionScale;
-
-		/**
-		 * The texel size for the blur.
-		 *
-		 * @property texelSize
-		 * @type Vector2
-		 * @private
-		 */
-
-		this.texelSize = new THREE.Vector2();
 
 		/**
 		 * Combine shader material.
@@ -930,14 +955,16 @@
 		if(options.strength !== undefined) { this.copyMaterial.uniforms.opacity.value = options.strength; }
 
 		/**
-		 * Tone-mapping shader material.
+		 * Luminance shader material.
 		 *
-		 * @property toneMappingMaterial
-		 * @type ToneMappingMaterial
+		 * @property luminosityMaterial
+		 * @type LuminosityMaterial
 		 * @private
 		 */
 
-		this.toneMappingMaterial = new ToneMappingMaterial();
+		this.luminosityMaterial = new LuminosityMaterial(true);
+
+		if(options.distinction !== undefined) { this.luminosityMaterial.uniforms.distinction.value = options.distinction; }
 
 		/**
 		 * Convolution shader material.
@@ -949,7 +976,6 @@
 
 		this.convolutionMaterial = new ConvolutionMaterial();
 
-		// Set the blur strength.
 		this.blurriness = options.blurriness;
 
 	}
@@ -967,13 +993,13 @@
 
 	Object.defineProperty(BloomPass.prototype, "blurriness", {
 
-		get: function() { return this.convolutionMaterial.blurriness; },
+		get: function() { return this.convolutionMaterial.scale; },
 
 		set: function(x) {
 
 			if(typeof x === "number") {
 
-				this.convolutionMaterial.blurriness = x;
+				this.convolutionMaterial.scale = x;
 
 			}
 
@@ -982,29 +1008,25 @@
 	});
 
 	/**
-	 * Renders the bloom effect.
+	 * Renders the effect.
 	 *
-	 * Applies a tone-mapping pass and convolution blur to the readBuffer and 
+	 * Applies a luminance filter and convolution blur to the read buffer and 
 	 * renders the result into a seperate render target. The result is additively 
-	 * blended with the readBuffer.
+	 * blended with the read buffer.
 	 *
 	 * @method render
 	 * @param {WebGLRenderer} renderer - The renderer to use.
-	 * @param {WebGLRenderTarget} buffer - The read/write buffer.
-	 * @param {Number} delta - The render delta time.
-	 * @param {Boolean} maskActive - Disable stencil test.
+	 * @param {WebGLRenderTarget} readBuffer - The read buffer.
 	 */
 
-	BloomPass.prototype.render = function(renderer, buffer, delta, maskActive) {
+	BloomPass.prototype.render = function(renderer, readBuffer) {
 
-		if(maskActive) { renderer.context.disable(renderer.context.STENCIL_TEST); }
-
-		// Tone-mapping.
-		this.quad.material = this.toneMappingMaterial;
-		this.toneMappingMaterial.uniforms.tDiffuse.value = buffer;
+		// Luminance filter.
+		this.quad.material = this.luminosityMaterial;
+		this.luminosityMaterial.uniforms.tDiffuse.value = readBuffer;
 		renderer.render(this.scene, this.camera, this.renderTargetX);
 
-		// Convolution blur (5 passes).
+		// Convolution phase.
 		this.quad.material = this.convolutionMaterial;
 
 		this.convolutionMaterial.adjustKernel();
@@ -1027,14 +1049,11 @@
 		this.convolutionMaterial.uniforms.tDiffuse.value = this.renderTargetX;
 		renderer.render(this.scene, this.camera, this.renderTargetY);
 
-		if(maskActive) { renderer.context.enable(renderer.context.STENCIL_TEST); }
-
 		// Render original scene with superimposed blur.
 		if(this.renderToScreen) {
 
 			this.quad.material = this.combineMaterial;
-			this.combineMaterial.uniforms.texture1.value = buffer;
-			//this.combineMaterial.uniforms.opacity1.value = 0.0;
+			this.combineMaterial.uniforms.texture1.value = readBuffer;
 			this.combineMaterial.uniforms.texture2.value = this.renderTargetY;
 
 			renderer.render(this.scene, this.camera);
@@ -1044,14 +1063,36 @@
 			this.quad.material = this.copyMaterial;
 			this.copyMaterial.uniforms.tDiffuse.value = this.renderTargetY;
 
-			renderer.render(this.scene, this.camera, buffer, false);
+			renderer.render(this.scene, this.camera, readBuffer, false);
 
 		}
 
 	};
 
 	/**
-	 * Updates this pass with the main render target's size.
+	 * Adjusts the format and size of the render targets.
+	 *
+	 * @method initialise
+	 * @param {WebGLRenderer} renderer - The renderer.
+	 * @param {Boolean} alpha - Whether the renderer uses the alpha channel or not.
+	 */
+
+	BloomPass.prototype.initialise = function(renderer, alpha) {
+
+		let size = renderer.getSize();
+		this.setSize(size.width, size.height);
+
+		if(!alpha) {
+
+			this.renderTargetX.texture.format = THREE.RGBFormat;
+			this.renderTargetY.texture.format = THREE.RGBFormat;
+
+		}
+
+	};
+
+	/**
+	 * Updates this pass with the renderer's size.
 	 *
 	 * @method setSize
 	 * @param {Number} width - The width.
@@ -1069,8 +1110,7 @@
 		this.renderTargetX.setSize(width, height);
 		this.renderTargetY.setSize(width, height);
 
-		this.texelSize.set(1.0 / width, 1.0 / height);
-		this.convolutionMaterial.setTexelSize(this.texelSize);
+		this.convolutionMaterial.setTexelSize(1.0 / width, 1.0 / height);
 
 	};
 
@@ -1089,6 +1129,8 @@
 
 		Pass.call(this);
 
+		this.needsSwap = true;
+
 		if(options === undefined) { options = {}; }
 		if(options.dtSize === undefined) { options.dtSize = 64; }
 
@@ -1101,6 +1143,8 @@
 		 */
 
 		this.material = new GlitchMaterial();
+
+		this.quad.material = this.material;
 
 		/**
 		 * A perturbation map.
@@ -1148,10 +1192,15 @@
 
 		this.counter = 0;
 
-		// Set the material of the rendering quad.
-		this.quad.material = this.material;
+		/**
+		 * A random break point for the sporadic glitch activation.
+		 *
+		 * @property breakPoint
+		 * @type Number
+		 * @private
+		 */
 
-		// Create a new glitch point.
+		this.breakPoint = 0;
 		this.generateTrigger();
 
 	}
@@ -1160,18 +1209,19 @@
 	GlitchPass.prototype.constructor = GlitchPass;
 
 	/**
-	 * Renders the scene.
+	 * Renders the effect.
 	 *
 	 * @method render
 	 * @param {WebGLRenderer} renderer - The renderer to use.
-	 * @param {WebGLRenderTarget} buffer - The read/write buffer.
+	 * @param {WebGLRenderTarget} readBuffer - The read buffer.
+	 * @param {WebGLRenderTarget} writeBuffer - The write buffer.
 	 */
 
-	GlitchPass.prototype.render = function(renderer, buffer) {
+	GlitchPass.prototype.render = function(renderer, readBuffer, writeBuffer) {
 
 		let uniforms = this.material.uniforms;
 
-		uniforms.tDiffuse.value = buffer;
+		uniforms.tDiffuse.value = readBuffer;
 		uniforms.seed.value = Math.random();
 		uniforms.active.value = true;
 
@@ -1209,7 +1259,7 @@
 
 		} else {
 
-			renderer.render(this.scene, this.camera, buffer, false);
+			renderer.render(this.scene, this.camera, writeBuffer, false);
 
 		}
 
@@ -1232,8 +1282,8 @@
 	 * generates a simple noise map.
 	 *
 	 * @method generatePerturbMap
-	 * @param {Number} size - The texture size.
 	 * @private
+	 * @param {Number} size - The texture size.
 	 */
 
 	GlitchPass.prototype.generatePerturbMap = function(size) {
@@ -1306,6 +1356,21 @@
 		if(options === undefined) { options = {}; }
 
 		/**
+		 * A render target for rendering the masked scene.
+		 *
+		 * @property renderTargetMask
+		 * @type WebGLRenderTarget
+		 * @private
+		 */
+
+		this.renderTargetMask = new THREE.WebGLRenderTarget(1, 1, {
+			minFilter: THREE.LinearFilter,
+			magFilter: THREE.LinearFilter
+		});
+
+		this.renderTargetMask.texture.generateMipmaps = false;
+
+		/**
 		 * A render target.
 		 *
 		 * @property renderTargetX
@@ -1313,17 +1378,12 @@
 		 * @private
 		 */
 
-		this.renderTargetX = new THREE.WebGLRenderTarget(1, 1, {
-			minFilter: THREE.LinearFilter,
-			magFilter: THREE.LinearFilter,
-			format: THREE.RGBFormat,
-			stencilBuffer: false
-		});
-
-		this.renderTargetX.texture.generateMipmaps = false;
+		this.renderTargetX = this.renderTargetMask.clone();
+		this.renderTargetX.stencilBuffer = false;
+		this.renderTargetX.depthBuffer = false;
 
 		/**
-		 * Another render target.
+		 * A second render target.
 		 *
 		 * @property renderTargetY
 		 * @type WebGLRenderTarget
@@ -1331,12 +1391,11 @@
 		 */
 
 		this.renderTargetY = this.renderTargetX.clone();
-		this.renderTargetY.depthBuffer = false;
 
 		/**
 		 * The resolution scale.
 		 *
-		 * You need to call the reset method of the EffectComposer 
+		 * You need to call the setSize method of the EffectComposer 
 		 * after changing this value.
 		 *
 		 * @property renderTargetY
@@ -1366,16 +1425,6 @@
 		this.screenPosition = new THREE.Vector3();
 
 		/**
-		 * The texel size for the blur.
-		 *
-		 * @property texelSize
-		 * @type Vector2
-		 * @private
-		 */
-
-		this.texelSize = new THREE.Vector2();
-
-		/**
 		 * A convolution blur shader material.
 		 *
 		 * @property convolutionMaterial
@@ -1384,6 +1433,8 @@
 		 */
 
 		this.convolutionMaterial = new ConvolutionMaterial();
+
+		this.blurriness = (options.blurriness !== undefined) ? options.blurriness : 0.1;
 
 		/**
 		 * A combine shader material used for rendering to screen.
@@ -1438,7 +1489,7 @@
 		this.intensity = options.intensity;
 
 		/**
-		 * A main scene.
+		 * The main scene.
 		 *
 		 * @property mainScene
 		 * @type Scene
@@ -1455,12 +1506,6 @@
 
 		this.mainCamera = (camera !== undefined) ? camera : new THREE.PerspectiveCamera();
 
-		// Swap read and write buffer when done.
-		this.needsSwap = true;
-
-		// Set the blur strength.
-		this.blurriness = (options.blurriness !== undefined) ? options.blurriness : 0.1;
-
 	}
 
 	GodRaysPass.prototype = Object.create(Pass.prototype);
@@ -1476,13 +1521,13 @@
 
 	Object.defineProperty(GodRaysPass.prototype, "blurriness", {
 
-		get: function() { return this.convolutionMaterial.blurriness; },
+		get: function() { return this.convolutionMaterial.scale; },
 
 		set: function(x) {
 
 			if(typeof x === "number") {
 
-				this.convolutionMaterial.blurriness = x;
+				this.convolutionMaterial.scale = x;
 
 			}
 
@@ -1582,10 +1627,10 @@
 	 *
 	 * @method render
 	 * @param {WebGLRenderer} renderer - The renderer to use.
-	 * @param {WebGLRenderTarget} buffer - The read/write buffer.
+	 * @param {WebGLRenderTarget} readBuffer - The read buffer.
 	 */
 
-	GodRaysPass.prototype.render = function(renderer, buffer) {
+	GodRaysPass.prototype.render = function(renderer, readBuffer) {
 
 		let clearAlpha;
 
@@ -1600,7 +1645,7 @@
 		clearAlpha = renderer.getClearAlpha();
 		renderer.setClearColor(0x000000, 1);
 		//renderer.render(this.mainScene, this.mainCamera, null, true); // Debug.
-		renderer.render(this.mainScene, this.mainCamera, this.renderTargetX, true);
+		renderer.render(this.mainScene, this.mainCamera, this.renderTargetMask, true);
 		renderer.setClearColor(CLEAR_COLOR, clearAlpha);
 		this.mainScene.overrideMaterial = null;
 
@@ -1608,11 +1653,7 @@
 		this.quad.material = this.convolutionMaterial;
 
 		this.convolutionMaterial.adjustKernel();
-		this.convolutionMaterial.uniforms.tDiffuse.value = this.renderTargetX;
-		renderer.render(this.scene, this.camera, this.renderTargetY);
-
-		this.convolutionMaterial.adjustKernel();
-		this.convolutionMaterial.uniforms.tDiffuse.value = this.renderTargetY;
+		this.convolutionMaterial.uniforms.tDiffuse.value = this.renderTargetMask;
 		renderer.render(this.scene, this.camera, this.renderTargetX);
 
 		this.convolutionMaterial.adjustKernel();
@@ -1626,34 +1667,61 @@
 		this.convolutionMaterial.adjustKernel();
 		this.convolutionMaterial.uniforms.tDiffuse.value = this.renderTargetX;
 		renderer.render(this.scene, this.camera, this.renderTargetY);
+
+		this.convolutionMaterial.adjustKernel();
+		this.convolutionMaterial.uniforms.tDiffuse.value = this.renderTargetY;
+		renderer.render(this.scene, this.camera, this.renderTargetX);
 
 		// God rays pass.
 		this.quad.material = this.godRaysMaterial;
-		this.godRaysMaterial.uniforms.tDiffuse.value = this.renderTargetY;
-		renderer.render(this.scene, this.camera, this.renderTargetX);
+		this.godRaysMaterial.uniforms.tDiffuse.value = this.renderTargetX;
+		renderer.render(this.scene, this.camera, this.renderTargetY);
 
 		// Final pass - composite god rays onto colors.
 		if(this.renderToScreen) {
 
 			this.quad.material = this.combineMaterial;
-			this.combineMaterial.uniforms.texture1.value = buffer;
-			this.combineMaterial.uniforms.texture2.value = this.renderTargetX;
+			this.combineMaterial.uniforms.texture1.value = readBuffer;
+			this.combineMaterial.uniforms.texture2.value = this.renderTargetY;
 
 			renderer.render(this.scene, this.camera);
 
 		} else {
 
 			this.quad.material = this.copyMaterial;
-			this.copyMaterial.uniforms.tDiffuse.value = this.renderTargetX;
+			this.copyMaterial.uniforms.tDiffuse.value = this.renderTargetY;
 
-			renderer.render(this.scene, this.camera, buffer);
+			renderer.render(this.scene, this.camera, readBuffer);
 
 		}
 
 	};
 
 	/**
-	 * Updates this pass with the main render target's size.
+	 * Adjusts the format and size of the render targets.
+	 *
+	 * @method initialise
+	 * @param {WebGLRenderer} renderer - The renderer.
+	 * @param {Boolean} alpha - Whether the renderer uses the alpha channel or not.
+	 */
+
+	GodRaysPass.prototype.initialise = function(renderer, alpha) {
+
+		let size = renderer.getSize();
+		this.setSize(size.width, size.height);
+
+		if(!alpha) {
+
+			this.renderTargetMask.texture.format = THREE.RGBFormat;
+			this.renderTargetX.texture.format = THREE.RGBFormat;
+			this.renderTargetY.texture.format = THREE.RGBFormat;
+
+		}
+
+	};
+
+	/**
+	 * Updates this pass with the renderer's size.
 	 *
 	 * @method setSize
 	 * @param {Number} width - The width.
@@ -1668,11 +1736,11 @@
 		if(width <= 0) { width = 1; }
 		if(height <= 0) { height = 1; }
 
+		this.renderTargetMask.setSize(width, height);
 		this.renderTargetX.setSize(width, height);
 		this.renderTargetY.setSize(width, height);
 
-		this.texelSize.set(1.0 / width, 1.0 / height);
-		this.convolutionMaterial.setTexelSize(this.texelSize);
+		this.convolutionMaterial.setTexelSize(1.0 / width, 1.0 / height);
 
 	};
 
@@ -1704,6 +1772,8 @@
 
 		Pass.call(this);
 
+		this.needsSwap = true;
+
 		if(options === undefined) { options = {}; }
 
 		/**
@@ -1717,7 +1787,7 @@
 		this.renderTargetPerturb = new THREE.WebGLRenderTarget(1, 1, {
 			minFilter: THREE.LinearFilter,
 			magFilter: THREE.LinearFilter,
-			format: THREE.RGBFormat,
+			format: THREE.RGBFormat, // want RG16F or RG32F.
 			type: THREE.FloatType,
 			stencilBuffer: false,
 			depthBuffer: false
@@ -1735,6 +1805,8 @@
 
 		this.noiseMaterial = new NoiseMaterial(options.highQuality);
 
+		this.resolution = (options.resolution === undefined) ? 512 : options.resolution;
+
 		/**
 		 * Distortion shader material.
 		 *
@@ -1749,6 +1821,8 @@
 			waveStrength: options.waveStrength,
 			tint: options.color
 		});
+
+		this.quad.material = this.distortionMaterial;
 
 		/**
 		 * The effect speed.
@@ -1779,12 +1853,6 @@
 		 */
 
 		this._dissolve = false;
-
-		// Set the resolution if already provided.
-		this.resolution = (options.resolution === undefined) ? 512 : options.resolution;
-
-		// Set the material for the rendering quad.
-		this.quad.material = this.distortionMaterial;
 
 	}
 
@@ -1857,15 +1925,16 @@
 	 *
 	 * @method render
 	 * @param {WebGLRenderer} renderer - The renderer to use.
-	 * @param {WebGLRenderTarget} buffer - The read/write buffer.
+	 * @param {WebGLRenderTarget} readBuffer - The read buffer.
+	 * @param {WebGLRenderTarget} writeBuffer - The write buffer.
 	 * @param {Number} delta - The render delta time.
 	 */
 
-	DistortionPass.prototype.render = function(renderer, buffer, delta) {
+	DistortionPass.prototype.render = function(renderer, readBuffer, writeBuffer, delta) {
 
 		let t = delta * this.speed;
 
-		this.distortionMaterial.uniforms.tDiffuse.value = buffer;
+		this.distortionMaterial.uniforms.tDiffuse.value = readBuffer;
 		this.distortionMaterial.uniforms.time.value += t;
 
 		//this.renderPerturbationMap(renderer); // Debug.
@@ -1883,18 +1952,17 @@
 
 		} else {
 
-			renderer.render(this.scene, this.camera, buffer, false);
+			renderer.render(this.scene, this.camera, writeBuffer, false);
 
 		}
 
 	};
 
 	/**
-	 * Renders a perturbation map for the droplets.
+	 * Renders a perturbation noise map.
 	 *
 	 * @method renderPerturbationMap
 	 * @param {WebGLRenderer} renderer - The renderer to use.
-	 * @param {Number} size - The texture size.
 	 * @private
 	 */
 
@@ -1903,7 +1971,6 @@
 		this.quad.material = this.noiseMaterial;
 		this.noiseMaterial.uniforms.time.value = this.distortionMaterial.uniforms.time.value;
 
-		// Slow first time, maybe introduce init hook?
 		//renderer.render(this.scene, this.camera); // Renders the perturb map to screen.
 		renderer.render(this.scene, this.camera, this.renderTargetPerturb, false);
 
@@ -1912,25 +1979,15 @@
 	};
 
 	/**
-	 * Updates the perturbation map render size.
+	 * Warms up the perturbation render target to avoid start-up hiccups.
 	 *
-	 * @method setSize
-	 * @param {Number} width - The width.
-	 * @param {Number} heght - The height.
+	 * @method initialise
+	 * @param {WebGLRenderer} renderer - The renderer.
 	 */
 
-	DistortionPass.prototype.setSize = function(width, height) {
+	DistortionPass.prototype.initialise = function(renderer) {
 
-		width = Math.floor(width * this.resolutionScale);
-		height = Math.floor(height * this.resolutionScale);
-
-		if(width <= 0) { width = 1; }
-		if(height <= 0) { height = 1; }
-
-		this.noiseMaterial.uniforms.tWidth.value = 512;
-		this.noiseMaterial.uniforms.tHeight.value = 512;
-
-		this.renderTargetPerturb.setSize(512, 512);
+		this.renderPerturbationMap(renderer);
 
 	};
 
@@ -1959,7 +2016,6 @@
 	 * @param {Boolean} [options.refraction=true] - Whether the refraction should be rendered.
 	 * @param {Number} [options.resolution=256] - The render texture resolution.
 	 * @param {Number} [options.clipBias=0.2] - The clip plane offset.
-	 * @param {WebGLRenderTarget} [options.renderTarget] - A render target to use.
 	 * @param {Texture} [options.normalMap] - A normalmap for the waves.
 	 * @param {Boolean} [options.lowQuality=false] - Falls back to a less expensive water shader.
 	 */
@@ -1973,34 +2029,27 @@
 		/**
 		 * The reflection render texture.
 		 *
-		 * @property reflectionTexture
+		 * @property renderTargetReflection
 		 * @type WebGLRenderTarget
 		 */
 
-		let resolution = (options.resolution === undefined) ? 256 : options.resolution;
+		this.renderTargetReflection = new THREE.WebGLRenderTarget(1, 1, {
+			minFilter: THREE.LinearFilter,
+			magFilter: THREE.LinearFilter
+		});
 
-		if(options.renderTarget === undefined) {
-
-			options.renderTarget = new THREE.WebGLRenderTarget(resolution, resolution, {
-				minFilter: THREE.LinearFilter,
-				magFilter: THREE.LinearFilter,
-				format: THREE.RGBFormat,
-				stencilBuffer: false,
-				depthBuffer: false
-			});
-
-		}
-
-		this.reflectionTexture = options.renderTarget;
+		this.renderTargetReflection.texture.generateMipmaps = false;
 
 		/**
 		 * The refraction render texture.
 		 *
-		 * @property refractionTexture
+		 * @property renderTargetRefraction
 		 * @type WebGLRenderTarget
 		 */
 
-		this.refractionTexture = this.reflectionTexture.clone();
+		this.renderTargetRefraction = this.renderTargetReflection.clone();
+
+		this.resolution = (options.resolution === undefined) ? 256 : options.resolution;
 
 		/**
 		 * The reflection camera.
@@ -2029,7 +2078,7 @@
 		 * @type Boolean
 		 */
 
-		this.renderReflection = options.reflection;
+		this.renderReflection = (options.reflection !== undefined) ? options.reflection : true;
 
 		/**
 		 * Whether the refraction texture should be rendered.
@@ -2038,7 +2087,7 @@
 		 * @type Boolean
 		 */
 
-		this.renderRefraction = options.refraction;
+		this.renderRefraction = (options.refraction !== undefined) ? options.refraction : true;
 
 		/**
 		 * The water material.
@@ -2053,8 +2102,12 @@
 			lowQuality: options.lowQuality
 		});
 
-		this.material.uniforms.reflectionMap.value = this.reflectionTexture;
-		this.material.uniforms.refractionMap.value = this.refractionTexture;
+		if(this.material !== null) {
+
+			this.material.uniforms.reflectionMap.value = this.renderTargetReflection;
+			this.material.uniforms.refractionMap.value = this.renderTargetRefraction;
+
+		}
 
 		/**
 		 * A plane mesh that represents the actual reflection/refraction plane.
@@ -2207,15 +2260,42 @@
 	WaterPass.prototype.constructor = WaterPass;
 
 	/**
-	 * Renders the reflection texture.
+	 * The resolution of the render targets.
+	 * The value should be a power of two.
+	 *
+	 * @property resolution
+	 * @type Number
+	 * @default 256
+	 */
+
+	Object.defineProperty(WaterPass.prototype, "resolution", {
+
+		get: function() { return this.renderTargetReflection.width; },
+
+		set: function(x) {
+
+			if(typeof x === "number" && x > 0) {
+
+				this.renderTargetReflection.setSize(x, x);
+				this.renderTargetRefraction.setSize(x, x);
+
+			}
+
+		}
+
+	});
+
+	/**
+	 * Renders the reflection and refraction textures.
 	 *
 	 * @method render
 	 * @param {WebGLRenderer} renderer - The renderer to use.
-	 * @param {WebGLRenderTarget} buffer - The read/write buffer. Ignored in this pass.
+	 * @param {WebGLRenderTarget} readBuffer - The read buffer.
+	 * @param {WebGLRenderTarget} writeBuffer - The write buffer.
 	 * @param {Number} delta - The render delta time.
 	 */
 
-	WaterPass.prototype.render = function(renderer, buffer, delta) {
+	WaterPass.prototype.render = function(renderer, readBuffer, writeBuffer, delta) {
 
 		if(this.mesh.matrixNeedsUpdate) { this.update(); }
 		//this.mesh.matrixNeedsUpdate = true;
@@ -2223,8 +2303,8 @@
 		let visible = this.material.visible;
 		this.material.visible = false;
 
-		if(this.renderReflection) { renderer.render(this.scene, this.reflectionCamera, this.reflectionTexture, true); }
-		if(this.renderRefraction) { renderer.render(this.scene, this.refractionCamera, this.refractionTexture, true); }
+		if(this.renderReflection) { renderer.render(this.scene, this.reflectionCamera, this.renderTargetReflection, true); }
+		if(this.renderRefraction) { renderer.render(this.scene, this.refractionCamera, this.renderTargetRefraction, true); }
 
 		this.material.visible = visible;
 		if(this.material !== null) { this.material.uniforms.time.value += delta; }
@@ -2315,6 +2395,25 @@
 		projectionMatrix.elements[6] = c.y;
 		projectionMatrix.elements[10] = c.z + 1.0 + this.clipBias;// minus?
 		projectionMatrix.elements[14] = c.w;
+
+	};
+
+	/**
+	 * Adjusts the format of the render targets.
+	 *
+	 * @method initialise
+	 * @param {WebGLRenderer} renderer - The renderer.
+	 * @param {Boolean} alpha - Whether the renderer uses the alpha channel or not.
+	 */
+
+	WaterPass.prototype.initialise = function(renderer, alpha) {
+
+		if(!alpha) {
+
+			this.renderTargetReflection.texture.format = THREE.RGBFormat;
+			this.renderTargetRefraction.texture.format = THREE.RGBFormat;
+
+		}
 
 	};
 
