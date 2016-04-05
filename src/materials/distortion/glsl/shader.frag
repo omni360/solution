@@ -1,3 +1,5 @@
+#define DISTORTION
+
 uniform sampler2D tPerturb;
 uniform sampler2D tDiffuse;
 

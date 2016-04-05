@@ -6,4 +6,4 @@
  */
 
 export { DistortionPass } from "./distortion";
-export { WaterPass } from "./water";
+export { ReflectionPass } from "./reflection";

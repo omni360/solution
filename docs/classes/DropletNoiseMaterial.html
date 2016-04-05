@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>NoiseMaterial - solution</title>
+    <title>DropletNoiseMaterial - solution</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -17,7 +17,7 @@
                 <h1><img src="../assets/css/logo.png" title="solution" width="117" height="52"></h1>
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.1.0</em>
+            <em>API Docs for: 0.1.1</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -40,8 +40,9 @@
                             <ul id="api-classes" class="apis classes">
                                 <li><a href="../classes/DistortionMaterial.html">DistortionMaterial</a></li>
                                 <li><a href="../classes/DistortionPass.html">DistortionPass</a></li>
+                                <li><a href="../classes/DropletNoiseMaterial.html">DropletNoiseMaterial</a></li>
                                 <li><a href="../classes/LavaMaterial.html">LavaMaterial</a></li>
-                                <li><a href="../classes/NoiseMaterial.html">NoiseMaterial</a></li>
+                                <li><a href="../classes/ReflectionPass.html">ReflectionPass</a></li>
                                 <li><a href="../classes/WaterfallMaterial.html">WaterfallMaterial</a></li>
                                 <li><a href="../classes/WaterMaterial.html">WaterMaterial</a></li>
                                 <li><a href="../classes/WaterPass.html">WaterPass</a></li>
@@ -85,7 +86,7 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-<h1>NoiseMaterial Class</h1>
+<h1>DropletNoiseMaterial Class</h1>
 <div class="box meta">
 
         <div class="extends">
@@ -93,7 +94,7 @@
         </div>
 
         <div class="foundat">
-            Defined in: <a href="../files/src_materials_noise_index.js.html#l4"><code>src\materials\noise\index.js:4</code></a>
+            Defined in: <a href="../files/src_materials_droplet-noise_index.js.html#l6"><code>src\materials\droplet-noise\index.js:6</code></a>
         </div>
 
             Module: <a href="../modules/solution.html">solution</a>
@@ -102,7 +103,7 @@
 
 
 <div class="box intro">
-    <p>A noise shader material.</p>
+    <p>A droplet noise shader material.</p>
 <p>Shader code adopted from Martins Upitis' water/underwater blend:
 <a href="http://devlog-martinsh.blogspot.de/2013/09/waterunderwater-sky-shader-update-02.html">http://devlog-martinsh.blogspot.de/2013/09/waterunderwater-sky-shader-update-02.html</a></p>
 
@@ -110,13 +111,13 @@
 
     <div class="constructor">
         <h2>Constructor</h2>
-<div id="method_NoiseMaterial" class="method item">
-    <h3 class="name"><code>NoiseMaterial</code></h3>
+<div id="method_DropletNoiseMaterial" class="method item">
+    <h3 class="name"><code>DropletNoiseMaterial</code></h3>
 
         <div class="args">
             <span class="paren">(</span><ul class="args-list inline commas">
                 <li class="arg">
-                        <code>highQuality</code>
+                        <code class="optional">[highQuality]</code>
                 </li>
             </ul><span class="paren">)</span>
         </div>
@@ -131,7 +132,7 @@
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_materials_noise_index.js.html#l4"><code>src\materials\noise\index.js:4</code></a>
+        <a href="../files/src_materials_droplet-noise_index.js.html#l6"><code>src\materials\droplet-noise\index.js:6</code></a>
         </p>
 
 
@@ -147,8 +148,9 @@
 
             <ul class="params-list">
                 <li class="param">
-                        <code class="param-name">highQuality</code>
+                        <code class="param-name optional">[highQuality]</code>
                         <span class="type">Boolean</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
 
 
                     <div class="param-description">

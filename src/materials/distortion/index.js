@@ -1,5 +1,7 @@
-import shader from "./inlined/shader";
 import THREE from "three";
+
+import fragment from "./glsl/shader.frag";
+import vertex from "./glsl/shader.vert";
 
 /**
  * A distortion shader material.
@@ -17,48 +19,44 @@ import THREE from "three";
  * @param {Color} [options.color] - The droplet tint.
  */
 
-export function DistortionMaterial(options) {
+export class DistortionMaterial extends THREE.ShaderMaterial {
 
-	if(options === undefined) { options = {}; }
+	constructor(options) {
 
-	var map = options.perturbMap;
-	var speed = options.rollOffSpeed;
-	var sinCos = options.waveStrength;
-	var color = options.color;
+		if(options === undefined) { options = {}; }
 
-	THREE.ShaderMaterial.call(this, {
+		super({
 
-		defines: {
+			defines: {
 
-			T_DISSOLVE: "4.0",
-			T_DROPLETS: "60.0"
+				T_DISSOLVE: "4.0",
+				T_DROPLETS: "60.0"
 
-		},
+			},
 
-		uniforms: {
+			uniforms: {
 
-			tPerturb: {type: "t", value: (map !== undefined) ? map : null},
-			tDiffuse: {type: "t", value: null},
+				tPerturb: {type: "t", value: (options.perturbMap !== undefined) ? options.perturbMap : null},
+				tDiffuse: {type: "t", value: null},
 
-			time: {type: "f", value: Math.random() * 1000.0},
-			resetTimer: {type: "f", value: 0.0},
+				time: {type: "1f", value: Math.random() * 1000.0},
+				resetTimer: {type: "1f", value: 0.0},
 
-			rollOffSpeed: {type: "v2", value: (speed !== undefined) ? speed : new THREE.Vector2(0.5, 0.02)},
-			waveStrength: {type: "v2", value: (sinCos !== undefined) ? sinCos : new THREE.Vector2(0.25, 0.5)},
-			tint: {type: "c", value: (color !== undefined) ? color : new THREE.Color(1.0, 1.0, 1.0)},
+				rollOffSpeed: {type: "v2", value: (options.rollOffSpeed !== undefined) ? options.rollOffSpeed : new THREE.Vector2(0.5, 0.02)},
+				waveStrength: {type: "v2", value: (options.waveStrength !== undefined) ? options.waveStrength : new THREE.Vector2(0.25, 0.5)},
+				tint: {type: "c", value: (options.color !== undefined) ? options.color : new THREE.Color(1.0, 1.0, 1.0)},
 
-		},
+			},
 
-		fragmentShader: shader.fragment,
-		vertexShader: shader.vertex,
+			fragmentShader: fragment,
+			vertexShader: vertex,
 
-		extensions: {
-			derivatives: true
-		}
+			extensions: {
+				derivatives: true
+			}
 
-	});
+		});
+
+	}
 
 }
-
-DistortionMaterial.prototype = Object.create(THREE.ShaderMaterial.prototype);
-DistortionMaterial.prototype.constructor = DistortionMaterial;

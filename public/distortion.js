@@ -1,7 +1,3 @@
-/**
- * Manual asset loading.
- */
-
 window.addEventListener("load", function loadAssets() {
 
 	window.removeEventListener("load", loadAssets);
@@ -47,6 +43,9 @@ window.addEventListener("load", function loadAssets() {
 
 function setupScene(assets) {
 
+	var viewport = document.getElementById("viewport");
+	viewport.removeChild(viewport.children[0]);
+
 	// Renderer and Scene.
 
 	var renderer = new THREE.WebGLRenderer({antialias: true, logarithmicDepthBuffer: true});
@@ -54,7 +53,7 @@ function setupScene(assets) {
 	scene.fog = new THREE.FogExp2(0xffffff, 0.0001);
 	renderer.setClearColor(0xffffff);
 	renderer.setSize(window.innerWidth, window.innerHeight);
-	document.getElementById("viewport").appendChild(renderer.domElement);
+	viewport.appendChild(renderer.domElement);
 
 	// Camera.
 
@@ -177,7 +176,7 @@ function setupScene(assets) {
 		renderPass.renderToScreen = true;
 		pass.enabled = false;
 		pass.noiseMaterial.dispose();
-		pass.noiseMaterial = new SOLUTION.NoiseMaterial(params["high quality"]);
+		pass.noiseMaterial = new SOLUTION.DropletNoiseMaterial(params["high quality"]);
 		pass.resolution = Math.pow(2, params["resolution"]);
 		pass.enabled = true;
 		renderPass.renderToScreen = false;
@@ -213,7 +212,7 @@ function setupScene(assets) {
 	 */
 
 	var TWO_PI = 2.0 * Math.PI;
-	var dt = 1.0 / 60.0;
+	var clock = new THREE.Clock(true);
 
 	(function render(now) {
 
@@ -224,7 +223,7 @@ function setupScene(assets) {
 		object.rotation.x += 0.0005;
 		object.rotation.y += 0.001;
 
-		composer.render(dt);
+		composer.render(clock.getDelta());
 
 		// Prevent overflow.
 		if(object.rotation.x >= TWO_PI) { object.rotation.x -= TWO_PI; }

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>src\materials\noise\index.js - solution</title>
+    <title>src\materials\droplet-noise\index.js - solution</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -17,7 +17,7 @@
                 <h1><img src="../assets/css/logo.png" title="solution" width="117" height="52"></h1>
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.1.0</em>
+            <em>API Docs for: 0.1.1</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -40,8 +40,9 @@
                             <ul id="api-classes" class="apis classes">
                                 <li><a href="../classes/DistortionMaterial.html">DistortionMaterial</a></li>
                                 <li><a href="../classes/DistortionPass.html">DistortionPass</a></li>
+                                <li><a href="../classes/DropletNoiseMaterial.html">DropletNoiseMaterial</a></li>
                                 <li><a href="../classes/LavaMaterial.html">LavaMaterial</a></li>
-                                <li><a href="../classes/NoiseMaterial.html">NoiseMaterial</a></li>
+                                <li><a href="../classes/ReflectionPass.html">ReflectionPass</a></li>
                                 <li><a href="../classes/WaterfallMaterial.html">WaterfallMaterial</a></li>
                                 <li><a href="../classes/WaterMaterial.html">WaterMaterial</a></li>
                                 <li><a href="../classes/WaterPass.html">WaterPass</a></li>
@@ -85,53 +86,56 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-<h1 class="file-heading">File: src\materials\noise\index.js</h1>
+<h1 class="file-heading">File: src\materials\droplet-noise\index.js</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
-import shader from &quot;./inlined/shader&quot;;
 import THREE from &quot;three&quot;;
 
+import fragment from &quot;./glsl/shader.frag&quot;;
+import vertex from &quot;./glsl/shader.vert&quot;;
+
 /**
- * A noise shader material.
+ * A droplet noise shader material.
  *
  * Shader code adopted from Martins Upitis&#x27; water/underwater blend:
  * http://devlog-martinsh.blogspot.de/2013/09/waterunderwater-sky-shader-update-02.html
  *
- * @class NoiseMaterial
+ * @class DropletNoiseMaterial
  * @constructor
  * @extends ShaderMaterial
- * @param {Boolean} highQuality - Generates double the amount of noise values. Stresses the GPU immensely.
+ * @param {Boolean} [highQuality] - Generates double the amount of noise values. Stresses the GPU immensely.
  */
 
-export function NoiseMaterial(highQuality) {
+export class DropletNoiseMaterial extends THREE.ShaderMaterial {
 
-	THREE.ShaderMaterial.call(this, {
+	constructor(highQuality) {
 
-		uniforms: {
+		super({
 
-			tWidth: {type: &quot;f&quot;, value: 0},
-			tHeight: {type: &quot;f&quot;, value: 0},
+			uniforms: {
 
-			texelSize: {type: &quot;f&quot;, value: 1.0},
-			halfTexelSize: {type: &quot;f&quot;, value: 0.5},
+				tWidth: {type: &quot;1f&quot;, value: 0},
+				tHeight: {type: &quot;1f&quot;, value: 0},
 
-			time: {type: &quot;f&quot;, value: 0.0},
-			randomTime: {type: &quot;f&quot;, value: Math.random() * 10.0 - 1.0}
+				texelSize: {type: &quot;1f&quot;, value: 1.0},
+				halfTexelSize: {type: &quot;1f&quot;, value: 0.5},
 
-		},
+				time: {type: &quot;1f&quot;, value: 0.0},
+				randomTime: {type: &quot;1f&quot;, value: Math.random() * 10.0 - 1.0}
 
-		fragmentShader: shader.fragment,
-		vertexShader: shader.vertex
+			},
 
-	});
+			fragmentShader: fragment,
+			vertexShader: vertex
 
-	if(highQuality) { this.defines.HIGH_QUALITY = &quot;1&quot;; }
+		});
+
+		if(highQuality) { this.defines.HIGH_QUALITY = &quot;1&quot;; }
+
+	}
 
 }
-
-NoiseMaterial.prototype = Object.create(THREE.ShaderMaterial.prototype);
-NoiseMaterial.prototype.constructor = NoiseMaterial;
 
     </pre>
 </div>

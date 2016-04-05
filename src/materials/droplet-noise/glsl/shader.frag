@@ -1,3 +1,5 @@
+#define DROPLET_NOISE
+
 uniform float tWidth;
 uniform float tHeight;
 

@@ -1,102 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>src\passes\water.js - solution</title>
-    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
-    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
-    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
-    <link rel="icon" href="../assets/favicon.ico">
-    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
-</head>
-<body class="yui3-skin-sam">
-
-<div id="doc">
-    <div id="hd" class="yui3-g header">
-        <div class="yui3-u-3-4">
-                <h1><img src="../assets/css/logo.png" title="solution" width="117" height="52"></h1>
-        </div>
-        <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.1.0</em>
-        </div>
-    </div>
-    <div id="bd" class="yui3-g">
-
-        <div class="yui3-u-1-4">
-            <div id="docs-sidebar" class="sidebar apidocs">
-                <div id="api-list">
-                    <h2 class="off-left">APIs</h2>
-                    <div id="api-tabview" class="tabview">
-                        <ul class="tabs">
-                            <li><a href="#api-classes">Classes</a></li>
-                            <li><a href="#api-modules">Modules</a></li>
-                        </ul>
-                
-                        <div id="api-tabview-filter">
-                            <input type="search" id="api-filter" placeholder="Type to filter APIs">
-                        </div>
-                
-                        <div id="api-tabview-panel">
-                            <ul id="api-classes" class="apis classes">
-                                <li><a href="../classes/DistortionMaterial.html">DistortionMaterial</a></li>
-                                <li><a href="../classes/DistortionPass.html">DistortionPass</a></li>
-                                <li><a href="../classes/LavaMaterial.html">LavaMaterial</a></li>
-                                <li><a href="../classes/NoiseMaterial.html">NoiseMaterial</a></li>
-                                <li><a href="../classes/WaterfallMaterial.html">WaterfallMaterial</a></li>
-                                <li><a href="../classes/WaterMaterial.html">WaterMaterial</a></li>
-                                <li><a href="../classes/WaterPass.html">WaterPass</a></li>
-                            </ul>
-                
-                
-                            <ul id="api-modules" class="apis modules">
-                                <li><a href="../modules/materials.html">materials</a></li>
-                                <li><a href="../modules/passes.html">passes</a></li>
-                                <li><a href="../modules/solution.html">solution</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="yui3-u-3-4">
-                <div id="api-options">
-                    Show:
-                    <label for="api-show-inherited">
-                        <input type="checkbox" id="api-show-inherited" checked>
-                        Inherited
-                    </label>
-            
-                    <label for="api-show-protected">
-                        <input type="checkbox" id="api-show-protected">
-                        Protected
-                    </label>
-            
-                    <label for="api-show-private">
-                        <input type="checkbox" id="api-show-private">
-                        Private
-                    </label>
-                    <label for="api-show-deprecated">
-                        <input type="checkbox" id="api-show-deprecated">
-                        Deprecated
-                    </label>
-            
-                </div>
-            
-            <div class="apidocs">
-                <div id="docs-main">
-                    <div class="content">
-<h1 class="file-heading">File: src\passes\water.js</h1>
-
-<div class="file">
-    <pre class="code prettyprint linenums">
-import { WaterMaterial } from &quot;../materials&quot;;
-import { Pass } from &quot;postprocessing&quot;;
-import THREE from &quot;three&quot;;
+import { WaterMaterial } from "../materials";
+import { Pass } from "postprocessing";
+import THREE from "three";
 
 /**
  * The water pass renders the reflection and refraction of the given scene to a 
  * texture which is then used by a water material during the normal rendering 
- * process. The material&#x27;s time value is updated automatically.
+ * process. The material's time value is updated automatically.
  *
  * You may disable the water material if you want to use the generated textures 
  * for something else.
@@ -112,15 +21,13 @@ import THREE from &quot;three&quot;;
  * @param {Scene} scene - The scene to render.
  * @param {Camera} camera - The main camera.
  * @param {Boolean} lightPosition - The main light position.
+ * @param {Texture} normalMap - A normalmap for the waves.
  * @param {Object} [options] - Additional options.
  * @param {Boolean} [options.disableWater=false] - Whether the water material should be created and updated every frame.
  * @param {Boolean} [options.reflection=true] - Whether the reflection should be rendered.
  * @param {Boolean} [options.refraction=true] - Whether the refraction should be rendered.
  * @param {Number} [options.resolution=256] - The render texture resolution.
  * @param {Number} [options.clipBias=0.2] - The clip plane offset.
- * @param {WebGLRenderTarget} [options.renderTarget] - A render target to use.
- * @param {Texture} [options.normalMap] - A normalmap for the waves.
- * @param {Boolean} [options.lowQuality=false] - Falls back to a less expensive water shader.
  */
 
 export function WaterPass(scene, camera, lightPosition, options) {
@@ -132,34 +39,27 @@ export function WaterPass(scene, camera, lightPosition, options) {
 	/**
 	 * The reflection render texture.
 	 *
-	 * @property reflectionTexture
+	 * @property renderTargetReflection
 	 * @type WebGLRenderTarget
 	 */
 
-	let resolution = (options.resolution === undefined) ? 256 : options.resolution;
+	this.renderTargetReflection = new THREE.WebGLRenderTarget(1, 1, {
+		minFilter: THREE.LinearFilter,
+		magFilter: THREE.LinearFilter
+	});
 
-	if(options.renderTarget === undefined) {
-
-		options.renderTarget = new THREE.WebGLRenderTarget(resolution, resolution, {
-			minFilter: THREE.LinearFilter,
-			magFilter: THREE.LinearFilter,
-			format: THREE.RGBFormat,
-			stencilBuffer: false,
-			depthBuffer: false
-		});
-
-	}
-
-	this.reflectionTexture = options.renderTarget;
+	this.renderTargetReflection.texture.generateMipmaps = false;
 
 	/**
 	 * The refraction render texture.
 	 *
-	 * @property refractionTexture
+	 * @property renderTargetRefraction
 	 * @type WebGLRenderTarget
 	 */
 
-	this.refractionTexture = this.reflectionTexture.clone();
+	this.renderTargetRefraction = this.renderTargetReflection.clone();
+
+	this.resolution = (options.resolution === undefined) ? 256 : options.resolution;
 
 	/**
 	 * The reflection camera.
@@ -188,7 +88,7 @@ export function WaterPass(scene, camera, lightPosition, options) {
 	 * @type Boolean
 	 */
 
-	this.renderReflection = options.reflection;
+	this.renderReflection = (options.reflection !== undefined) ? options.reflection : true;
 
 	/**
 	 * Whether the refraction texture should be rendered.
@@ -197,7 +97,7 @@ export function WaterPass(scene, camera, lightPosition, options) {
 	 * @type Boolean
 	 */
 
-	this.renderRefraction = options.refraction;
+	this.renderRefraction = (options.refraction !== undefined) ? options.refraction : true;
 
 	/**
 	 * The water material.
@@ -212,8 +112,12 @@ export function WaterPass(scene, camera, lightPosition, options) {
 		lowQuality: options.lowQuality
 	});
 
-	this.material.uniforms.reflectionMap.value = this.reflectionTexture;
-	this.material.uniforms.refractionMap.value = this.refractionTexture;
+	if(this.material !== null) {
+
+		this.material.uniforms.reflectionMap.value = this.renderTargetReflection;
+		this.material.uniforms.refractionMap.value = this.renderTargetRefraction;
+
+	}
 
 	/**
 	 * A plane mesh that represents the actual reflection/refraction plane.
@@ -224,7 +128,7 @@ export function WaterPass(scene, camera, lightPosition, options) {
 
 /*
 	var geometry = new THREE.BufferGeometry(1, 1);
-	geometry.type = &quot;WaterBufferGeometry&quot;;
+	geometry.type = "WaterBufferGeometry";
 
 	var vertices = new Float32Array(4 * 3);
 	vertices[0] = 2000; vertices[1] = 0; vertices[2] = -2000;
@@ -249,9 +153,9 @@ export function WaterPass(scene, camera, lightPosition, options) {
 	indices[3] = 0; indices[4] = 1; indices[5] = 3;
 
 	geometry.setIndex(new THREE.BufferAttribute(indices, 1));
-	geometry.addAttribute(&quot;position&quot;, new THREE.BufferAttribute(vertices, 3));
-	geometry.addAttribute(&quot;normal&quot;, new THREE.BufferAttribute(normals, 3));
-	geometry.addAttribute(&quot;uv&quot;, new THREE.BufferAttribute(uvs, 2));
+	geometry.addAttribute("position", new THREE.BufferAttribute(vertices, 3));
+	geometry.addAttribute("normal", new THREE.BufferAttribute(normals, 3));
+	geometry.addAttribute("uv", new THREE.BufferAttribute(uvs, 2));
 */
 
 	let geometry = new THREE.PlaneBufferGeometry(1, 1);
@@ -262,10 +166,9 @@ export function WaterPass(scene, camera, lightPosition, options) {
 	tangents[8] = 1; tangents[9] = 0; tangents[10] = 0; tangents[11] = -1;
 	tangents[12] = 1; tangents[13] = 0; tangents[14] = 0; tangents[15] = -1;
 
-	geometry.addAttribute(&quot;tangent&quot;, new THREE.BufferAttribute(tangents, 4));
+	geometry.addAttribute("tangent", new THREE.BufferAttribute(tangents, 4));
 
 	this.mesh = new THREE.Mesh(geometry, this.material);
-	this.mesh.matrixNeedsUpdate = true;
 
 	this.scene.add(this.mesh);
 
@@ -366,15 +269,42 @@ WaterPass.prototype = Object.create(Pass.prototype);
 WaterPass.prototype.constructor = WaterPass;
 
 /**
- * Renders the reflection texture.
+ * The resolution of the render targets.
+ * The value should be a power of two.
+ *
+ * @property resolution
+ * @type Number
+ * @default 256
+ */
+
+Object.defineProperty(WaterPass.prototype, "resolution", {
+
+	get: function() { return this.renderTargetReflection.width; },
+
+	set: function(x) {
+
+		if(typeof x === "number" && x > 0) {
+
+			this.renderTargetReflection.setSize(x, x);
+			this.renderTargetRefraction.setSize(x, x);
+
+		}
+
+	}
+
+});
+
+/**
+ * Renders the reflection and refraction textures.
  *
  * @method render
  * @param {WebGLRenderer} renderer - The renderer to use.
- * @param {WebGLRenderTarget} buffer - The read/write buffer. Ignored in this pass.
+ * @param {WebGLRenderTarget} readBuffer - The read buffer.
+ * @param {WebGLRenderTarget} writeBuffer - The write buffer.
  * @param {Number} delta - The render delta time.
  */
 
-WaterPass.prototype.render = function(renderer, buffer, delta) {
+WaterPass.prototype.render = function(renderer, readBuffer, writeBuffer, delta) {
 
 	if(this.mesh.matrixNeedsUpdate) { this.update(); }
 	//this.mesh.matrixNeedsUpdate = true;
@@ -382,8 +312,8 @@ WaterPass.prototype.render = function(renderer, buffer, delta) {
 	let visible = this.material.visible;
 	this.material.visible = false;
 
-	if(this.renderReflection) { renderer.render(this.scene, this.reflectionCamera, this.reflectionTexture, true); }
-	if(this.renderRefraction) { renderer.render(this.scene, this.refractionCamera, this.refractionTexture, true); }
+	if(this.renderReflection) { renderer.render(this.scene, this.reflectionCamera, this.renderTargetReflection, true); }
+	if(this.renderRefraction) { renderer.render(this.scene, this.refractionCamera, this.renderTargetRefraction, true); }
 
 	this.material.visible = visible;
 	if(this.material !== null) { this.material.uniforms.time.value += delta; }
@@ -477,21 +407,21 @@ WaterPass.prototype.update = function() {
 
 };
 
-    </pre>
-</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<script src="../assets/vendor/prettify/prettify-min.js"></script>
-<script>prettyPrint();</script>
-<script src="../assets/js/yui-prettify.js"></script>
-<script src="../assets/../api.js"></script>
-<script src="../assets/js/api-filter.js"></script>
-<script src="../assets/js/api-list.js"></script>
-<script src="../assets/js/api-search.js"></script>
-<script src="../assets/js/apidocs.js"></script>
-</body>
-</html>
+/**
+ * Adjusts the format of the render targets.
+ *
+ * @method initialise
+ * @param {WebGLRenderer} renderer - The renderer.
+ * @param {Boolean} alpha - Whether the renderer uses the alpha channel or not.
+ */
+
+WaterPass.prototype.initialise = function(renderer, alpha) {
+
+	if(!alpha) {
+
+		this.renderTargetReflection.texture.format = THREE.RGBFormat;
+		this.renderTargetRefraction.texture.format = THREE.RGBFormat;
+
+	}
+
+};

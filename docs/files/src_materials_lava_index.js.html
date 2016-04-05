@@ -17,7 +17,7 @@
                 <h1><img src="../assets/css/logo.png" title="solution" width="117" height="52"></h1>
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.1.0</em>
+            <em>API Docs for: 0.1.1</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -40,8 +40,9 @@
                             <ul id="api-classes" class="apis classes">
                                 <li><a href="../classes/DistortionMaterial.html">DistortionMaterial</a></li>
                                 <li><a href="../classes/DistortionPass.html">DistortionPass</a></li>
+                                <li><a href="../classes/DropletNoiseMaterial.html">DropletNoiseMaterial</a></li>
                                 <li><a href="../classes/LavaMaterial.html">LavaMaterial</a></li>
-                                <li><a href="../classes/NoiseMaterial.html">NoiseMaterial</a></li>
+                                <li><a href="../classes/ReflectionPass.html">ReflectionPass</a></li>
                                 <li><a href="../classes/WaterfallMaterial.html">WaterfallMaterial</a></li>
                                 <li><a href="../classes/WaterMaterial.html">WaterMaterial</a></li>
                                 <li><a href="../classes/WaterPass.html">WaterPass</a></li>
@@ -89,8 +90,10 @@
 
 <div class="file">
     <pre class="code prettyprint linenums">
-import shader from &quot;./inlined/shader&quot;;
 import THREE from &quot;three&quot;;
+
+import fragment from &quot;./glsl/shader.frag&quot;;
+import vertex from &quot;./glsl/shader.vert&quot;;
 
 /**
  * A noise-based flowing lava material.
@@ -100,7 +103,6 @@ import THREE from &quot;three&quot;;
  * @class LavaMaterial
  * @constructor
  * @extends ShaderMaterial
- * @param {Texture} noiseMap - A simple noise map.
  * @param {Object} [options] - The options.
  * @param {Number} [options.timeScale=0.1] - The time scale.
  * @param {Number} [options.primarySpeed=0.6] - The primary flow speed.
@@ -109,48 +111,68 @@ import THREE from &quot;three&quot;;
  * @param {Number} [options.advection=0.77] - Blend factor (blending displaced system with base system). 0.5 ~ low, 0.95 ~ high.
  * @param {Number} [options.intensity=1.4] - Overall intensity.
  * @param {Vector2} [options.octaveScale=(2.0, 1.9)] - Used to scale the noise octave.
+ * @param {Vector2} [options.scale=(3.0, 3.0)] - The overall scale of the lava.
  */
 
-export function LavaMaterial(noiseMap, options) {
+export class LavaMaterial extends THREE.ShaderMaterial {
 
-	if(options === undefined) { options = {}; }
+	constructor(options) {
 
-	THREE.ShaderMaterial.call(this, {
+		if(options === undefined) { options = {}; }
 
-		uniforms: {
+		super({
 
-			fogDensity: {type: &quot;f&quot;, value: 0.00025},
-			fogNear: {type: &quot;f&quot;, value: 1.0},
-			fogFar: {type: &quot;f&quot;, value: 2000.0},
-			fogColor: {type: &quot;c&quot;, value: new THREE.Color(0xffffff)},
+			uniforms: THREE.UniformsUtils.merge([
 
-			time: {type: &quot;f&quot;, value: 0.0},
-			timeScale: {type: &quot;f&quot;, value: (options.timeScale !== undefined) ? options.timeScale : 0.1},
+				THREE.UniformsLib.fog,
 
-			primarySpeed: {type: &quot;f&quot;, value: (options.primarySpeed !== undefined) ? options.primarySpeed : 0.6},
-			secondarySpeed: {type: &quot;f&quot;, value: (options.secondarySpeed !== undefined) ? options.secondarySpeed : 1.9},
-			displacement: {type: &quot;f&quot;, value: (options.displacement !== undefined) ? options.displacement : 1.0},
-			advection: {type: &quot;f&quot;, value: (options.advection !== undefined) ? options.advection : 0.77},
-			intensity: {type: &quot;f&quot;, value: (options.intensity !== undefined) ? options.intensity : 1.4},
-			octaveScale: {type: &quot;v2&quot;, value: (options.octaveScale !== undefined) ? options.octaveScale : new THREE.Vector2(2.0, 1.9)},
-			lavaColor: {type: &quot;c&quot;, value: (options.color !== undefined) ? options.color : new THREE.Color(0.2, 0.07, 0.01)},
+				{
 
-			noiseMap: {type: &quot;t&quot;, value: noiseMap},
-			offsetRepeat: {type: &quot;v4&quot;, value: new THREE.Vector4(0.0, 0.0, 3.0, 3.0)}
+					time: {type: &quot;1f&quot;, value: 0.0},
+					timeScale: {type: &quot;1f&quot;, value: (options.timeScale !== undefined) ? options.timeScale : 0.1},
 
-		},
+					primarySpeed: {type: &quot;1f&quot;, value: (options.primarySpeed !== undefined) ? options.primarySpeed : 0.6},
+					secondarySpeed: {type: &quot;1f&quot;, value: (options.secondarySpeed !== undefined) ? options.secondarySpeed : 1.9},
+					displacement: {type: &quot;1f&quot;, value: (options.displacement !== undefined) ? options.displacement : 1.0},
+					advection: {type: &quot;1f&quot;, value: (options.advection !== undefined) ? options.advection : 0.77},
+					intensity: {type: &quot;1f&quot;, value: (options.intensity !== undefined) ? options.intensity : 1.4},
+					octaveScale: {type: &quot;v2&quot;, value: (options.octaveScale !== undefined) ? options.octaveScale : new THREE.Vector2(2.0, 1.9)},
+					lavaColor: {type: &quot;c&quot;, value: (options.color !== undefined) ? options.color : new THREE.Color(0.2, 0.07, 0.01)},
 
-		fragmentShader: shader.fragment,
-		vertexShader: shader.vertex,
+					direction: {type: &quot;1f&quot;, value: (options.direction !== undefined) ? options.direction : 0.0},
 
-		fog: true
+					noiseMap: {type: &quot;t&quot;, value: null},
+					scale: {type: &quot;1f&quot;, value: 75.0}
 
-	});
+				}
+
+			]),
+
+			fragmentShader: fragment,
+			vertexShader: vertex,
+
+			fog: true
+
+		});
+
+	}
+
+	/**
+	 * A noise map.
+	 *
+	 * @property noiseMap
+	 * @type Texture
+	 */
+
+	get noiseMap() { return this.uniforms.noiseMap.value; }
+
+	set noiseMap(x) {
+
+		this.uniforms.noiseMap.value = x;
+
+	}
 
 }
-
-LavaMaterial.prototype = Object.create(THREE.ShaderMaterial.prototype);
-LavaMaterial.prototype.constructor = LavaMaterial;
 
     </pre>
 </div>

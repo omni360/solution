@@ -1,7 +1,3 @@
-/**
- * Manual asset loading.
- */
-
 window.addEventListener("load", function loadAssets() {
 
 	window.removeEventListener("load", loadAssets);
@@ -21,21 +17,21 @@ window.addEventListener("load", function loadAssets() {
 
 });
 
-/**
- * Scene setup.
- *
- * @param {Object} assets - The pre-loaded assets.
- */
-
 function setupScene(assets) {
 
-	var renderer = new THREE.WebGLRenderer({antialias: true, logarithmicDepthBuffer: true});
+	var viewport = document.getElementById("viewport");
+	viewport.removeChild(viewport.children[0]);
 
+	// Renderer and Scene.
+
+	var renderer = new THREE.WebGLRenderer({antialias: true, logarithmicDepthBuffer: true});
 	var scene = new THREE.Scene();
 	scene.fog = new THREE.FogExp2(0x000000, 0.00025);
 	renderer.setClearColor(0x000000);
 	renderer.setSize(window.innerWidth, window.innerHeight);
-	document.getElementById("viewport").appendChild(renderer.domElement);
+	viewport.appendChild(renderer.domElement);
+
+	// Camera.
 
 	var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 20000);
 	var controls = new THREE.OrbitControls(camera, renderer.domElement);

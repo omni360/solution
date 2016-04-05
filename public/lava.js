@@ -1,7 +1,3 @@
-/**
- * Manual asset loading.
- */
-
 window.addEventListener("load", function loadAssets() {
 
 	window.removeEventListener("load", loadAssets);
@@ -20,27 +16,28 @@ window.addEventListener("load", function loadAssets() {
 	textureLoader.load("textures/noise.png", function(texture) {
 
 		texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+		texture.format = THREE.LuminanceFormat;
 		assets.noiseMapLava = texture;
 
 	});
 
 });
 
-/**
- * Scene setup.
- *
- * @param {Object} assets - The pre-loaded assets.
- */
-
 function setupScene(assets) {
 
-	var renderer = new THREE.WebGLRenderer({antialias: true, logarithmicDepthBuffer: true});
+	var viewport = document.getElementById("viewport");
+	viewport.removeChild(viewport.children[0]);
 
+	// Renderer and Scene.
+
+	var renderer = new THREE.WebGLRenderer({antialias: true, logarithmicDepthBuffer: true});
 	var scene = new THREE.Scene();
 	scene.fog = new THREE.FogExp2(0x000000, 0.02);
 	renderer.setClearColor(0x000000);
 	renderer.setSize(window.innerWidth, window.innerHeight);
-	document.getElementById("viewport").appendChild(renderer.domElement);
+	viewport.appendChild(renderer.domElement);
+
+	// Camera.
 
 	var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 20000);
 	var controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -84,7 +81,7 @@ function setupScene(assets) {
 
 	// Lava.
 
-	var material = new SOLUTION.LavaMaterial(assets.noiseMapLava, {
+	var material = new SOLUTION.LavaMaterial({
 		timeScale: 0.1,
 		primarySpeed: 0.6,
 		secondarySpeed: 1.9,
@@ -92,10 +89,11 @@ function setupScene(assets) {
 		advection: 0.77,
 		intensity: 1.4,
 		octaveScale: new THREE.Vector2(2.6, 1.9),
-		color: new THREE.Color(0x521900)
+		color: new THREE.Color(0x521900),
+		scale: new THREE.Vector2(75, 75)
 	});
 
-	material.uniforms.offsetRepeat.value.set(0, 0, 75, 75);
+	material.noiseMap = assets.noiseMapLava;
 
 	var time = material.uniforms.time;
 
@@ -110,7 +108,6 @@ function setupScene(assets) {
 
 	var composer = new POSTPROCESSING.EffectComposer(renderer);
 	var renderPass = new POSTPROCESSING.RenderPass(scene, camera);
-	//renderPass.renderToScreen = true;
 
 	var bloomPass = new POSTPROCESSING.BloomPass({
 		resolutionScale: 0.5,
@@ -119,13 +116,12 @@ function setupScene(assets) {
 		distinction: 1.0
 	});
 
-	//bloomPass.renderToScreen = true;
-
 	var filmPass = new POSTPROCESSING.FilmPass({
-		grayscale: false,
-		noiseIntensity: 0.35,
-		scanlinesIntensity: 0.95,
-		scanlines: 1.8
+		vignette: true,
+		scanlines: false,
+		vignetteOffset: 0.0,
+		vignetteDarkness: 1.0,
+		noiseIntensity: 0.35
 	});
 
 	filmPass.renderToScreen = true;
@@ -145,12 +141,15 @@ function setupScene(assets) {
 		"intensity": material.uniforms.intensity.value,
 		"octave scale X": material.uniforms.octaveScale.value.x,
 		"octave scale Y": material.uniforms.octaveScale.value.y,
+		"scale": material.uniforms.scale.value,
 		"color": material.uniforms.lavaColor.value.getHex(),
 		"fog density": scene.fog.density,
+		"direction": material.uniforms.direction.value,
 		"post processing": true
 	};
 
 	gui.add(params, "time scale").min(0.0).max(1.0).step(0.01).onChange(function() { material.uniforms.timeScale.value = params["time scale"]; });
+	gui.add(params, "scale").min(0.0).max(200.0).step(0.1).onChange(function() { material.uniforms.scale.value = params["scale"]; });
 	gui.add(params, "primary speed").min(0.0).max(4.0).step(0.1).onChange(function() { material.uniforms.primarySpeed.value = params["primary speed"]; });
 	gui.add(params, "secondary speed").min(0.0).max(4.0).step(0.1).onChange(function() { material.uniforms.secondarySpeed.value = params["secondary speed"]; });
 	gui.add(params, "displacement").min(0.0).max(3.0).step(0.1).onChange(function() { material.uniforms.displacement.value = params["displacement"]; });
@@ -175,7 +174,8 @@ function setupScene(assets) {
 
 	});
 
-	gui.add(params, "fog density").min(0.003).max(0.025).step(0.001).onChange(function() { scene.fog.density = params["fog density"]; });
+	gui.add(params, "direction").min(0.0).max(1.0).step(0.001).onChange(function() { material.uniforms.direction.value = params["direction"]; });
+	gui.add(params, "fog density").min(0.004).max(0.025).step(0.001).onChange(function() { scene.fog.density = params["fog density"]; });
 
 	/**
 	 * Handles resizing.
@@ -196,7 +196,8 @@ function setupScene(assets) {
 	 * Animation loop.
 	 */
 
-	var dt = 1.0 / 60.0;
+	var dt;
+	var clock = new THREE.Clock(true);
 
 	(function render(now) {
 
@@ -204,8 +205,8 @@ function setupScene(assets) {
 
 		stats.begin();
 
-		composer.render();
-
+		dt = clock.getDelta();
+		composer.render(dt);
 		time.value += dt;
 
 		stats.end();

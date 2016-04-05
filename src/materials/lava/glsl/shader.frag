@@ -1,35 +1,10 @@
-#ifdef USE_FOG
+#define LAVA
 
-	#define LOG2 1.442695
-	#define saturate(a) clamp(a, 0.0, 1.0)
-	#define whiteCompliment(a) (1.0 - saturate(a))
+#include <common>
+#include <logdepthbuf_pars_fragment>
+#include <fog_pars_fragment>
 
-	uniform vec3 fogColor;
-
-	#ifdef FOG_EXP2
-
-		uniform float fogDensity;
-
-	#else
-
-		uniform float fogNear;
-		uniform float fogFar;
-
-	#endif
-
-#endif
-
-#ifdef USE_LOGDEPTHBUF
-
-	uniform float logDepthBufFC;
-
-	#ifdef USE_LOGDEPTHBUF_EXT
-
-		varying float vFragDepth;
-
-	#endif
-
-#endif
+uniform sampler2D noiseMap;
 
 uniform float time;
 uniform float timeScale;
@@ -42,14 +17,21 @@ uniform float intensity;
 
 uniform vec2 octaveScale;
 uniform vec3 lavaColor;
-uniform sampler2D noiseMap;
+
+uniform float direction;
 
 //varying float vViewTheta;
 varying vec2 vUv;
 
-float hash21(vec2 n) {
+float noise3(vec2 n) {
 
-	return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
+	float x = n.x * n.y * 1000.0;
+	x = mod(x, 13.0) * mod(x, 123.0);
+	x = mod(x, 0.01);
+
+	return clamp(0.1 + x * 100.0, 0.0, 1.0);
+
+	//return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
 
 }
 
@@ -58,12 +40,11 @@ mat2 makem2(float theta) {
 	float c = cos(theta);
 	float s = sin(theta);
 
-	//float a = mix(c, s, vViewTheta);
-	//float b = mix(s, c, vViewTheta);
+	float a = mix(c, s, direction);
+	float b = mix(s, c, direction);
 
-	//return mat2(-c, -s, s, c);
-	return mat2(c, -s, s, c);
-	//return mat2(a, -b, b, a);
+	//return mat2(c, -s, s, c);
+	return mat2(a, -b, b, a);
 
 }
 
@@ -128,43 +109,18 @@ float flow(vec2 p) {
 
 void main() {
 
+	#include <logdepthbuf_fragment>
+
 	float rz = flow(vUv);
-	
+
 	vec3 color = lavaColor / rz;
 	color = pow(abs(color), vec3(1.4));
 
-	#if defined(USE_LOGDEPTHBUF) && defined(USE_LOGDEPTHBUF_EXT)
-
-		gl_FragDepthEXT = log2(vFragDepth) * logDepthBufFC * 0.5;
-
-	#endif
-
-	#ifdef USE_FOG
-
-		#ifdef USE_LOGDEPTHBUF_EXT
-
-			float depth = gl_FragDepthEXT / gl_FragCoord.w;
-
-		#else
-
-			float depth = gl_FragCoord.z / gl_FragCoord.w;
-
-		#endif
-
-		#ifdef FOG_EXP2
-
-			float fogFactor = whiteCompliment(exp2(-fogDensity * fogDensity * depth * depth * LOG2));
-
-		#else
-
-			float fogFactor = smoothstep(fogNear, fogFar, depth);
-
-		#endif
-
-		color = mix(color, fogColor, fogFactor);
-
-	#endif
-
 	gl_FragColor = vec4(color, 1.0);
+
+	#include <premultiplied_alpha_fragment>
+	#include <tonemapping_fragment>
+	#include <encodings_fragment>
+	#include <fog_fragment>
 
 }
