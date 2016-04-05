@@ -1,35 +1,8 @@
-#ifdef USE_FOG
+#define WATERFALL
 
-	#define LOG2 1.442695
-	#define saturate(a) clamp(a, 0.0, 1.0)
-	#define whiteCompliment(a) (1.0 - saturate(a))
-
-	uniform vec3 fogColor;
-
-	#ifdef FOG_EXP2
-
-		uniform float fogDensity;
-
-	#else
-
-		uniform float fogNear;
-		uniform float fogFar;
-
-	#endif
-
-#endif
-
-#ifdef USE_LOGDEPTHBUF
-
-	uniform float logDepthBufFC;
-
-	#ifdef USE_LOGDEPTHBUF_EXT
-
-		varying float vFragDepth;
-
-	#endif
-
-#endif
+#include <common>
+#include <logdepthbuf_pars_fragment>
+#include <fog_pars_fragment>
 
 uniform float time;
 uniform float timeScale;
@@ -100,6 +73,8 @@ float fbm(vec2 uv) {
 
 void main() {
 
+	#include <logdepthbuf_fragment>
+
 	vec2 q = -vec2(vUv);
 
 	float t = time * timeScale;
@@ -135,38 +110,11 @@ void main() {
 
 	float a = c * (1.0 - pow(abs(vUv.y), alpha));
 
-	#if defined(USE_LOGDEPTHBUF) && defined(USE_LOGDEPTHBUF_EXT)
-
-		gl_FragDepthEXT = log2(vFragDepth) * logDepthBufFC * 0.5;
-
-	#endif
-
-	#ifdef USE_FOG
-
-		#ifdef USE_LOGDEPTHBUF_EXT
-
-			float depth = gl_FragDepthEXT / gl_FragCoord.w;
-
-		#else
-
-			float depth = gl_FragCoord.z / gl_FragCoord.w;
-
-		#endif
-
-		#ifdef FOG_EXP2
-
-			float fogFactor = whiteCompliment(exp2(-fogDensity * fogDensity * depth * depth * LOG2));
-
-		#else
-
-			float fogFactor = smoothstep(fogNear, fogFar, depth);
-
-		#endif
-
-		color = mix(color, fogColor, fogFactor);
-
-	#endif
-
 	gl_FragColor = vec4(color, a);
+
+	#include <premultiplied_alpha_fragment>
+	#include <tonemapping_fragment>
+	#include <encodings_fragment>
+	#include <fog_fragment>
 
 }
