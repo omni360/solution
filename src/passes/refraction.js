@@ -21,14 +21,13 @@ import THREE from "three";
  * @param {Scene} scene - The scene to render.
  * @param {Camera} camera - The main camera.
  * @param {Boolean} lightPosition - The main light position.
+ * @param {Texture} normalMap - A normalmap for the waves.
  * @param {Object} [options] - Additional options.
  * @param {Boolean} [options.disableWater=false] - Whether the water material should be created and updated every frame.
  * @param {Boolean} [options.reflection=true] - Whether the reflection should be rendered.
  * @param {Boolean} [options.refraction=true] - Whether the refraction should be rendered.
  * @param {Number} [options.resolution=256] - The render texture resolution.
  * @param {Number} [options.clipBias=0.2] - The clip plane offset.
- * @param {Texture} [options.normalMap] - A normalmap for the waves.
- * @param {Boolean} [options.lowQuality=false] - Falls back to a less expensive water shader.
  */
 
 export function WaterPass(scene, camera, lightPosition, options) {
@@ -170,7 +169,6 @@ export function WaterPass(scene, camera, lightPosition, options) {
 	geometry.addAttribute("tangent", new THREE.BufferAttribute(tangents, 4));
 
 	this.mesh = new THREE.Mesh(geometry, this.material);
-	this.mesh.matrixNeedsUpdate = true;
 
 	this.scene.add(this.mesh);
 
