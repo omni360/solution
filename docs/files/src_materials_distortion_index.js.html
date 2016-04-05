@@ -17,7 +17,7 @@
                 <h1><img src="../assets/css/logo.png" title="solution" width="117" height="52"></h1>
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.1.0</em>
+            <em>API Docs for: 0.1.1</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -40,8 +40,9 @@
                             <ul id="api-classes" class="apis classes">
                                 <li><a href="../classes/DistortionMaterial.html">DistortionMaterial</a></li>
                                 <li><a href="../classes/DistortionPass.html">DistortionPass</a></li>
+                                <li><a href="../classes/DropletNoiseMaterial.html">DropletNoiseMaterial</a></li>
                                 <li><a href="../classes/LavaMaterial.html">LavaMaterial</a></li>
-                                <li><a href="../classes/NoiseMaterial.html">NoiseMaterial</a></li>
+                                <li><a href="../classes/ReflectionPass.html">ReflectionPass</a></li>
                                 <li><a href="../classes/WaterfallMaterial.html">WaterfallMaterial</a></li>
                                 <li><a href="../classes/WaterMaterial.html">WaterMaterial</a></li>
                                 <li><a href="../classes/WaterPass.html">WaterPass</a></li>
@@ -89,8 +90,10 @@
 
 <div class="file">
     <pre class="code prettyprint linenums">
-import shader from &quot;./inlined/shader&quot;;
 import THREE from &quot;three&quot;;
+
+import fragment from &quot;./glsl/shader.frag&quot;;
+import vertex from &quot;./glsl/shader.vert&quot;;
 
 /**
  * A distortion shader material.
@@ -108,51 +111,47 @@ import THREE from &quot;three&quot;;
  * @param {Color} [options.color] - The droplet tint.
  */
 
-export function DistortionMaterial(options) {
+export class DistortionMaterial extends THREE.ShaderMaterial {
 
-	if(options === undefined) { options = {}; }
+	constructor(options) {
 
-	var map = options.perturbMap;
-	var speed = options.rollOffSpeed;
-	var sinCos = options.waveStrength;
-	var color = options.color;
+		if(options === undefined) { options = {}; }
 
-	THREE.ShaderMaterial.call(this, {
+		super({
 
-		defines: {
+			defines: {
 
-			T_DISSOLVE: &quot;4.0&quot;,
-			T_DROPLETS: &quot;60.0&quot;
+				T_DISSOLVE: &quot;4.0&quot;,
+				T_DROPLETS: &quot;60.0&quot;
 
-		},
+			},
 
-		uniforms: {
+			uniforms: {
 
-			tPerturb: {type: &quot;t&quot;, value: (map !== undefined) ? map : null},
-			tDiffuse: {type: &quot;t&quot;, value: null},
+				tPerturb: {type: &quot;t&quot;, value: (options.perturbMap !== undefined) ? options.perturbMap : null},
+				tDiffuse: {type: &quot;t&quot;, value: null},
 
-			time: {type: &quot;f&quot;, value: Math.random() * 1000.0},
-			resetTimer: {type: &quot;f&quot;, value: 0.0},
+				time: {type: &quot;1f&quot;, value: Math.random() * 1000.0},
+				resetTimer: {type: &quot;1f&quot;, value: 0.0},
 
-			rollOffSpeed: {type: &quot;v2&quot;, value: (speed !== undefined) ? speed : new THREE.Vector2(0.5, 0.02)},
-			waveStrength: {type: &quot;v2&quot;, value: (sinCos !== undefined) ? sinCos : new THREE.Vector2(0.25, 0.5)},
-			tint: {type: &quot;c&quot;, value: (color !== undefined) ? color : new THREE.Color(1.0, 1.0, 1.0)},
+				rollOffSpeed: {type: &quot;v2&quot;, value: (options.rollOffSpeed !== undefined) ? options.rollOffSpeed : new THREE.Vector2(0.5, 0.02)},
+				waveStrength: {type: &quot;v2&quot;, value: (options.waveStrength !== undefined) ? options.waveStrength : new THREE.Vector2(0.25, 0.5)},
+				tint: {type: &quot;c&quot;, value: (options.color !== undefined) ? options.color : new THREE.Color(1.0, 1.0, 1.0)},
 
-		},
+			},
 
-		fragmentShader: shader.fragment,
-		vertexShader: shader.vertex,
+			fragmentShader: fragment,
+			vertexShader: vertex,
 
-		extensions: {
-			derivatives: true
-		}
+			extensions: {
+				derivatives: true
+			}
 
-	});
+		});
+
+	}
 
 }
-
-DistortionMaterial.prototype = Object.create(THREE.ShaderMaterial.prototype);
-DistortionMaterial.prototype.constructor = DistortionMaterial;
 
     </pre>
 </div>

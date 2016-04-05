@@ -17,7 +17,7 @@
                 <h1><img src="../assets/css/logo.png" title="solution" width="117" height="52"></h1>
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.1.0</em>
+            <em>API Docs for: 0.1.1</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -40,8 +40,9 @@
                             <ul id="api-classes" class="apis classes">
                                 <li><a href="../classes/DistortionMaterial.html">DistortionMaterial</a></li>
                                 <li><a href="../classes/DistortionPass.html">DistortionPass</a></li>
+                                <li><a href="../classes/DropletNoiseMaterial.html">DropletNoiseMaterial</a></li>
                                 <li><a href="../classes/LavaMaterial.html">LavaMaterial</a></li>
-                                <li><a href="../classes/NoiseMaterial.html">NoiseMaterial</a></li>
+                                <li><a href="../classes/ReflectionPass.html">ReflectionPass</a></li>
                                 <li><a href="../classes/WaterfallMaterial.html">WaterfallMaterial</a></li>
                                 <li><a href="../classes/WaterMaterial.html">WaterMaterial</a></li>
                                 <li><a href="../classes/WaterPass.html">WaterPass</a></li>
@@ -89,8 +90,10 @@
 
 <div class="file">
     <pre class="code prettyprint linenums">
-import shader from &quot;./inlined/shader&quot;;
 import THREE from &quot;three&quot;;
+
+import fragment from &quot;./glsl/shader.frag&quot;;
+import vertex from &quot;./glsl/shader.vert&quot;;
 
 /**
  * A water material.
@@ -102,71 +105,118 @@ import THREE from &quot;three&quot;;
  * @constructor
  * @extends ShaderMaterial
  * @param {Object} [options] - The options.
- * @param {Texture} [options.normalMap] - The normalmap to use for the waves.
  * @param {Vector3} [options.lightPosition] - The position of the main light source.
  * @param {Boolean} [options.lowQuality=false] - The quality of the shader.
  */
 
-export function WaterMaterial(options) {
+export class WaterMaterial extends THREE.ShaderMaterial {
 
-	if(options === undefined) { options = {}; }
+	constructor(options) {
 
-	THREE.ShaderMaterial.call(this, {
+		if(options === undefined) { options = {}; }
 
-		uniforms: {
+		super({
 
-			fogDensity: {type: &quot;f&quot;, value: 0.00025},
-			fogNear: {type: &quot;f&quot;, value: 1.0},
-			fogFar: {type: &quot;f&quot;, value: 2000.0},
-			fogColor: {type: &quot;c&quot;, value: new THREE.Color(0xffffff)},
+			uniforms: THREE.UniformsUtils.merge([
 
-			time: {type: &quot;f&quot;, value: 0.0},
-			waterLevel: {type: &quot;f&quot;, value: 0.0},
+				THREE.UniformsLib.fog,
 
-			reflectionMap: {type: &quot;t&quot;, value: null},
-			refractionMap: {type: &quot;t&quot;, value: null},
-			normalMap: {type: &quot;t&quot;, value: options.normalMap},
-			offsetRepeat: {type: &quot;v4&quot;, value: new THREE.Vector4(0.0, 0.0, 1.0, 1.0)},
+				{
 
-			waveScale: {type: &quot;f&quot;, value: 350.0},
-			waveChoppiness: {type: &quot;f&quot;, value: 0.01},
-			bigWaves: {type: &quot;v2&quot;, value: new THREE.Vector2(2.0, 3.0)},
-			midWaves: {type: &quot;v2&quot;, value: new THREE.Vector2(4.0, 2.0)},
-			smallWaves: {type: &quot;v2&quot;, value: new THREE.Vector2(1.0, 0.5)},
+					time: {type: &quot;1f&quot;, value: 0.0},
+					waterLevel: {type: &quot;1f&quot;, value: 0.0},
 
-			windSpeed: {type: &quot;f&quot;, value: 0.3},
-			windDirection: {type: &quot;v2&quot;, value: new THREE.Vector2(0.2, -0.5)},
-			lightPosition: {type: &quot;v3&quot;, value: options.lightPosition},
+					reflectionMap: {type: &quot;t&quot;, value: null},
+					refractionMap: {type: &quot;t&quot;, value: null},
+					normalMap: {type: &quot;t&quot;, value: null},
+					offsetRepeat: {type: &quot;v4&quot;, value: new THREE.Vector4(0.0, 0.0, 1.0, 1.0)},
 
-			waterDensity: {type: &quot;f&quot;, value: 1.0},
-			chromaticAberration: {type: &quot;f&quot;, value: 0.002},
-			waterBump: {type: &quot;f&quot;, value: 1.0},
-			reflectionBump: {type: &quot;f&quot;, value: 0.1},
-			refractionBump: {type: &quot;f&quot;, value: 0.1},
-			eta: {type: &quot;f&quot;, value: 1.33},
+					waveScale: {type: &quot;1f&quot;, value: 350.0},
+					waveChoppiness: {type: &quot;1f&quot;, value: 0.01},
+					bigWaves: {type: &quot;v2&quot;, value: new THREE.Vector2(2.0, 3.0)},
+					midWaves: {type: &quot;v2&quot;, value: new THREE.Vector2(4.0, 2.0)},
+					smallWaves: {type: &quot;v2&quot;, value: new THREE.Vector2(1.0, 0.5)},
 
-			waterColor: {type: &quot;c&quot;, value: new THREE.Color(0.2, 0.4, 0.5)},
-			sunSpecular: {type: &quot;f&quot;, value: 250.0},
-			scatterAmount: {type: &quot;f&quot;, value: 3.0},
-			scatterColor: {type: &quot;c&quot;, value: new THREE.Color(0.0, 1.0, 0.95)},
+					windSpeed: {type: &quot;1f&quot;, value: 0.3},
+					windDirection: {type: &quot;v2&quot;, value: new THREE.Vector2(0.2, -0.5)},
+					lightPosition: {type: &quot;v3&quot;, value: options.lightPosition},
 
-			fade: {type: &quot;f&quot;, value: 12.0},
-			luminosity: {type: &quot;v3&quot;, value: new THREE.Vector3(0.16, 0.32, 0.11)}
+					waterDensity: {type: &quot;1f&quot;, value: 1.0},
+					chromaticAberration: {type: &quot;1f&quot;, value: 0.002},
+					waterBump: {type: &quot;1f&quot;, value: 1.0},
+					reflectionBump: {type: &quot;1f&quot;, value: 0.1},
+					refractionBump: {type: &quot;1f&quot;, value: 0.1},
+					eta: {type: &quot;1f&quot;, value: 1.33},
 
-		},
+					waterColor: {type: &quot;c&quot;, value: new THREE.Color(0.2, 0.4, 0.5)},
+					scatterColor: {type: &quot;c&quot;, value: new THREE.Color(0.0, 1.0, 0.95)},
+					scatterAmount: {type: &quot;1f&quot;, value: 3.0},
+					sunSpecular: {type: &quot;1f&quot;, value: 250.0},
 
-		fragmentShader: options.lowQuality ? shader.fragment.low : shader.fragment.high,
-		vertexShader: shader.vertex,
+					fade: {type: &quot;1f&quot;, value: 12.0},
+					luminosity: {type: &quot;v3&quot;, value: new THREE.Vector3(0.16, 0.32, 0.11)}
 
-		side: THREE.DoubleSide,
-		fog: true
+				}
 
-	});
+			]),
+
+			fragmentShader: fragment,
+			vertexShader: vertex,
+
+			shading: THREE.FlatShading,
+			side: THREE.DoubleSide,
+			fog: true
+
+		});
+
+	}
+
+	/**
+	 * The reflection map.
+	 *
+	 * @property reflectionMap
+	 * @type Texture
+	 */
+
+	get reflectionMap() { return this.uniforms.reflectionMap.value; }
+
+	set reflectionMap(x) {
+
+		this.uniforms.reflectionMap.value = x;
+
+	}
+
+	/**
+	 * The refraction map.
+	 *
+	 * @property refractionMap
+	 * @type Texture
+	 */
+
+	get refractionMap() { return this.uniforms.refractionMap.value; }
+
+	set refractionMap(x) {
+
+		this.uniforms.refractionMap.value = x;
+
+	}
+
+	/**
+	 * The wave normal map.
+	 *
+	 * @property normalMap
+	 * @type Texture
+	 */
+
+	get normalMap() { return this.uniforms.normalMap.value; }
+
+	set normalMap(x) {
+
+		this.uniforms.normalMap.value = x;
+
+	}
 
 }
-
-WaterMaterial.prototype = Object.create(THREE.ShaderMaterial.prototype);
-WaterMaterial.prototype.constructor = WaterMaterial;
 
     </pre>
 </div>

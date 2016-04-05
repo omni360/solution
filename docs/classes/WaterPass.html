@@ -17,7 +17,7 @@
                 <h1><img src="../assets/css/logo.png" title="solution" width="117" height="52"></h1>
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.1.0</em>
+            <em>API Docs for: 0.1.1</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -40,8 +40,9 @@
                             <ul id="api-classes" class="apis classes">
                                 <li><a href="../classes/DistortionMaterial.html">DistortionMaterial</a></li>
                                 <li><a href="../classes/DistortionPass.html">DistortionPass</a></li>
+                                <li><a href="../classes/DropletNoiseMaterial.html">DropletNoiseMaterial</a></li>
                                 <li><a href="../classes/LavaMaterial.html">LavaMaterial</a></li>
-                                <li><a href="../classes/NoiseMaterial.html">NoiseMaterial</a></li>
+                                <li><a href="../classes/ReflectionPass.html">ReflectionPass</a></li>
                                 <li><a href="../classes/WaterfallMaterial.html">WaterfallMaterial</a></li>
                                 <li><a href="../classes/WaterMaterial.html">WaterMaterial</a></li>
                                 <li><a href="../classes/WaterPass.html">WaterPass</a></li>
@@ -93,7 +94,7 @@
         </div>
 
         <div class="foundat">
-            Defined in: <a href="../files/src_passes_water.js.html#l5"><code>src\passes\water.js:5</code></a>
+            Defined in: <a href="../files/src_passes_refraction.js.html#l5"><code>src\passes\refraction.js:5</code></a>
         </div>
 
             Module: <a href="../modules/solution.html">solution</a>
@@ -130,6 +131,9 @@ to other objects.</p>
                         <code>lightPosition</code>
                 </li>
                 <li class="arg">
+                        <code>normalMap</code>
+                </li>
+                <li class="arg">
                         <code class="optional">[options]</code>
                 </li>
             </ul><span class="paren">)</span>
@@ -145,7 +149,7 @@ to other objects.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_water.js.html#l5"><code>src\passes\water.js:5</code></a>
+        <a href="../files/src_passes_refraction.js.html#l5"><code>src\passes\refraction.js:5</code></a>
         </p>
 
 
@@ -194,6 +198,19 @@ to other objects.</p>
                     <div class="param-description">
                         <ul>
 <li>The main light position.</li>
+</ul>
+
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">normalMap</code>
+                        <span class="type">Texture</span>
+
+
+                    <div class="param-description">
+                        <ul>
+<li>A normalmap for the waves.</li>
 </ul>
 
                     </div>
@@ -278,45 +295,6 @@ to other objects.</p>
                                 </div>
 
                             </li>
-                            <li class="param">
-                                    <code class="param-name optional">[renderTarget]</code>
-                                    <span class="type">WebGLRenderTarget</span>
-                                    <span class="flag optional" title="This parameter is optional.">optional</span>
-
-                                <div class="param-description">
-                                    <ul>
-<li>A render target to use.</li>
-</ul>
-
-                                </div>
-
-                            </li>
-                            <li class="param">
-                                    <code class="param-name optional">[normalMap]</code>
-                                    <span class="type">Texture</span>
-                                    <span class="flag optional" title="This parameter is optional.">optional</span>
-
-                                <div class="param-description">
-                                    <ul>
-<li>A normalmap for the waves.</li>
-</ul>
-
-                                </div>
-
-                            </li>
-                            <li class="param">
-                                    <code class="param-name optional">[lowQuality=false]</code>
-                                    <span class="type">Boolean</span>
-                                    <span class="flag optional" title="This parameter is optional.">optional</span>
-
-                                <div class="param-description">
-                                    <ul>
-<li>Falls back to a less expensive water shader.</li>
-</ul>
-
-                                </div>
-
-                            </li>
                         </ul>
                 </li>
             </ul>
@@ -343,6 +321,10 @@ to other objects.</p>
                     <h3>Methods</h3>
 
                     <ul class="index-list methods extends">
+                            <li class="index-item method">
+                                <a href="#method_initialise">initialise</a>
+
+                            </li>
                             <li class="index-item method">
                                 <a href="#method_render">render</a>
 
@@ -390,16 +372,8 @@ to other objects.</p>
                                 <a href="#property_reflectionCamera">reflectionCamera</a>
 
                             </li>
-                            <li class="index-item property">
-                                <a href="#property_reflectionTexture">reflectionTexture</a>
-
-                            </li>
                             <li class="index-item property private">
                                 <a href="#property_refractionCamera">refractionCamera</a>
-
-                            </li>
-                            <li class="index-item property">
-                                <a href="#property_refractionTexture">refractionTexture</a>
 
                             </li>
                             <li class="index-item property">
@@ -408,6 +382,18 @@ to other objects.</p>
                             </li>
                             <li class="index-item property">
                                 <a href="#property_renderRefraction">renderRefraction</a>
+
+                            </li>
+                            <li class="index-item property">
+                                <a href="#property_renderTargetReflection">renderTargetReflection</a>
+
+                            </li>
+                            <li class="index-item property">
+                                <a href="#property_renderTargetRefraction">renderTargetRefraction</a>
+
+                            </li>
+                            <li class="index-item property">
+                                <a href="#property_resolution">resolution</a>
 
                             </li>
                             <li class="index-item property private">
@@ -435,6 +421,78 @@ to other objects.</p>
             <div id="methods" class="api-class-tabpanel">
                 <h2 class="off-left">Methods</h2>
 
+<div id="method_initialise" class="method item">
+    <h3 class="name"><code>initialise</code></h3>
+
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>renderer</code>
+                </li>
+                <li class="arg">
+                        <code>alpha</code>
+                </li>
+            </ul><span class="paren">)</span>
+        </div>
+
+
+
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_passes_refraction.js.html#l410"><code>src\passes\refraction.js:410</code></a>
+        </p>
+
+
+
+    </div>
+
+    <div class="description">
+        <p>Adjusts the format of the render targets.</p>
+
+    </div>
+
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+                <li class="param">
+                        <code class="param-name">renderer</code>
+                        <span class="type">WebGLRenderer</span>
+
+
+                    <div class="param-description">
+                        <ul>
+<li>The renderer.</li>
+</ul>
+
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">alpha</code>
+                        <span class="type">Boolean</span>
+
+
+                    <div class="param-description">
+                        <ul>
+<li>Whether the renderer uses the alpha channel or not.</li>
+</ul>
+
+                    </div>
+
+                </li>
+            </ul>
+        </div>
+
+
+
+</div>
 <div id="method_render" class="method item">
     <h3 class="name"><code>render</code></h3>
 
@@ -444,7 +502,10 @@ to other objects.</p>
                         <code>renderer</code>
                 </li>
                 <li class="arg">
-                        <code>buffer</code>
+                        <code>readBuffer</code>
+                </li>
+                <li class="arg">
+                        <code>writeBuffer</code>
                 </li>
                 <li class="arg">
                         <code>delta</code>
@@ -462,7 +523,7 @@ to other objects.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_water.js.html#l277"><code>src\passes\water.js:277</code></a>
+        <a href="../files/src_passes_refraction.js.html#l297"><code>src\passes\refraction.js:297</code></a>
         </p>
 
 
@@ -470,7 +531,7 @@ to other objects.</p>
     </div>
 
     <div class="description">
-        <p>Renders the reflection texture.</p>
+        <p>Renders the reflection and refraction textures.</p>
 
     </div>
 
@@ -492,13 +553,26 @@ to other objects.</p>
 
                 </li>
                 <li class="param">
-                        <code class="param-name">buffer</code>
+                        <code class="param-name">readBuffer</code>
                         <span class="type">WebGLRenderTarget</span>
 
 
                     <div class="param-description">
                         <ul>
-<li>The read/write buffer. Ignored in this pass.</li>
+<li>The read buffer.</li>
+</ul>
+
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">writeBuffer</code>
+                        <span class="type">WebGLRenderTarget</span>
+
+
+                    <div class="param-description">
+                        <ul>
+<li>The write buffer.</li>
 </ul>
 
                     </div>
@@ -539,7 +613,7 @@ to other objects.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_water.js.html#l302"><code>src\passes\water.js:302</code></a>
+        <a href="../files/src_passes_refraction.js.html#l323"><code>src\passes\refraction.js:323</code></a>
         </p>
 
 
@@ -571,7 +645,7 @@ to other objects.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_water.js.html#l260"><code>src\passes\water.js:260</code></a>
+        <a href="../files/src_passes_refraction.js.html#l254"><code>src\passes\refraction.js:254</code></a>
         </p>
 
 
@@ -596,7 +670,7 @@ to other objects.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_water.js.html#l251"><code>src\passes\water.js:251</code></a>
+        <a href="../files/src_passes_refraction.js.html#l245"><code>src\passes\refraction.js:245</code></a>
         </p>
 
 
@@ -622,7 +696,7 @@ to other objects.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_water.js.html#l241"><code>src\passes\water.js:241</code></a>
+        <a href="../files/src_passes_refraction.js.html#l235"><code>src\passes\refraction.js:235</code></a>
         </p>
 
 
@@ -647,7 +721,7 @@ to other objects.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_water.js.html#l111"><code>src\passes\water.js:111</code></a>
+        <a href="../files/src_passes_refraction.js.html#l102"><code>src\passes\refraction.js:102</code></a>
         </p>
 
 
@@ -672,7 +746,7 @@ to other objects.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_water.js.html#l127"><code>src\passes\water.js:127</code></a>
+        <a href="../files/src_passes_refraction.js.html#l122"><code>src\passes\refraction.js:122</code></a>
         </p>
 
 
@@ -698,7 +772,7 @@ to other objects.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_water.js.html#l201"><code>src\passes\water.js:201</code></a>
+        <a href="../files/src_passes_refraction.js.html#l195"><code>src\passes\refraction.js:195</code></a>
         </p>
 
 
@@ -724,7 +798,7 @@ to other objects.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_water.js.html#l191"><code>src\passes\water.js:191</code></a>
+        <a href="../files/src_passes_refraction.js.html#l185"><code>src\passes\refraction.js:185</code></a>
         </p>
 
 
@@ -750,7 +824,7 @@ to other objects.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_water.js.html#l73"><code>src\passes\water.js:73</code></a>
+        <a href="../files/src_passes_refraction.js.html#l64"><code>src\passes\refraction.js:64</code></a>
         </p>
 
 
@@ -758,31 +832,6 @@ to other objects.</p>
 
     <div class="description">
         <p>The reflection camera.</p>
-
-    </div>
-
-
-
-</div>
-<div id="property_reflectionTexture" class="property item">
-    <h3 class="name"><code>reflectionTexture</code></h3>
-    <span class="type">WebGLRenderTarget</span>
-
-
-
-
-
-    <div class="meta">
-                <p>
-                Defined in
-        <a href="../files/src_passes_water.js.html#l41"><code>src\passes\water.js:41</code></a>
-        </p>
-
-
-    </div>
-
-    <div class="description">
-        <p>The reflection render texture.</p>
 
     </div>
 
@@ -801,7 +850,7 @@ to other objects.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_water.js.html#l83"><code>src\passes\water.js:83</code></a>
+        <a href="../files/src_passes_refraction.js.html#l74"><code>src\passes\refraction.js:74</code></a>
         </p>
 
 
@@ -809,31 +858,6 @@ to other objects.</p>
 
     <div class="description">
         <p>The refraction camera.</p>
-
-    </div>
-
-
-
-</div>
-<div id="property_refractionTexture" class="property item">
-    <h3 class="name"><code>refractionTexture</code></h3>
-    <span class="type">WebGLRenderTarget</span>
-
-
-
-
-
-    <div class="meta">
-                <p>
-                Defined in
-        <a href="../files/src_passes_water.js.html#l64"><code>src\passes\water.js:64</code></a>
-        </p>
-
-
-    </div>
-
-    <div class="description">
-        <p>The refraction render texture.</p>
 
     </div>
 
@@ -851,7 +875,7 @@ to other objects.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_water.js.html#l93"><code>src\passes\water.js:93</code></a>
+        <a href="../files/src_passes_refraction.js.html#l84"><code>src\passes\refraction.js:84</code></a>
         </p>
 
 
@@ -876,7 +900,7 @@ to other objects.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_water.js.html#l102"><code>src\passes\water.js:102</code></a>
+        <a href="../files/src_passes_refraction.js.html#l93"><code>src\passes\refraction.js:93</code></a>
         </p>
 
 
@@ -887,6 +911,83 @@ to other objects.</p>
 
     </div>
 
+
+
+</div>
+<div id="property_renderTargetReflection" class="property item">
+    <h3 class="name"><code>renderTargetReflection</code></h3>
+    <span class="type">WebGLRenderTarget</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_passes_refraction.js.html#l39"><code>src\passes\refraction.js:39</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>The reflection render texture.</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_renderTargetRefraction" class="property item">
+    <h3 class="name"><code>renderTargetRefraction</code></h3>
+    <span class="type">WebGLRenderTarget</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_passes_refraction.js.html#l53"><code>src\passes\refraction.js:53</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>The refraction render texture.</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_resolution" class="property item">
+    <h3 class="name"><code>resolution</code></h3>
+    <span class="type">Number</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_passes_refraction.js.html#l271"><code>src\passes\refraction.js:271</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>The resolution of the render targets.
+The value should be a power of two.</p>
+
+    </div>
+
+        <p><strong>Default:</strong> 256</p>
 
 
 </div>
@@ -902,7 +1003,7 @@ to other objects.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_water.js.html#l231"><code>src\passes\water.js:231</code></a>
+        <a href="../files/src_passes_refraction.js.html#l225"><code>src\passes\refraction.js:225</code></a>
         </p>
 
 
@@ -928,7 +1029,7 @@ to other objects.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_water.js.html#l181"><code>src\passes\water.js:181</code></a>
+        <a href="../files/src_passes_refraction.js.html#l175"><code>src\passes\refraction.js:175</code></a>
         </p>
 
 
@@ -954,14 +1055,14 @@ to other objects.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_water.js.html#l211"><code>src\passes\water.js:211</code></a>
+        <a href="../files/src_passes_refraction.js.html#l215"><code>src\passes\refraction.js:215</code></a>
         </p>
 
 
     </div>
 
     <div class="description">
-        <p>The world position of the reflection plane.</p>
+        <p>The world position of the camera.</p>
 
     </div>
 
@@ -980,14 +1081,14 @@ to other objects.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_water.js.html#l221"><code>src\passes\water.js:221</code></a>
+        <a href="../files/src_passes_refraction.js.html#l205"><code>src\passes\refraction.js:205</code></a>
         </p>
 
 
     </div>
 
     <div class="description">
-        <p>The world position of the camera.</p>
+        <p>The world position of the reflection plane.</p>
 
     </div>
 

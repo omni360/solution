@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>DistortionPass - solution</title>
+    <title>ReflectionPass - solution</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -86,12 +86,15 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-<h1>DistortionPass Class</h1>
+<h1>ReflectionPass Class</h1>
 <div class="box meta">
 
+        <div class="extends">
+            Extends Pass
+        </div>
 
         <div class="foundat">
-            Defined in: <a href="../files/src_passes_distortion.js.html#l5"><code>src\passes\distortion.js:5</code></a>
+            Defined in: <a href="../files/src_passes_reflection.js.html#l16"><code>src\passes\reflection.js:16</code></a>
         </div>
 
             Module: <a href="../modules/solution.html">solution</a>
@@ -100,17 +103,24 @@
 
 
 <div class="box intro">
-    <p>A distortion and droplet pass for underwater and wet lens effects.</p>
+    <p>A reflection pass.</p>
+<p>This pass renders the reflection of a given scene into a texture.</p>
 
 </div>
 
     <div class="constructor">
         <h2>Constructor</h2>
-<div id="method_DistortionPass" class="method item">
-    <h3 class="name"><code>DistortionPass</code></h3>
+<div id="method_ReflectionPass" class="method item">
+    <h3 class="name"><code>ReflectionPass</code></h3>
 
         <div class="args">
             <span class="paren">(</span><ul class="args-list inline commas">
+                <li class="arg">
+                        <code>scene</code>
+                </li>
+                <li class="arg">
+                        <code>camera</code>
+                </li>
                 <li class="arg">
                         <code class="optional">[options]</code>
                 </li>
@@ -127,7 +137,7 @@
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_distortion.js.html#l5"><code>src\passes\distortion.js:5</code></a>
+        <a href="../files/src_passes_reflection.js.html#l16"><code>src\passes\reflection.js:16</code></a>
         </p>
 
 
@@ -143,6 +153,32 @@
 
             <ul class="params-list">
                 <li class="param">
+                        <code class="param-name">scene</code>
+                        <span class="type">Scene</span>
+
+
+                    <div class="param-description">
+                        <ul>
+<li>The scene to render.</li>
+</ul>
+
+                    </div>
+
+                </li>
+                <li class="param">
+                        <code class="param-name">camera</code>
+                        <span class="type">Camera</span>
+
+
+                    <div class="param-description">
+                        <ul>
+<li>The main camera.</li>
+</ul>
+
+                    </div>
+
+                </li>
+                <li class="param">
                         <code class="param-name optional">[options]</code>
                         <span class="type">Object</span>
                         <span class="flag optional" title="This parameter is optional.">optional</span>
@@ -150,72 +186,46 @@
 
                     <div class="param-description">
                         <ul>
-<li>The options.</li>
+<li>Additional options.</li>
 </ul>
 
                     </div>
 
                         <ul class="params-list">
                             <li class="param">
-                                    <code class="param-name optional">[resolution=512]</code>
+                                    <code class="param-name optional">[object]</code>
+                                    <span class="type">Object3D</span>
+                                    <span class="flag optional" title="This parameter is optional.">optional</span>
+
+                                <div class="param-description">
+                                    <ul>
+<li>An object that represents the reflection plane in terms of position and rotation.</li>
+</ul>
+
+                                </div>
+
+                            </li>
+                            <li class="param">
+                                    <code class="param-name optional">[resolution=256]</code>
                                     <span class="type">Number</span>
                                     <span class="flag optional" title="This parameter is optional.">optional</span>
 
                                 <div class="param-description">
                                     <ul>
-<li>The size of the generated perturbation map, power of two.</li>
+<li>The render texture resolution.</li>
 </ul>
 
                                 </div>
 
                             </li>
                             <li class="param">
-                                    <code class="param-name optional">[rollOffSpeed]</code>
-                                    <span class="type">Vector2</span>
-                                    <span class="flag optional" title="This parameter is optional.">optional</span>
-
-                                <div class="param-description">
-                                    <ul>
-<li>The droplet roll off speed.</li>
-</ul>
-
-                                </div>
-
-                            </li>
-                            <li class="param">
-                                    <code class="param-name optional">[waveStrength]</code>
-                                    <span class="type">Vector2</span>
-                                    <span class="flag optional" title="This parameter is optional.">optional</span>
-
-                                <div class="param-description">
-                                    <ul>
-<li>The sine and cosine wave distortion strength.</li>
-</ul>
-
-                                </div>
-
-                            </li>
-                            <li class="param">
-                                    <code class="param-name optional">[highQuality]</code>
-                                    <span class="type">Boolean</span>
-                                    <span class="flag optional" title="This parameter is optional.">optional</span>
-
-                                <div class="param-description">
-                                    <ul>
-<li>The effect quality. If set to true, double the amount of noise values will be computed.</li>
-</ul>
-
-                                </div>
-
-                            </li>
-                            <li class="param">
-                                    <code class="param-name optional">[speed]</code>
+                                    <code class="param-name optional">[clipBias=0.2]</code>
                                     <span class="type">Number</span>
                                     <span class="flag optional" title="This parameter is optional.">optional</span>
 
                                 <div class="param-description">
                                     <ul>
-<li>The effect's animation speed.</li>
+<li>The clip plane offset.</li>
 </ul>
 
                                 </div>
@@ -246,7 +256,7 @@
                 <div class="index-section methods">
                     <h3>Methods</h3>
 
-                    <ul class="index-list methods">
+                    <ul class="index-list methods extends">
                             <li class="index-item method">
                                 <a href="#method_initialise">initialise</a>
 
@@ -256,7 +266,7 @@
 
                             </li>
                             <li class="index-item method private">
-                                <a href="#method_renderPerturbationMap">renderPerturbationMap</a>
+                                <a href="#method_update">update</a>
 
                             </li>
                     </ul>
@@ -265,37 +275,33 @@
                 <div class="index-section properties">
                     <h3>Properties</h3>
 
-                    <ul class="index-list properties">
-                            <li class="index-item property private">
-                                <a href="#property__dissolve">_dissolve</a>
-
-                            </li>
-                            <li class="index-item property private">
-                                <a href="#property_dissolutionEnd">dissolutionEnd</a>
+                    <ul class="index-list properties extends">
+                            <li class="index-item property">
+                                <a href="#property_clipBias">clipBias</a>
 
                             </li>
                             <li class="index-item property">
-                                <a href="#property_dissolve">dissolve</a>
+                                <a href="#property_materials">materials</a>
+
+                            </li>
+                            <li class="index-item property">
+                                <a href="#property_object">object</a>
 
                             </li>
                             <li class="index-item property private">
-                                <a href="#property_distortionMaterial">distortionMaterial</a>
+                                <a href="#property_reflectionCamera">reflectionCamera</a>
+
+                            </li>
+                            <li class="index-item property">
+                                <a href="#property_reflectionTexture">reflectionTexture</a>
 
                             </li>
                             <li class="index-item property private">
-                                <a href="#property_noiseMaterial">noiseMaterial</a>
-
-                            </li>
-                            <li class="index-item property private">
-                                <a href="#property_renderTargetPerturb">renderTargetPerturb</a>
+                                <a href="#property_renderTargetReflection">renderTargetReflection</a>
 
                             </li>
                             <li class="index-item property">
                                 <a href="#property_resolution">resolution</a>
-
-                            </li>
-                            <li class="index-item property">
-                                <a href="#property_speed">speed</a>
 
                             </li>
                     </ul>
@@ -315,6 +321,9 @@
                 <li class="arg">
                         <code>renderer</code>
                 </li>
+                <li class="arg">
+                        <code>alpha</code>
+                </li>
             </ul><span class="paren">)</span>
         </div>
 
@@ -328,7 +337,7 @@
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_distortion.js.html#l218"><code>src\passes\distortion.js:218</code></a>
+        <a href="../files/src_passes_reflection.js.html#l265"><code>src\passes\reflection.js:265</code></a>
         </p>
 
 
@@ -336,7 +345,7 @@
     </div>
 
     <div class="description">
-        <p>Warms up the perturbation render target to avoid start-up hiccups.</p>
+        <p>Adjusts the format of the render targets.</p>
 
     </div>
 
@@ -357,6 +366,19 @@
                     </div>
 
                 </li>
+                <li class="param">
+                        <code class="param-name">alpha</code>
+                        <span class="type">Boolean</span>
+
+
+                    <div class="param-description">
+                        <ul>
+<li>Whether the renderer uses the alpha channel or not.</li>
+</ul>
+
+                    </div>
+
+                </li>
             </ul>
         </div>
 
@@ -371,15 +393,6 @@
                 <li class="arg">
                         <code>renderer</code>
                 </li>
-                <li class="arg">
-                        <code>readBuffer</code>
-                </li>
-                <li class="arg">
-                        <code>writeBuffer</code>
-                </li>
-                <li class="arg">
-                        <code>delta</code>
-                </li>
             </ul><span class="paren">)</span>
         </div>
 
@@ -393,7 +406,7 @@
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_distortion.js.html#l160"><code>src\passes\distortion.js:160</code></a>
+        <a href="../files/src_passes_reflection.js.html#l151"><code>src\passes\reflection.js:151</code></a>
         </p>
 
 
@@ -401,7 +414,7 @@
     </div>
 
     <div class="description">
-        <p>Renders the effect.</p>
+        <p>Renders the reflection texture.</p>
 
     </div>
 
@@ -422,61 +435,16 @@
                     </div>
 
                 </li>
-                <li class="param">
-                        <code class="param-name">readBuffer</code>
-                        <span class="type">WebGLRenderTarget</span>
-
-
-                    <div class="param-description">
-                        <ul>
-<li>The read buffer.</li>
-</ul>
-
-                    </div>
-
-                </li>
-                <li class="param">
-                        <code class="param-name">writeBuffer</code>
-                        <span class="type">WebGLRenderTarget</span>
-
-
-                    <div class="param-description">
-                        <ul>
-<li>The write buffer.</li>
-</ul>
-
-                    </div>
-
-                </li>
-                <li class="param">
-                        <code class="param-name">delta</code>
-                        <span class="type">Number</span>
-
-
-                    <div class="param-description">
-                        <ul>
-<li>The render delta time.</li>
-</ul>
-
-                    </div>
-
-                </li>
             </ul>
         </div>
 
 
 
 </div>
-<div id="method_renderPerturbationMap" class="method item private">
-    <h3 class="name"><code>renderPerturbationMap</code></h3>
+<div id="method_update" class="method item private">
+    <h3 class="name"><code>update</code></h3>
 
-        <div class="args">
-            <span class="paren">(</span><ul class="args-list inline commas">
-                <li class="arg">
-                        <code>renderer</code>
-                </li>
-            </ul><span class="paren">)</span>
-        </div>
+        <span class="paren">()</span>
 
 
 
@@ -489,7 +457,7 @@
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_distortion.js.html#l198"><code>src\passes\distortion.js:198</code></a>
+        <a href="../files/src_passes_reflection.js.html#l188"><code>src\passes\reflection.js:188</code></a>
         </p>
 
 
@@ -497,29 +465,12 @@
     </div>
 
     <div class="description">
-        <p>Renders a perturbation noise map.</p>
+        <p>Updates the projection camera.</p>
+<p>Uses oblique camera frustum clipping.
+<a href="http://www.terathon.com/lengyel/Lengyel-Oblique.pdf">http://www.terathon.com/lengyel/Lengyel-Oblique.pdf</a></p>
 
     </div>
 
-        <div class="params">
-            <h4>Parameters:</h4>
-
-            <ul class="params-list">
-                <li class="param">
-                        <code class="param-name">renderer</code>
-                        <span class="type">WebGLRenderer</span>
-
-
-                    <div class="param-description">
-                        <ul>
-<li>The renderer to use.</li>
-</ul>
-
-                    </div>
-
-                </li>
-            </ul>
-        </div>
 
 
 
@@ -529,38 +480,90 @@
             <div id="properties" class="api-class-tabpanel">
                 <h2 class="off-left">Properties</h2>
 
-<div id="property__dissolve" class="property item private">
-    <h3 class="name"><code>_dissolve</code></h3>
-    <span class="type">Boolean</span>
-
-
-        <span class="flag private">private</span>
-
-
-
-    <div class="meta">
-                <p>
-                Defined in
-        <a href="../files/src_passes_distortion.js.html#l94"><code>src\passes\distortion.js:94</code></a>
-        </p>
-
-
-    </div>
-
-    <div class="description">
-        <p>Dissolution flag.</p>
-
-    </div>
-
-        <p><strong>Default:</strong> false</p>
-
-
-</div>
-<div id="property_dissolutionEnd" class="property item private">
-    <h3 class="name"><code>dissolutionEnd</code></h3>
+<div id="property_clipBias" class="property item">
+    <h3 class="name"><code>clipBias</code></h3>
     <span class="type">Number</span>
 
 
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_passes_reflection.js.html#l117"><code>src\passes\reflection.js:117</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>Clip bias.</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_materials" class="property item">
+    <h3 class="name"><code>materials</code></h3>
+    <span class="type">Array</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_passes_reflection.js.html#l107"><code>src\passes\reflection.js:107</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>A collection of materials that use the reflection texture.
+These will temporarily be disabled during the render process.</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_object" class="property item">
+    <h3 class="name"><code>object</code></h3>
+    <span class="type">Object3D</span>
+
+
+
+
+
+    <div class="meta">
+                <p>
+                Defined in
+        <a href="../files/src_passes_reflection.js.html#l76"><code>src\passes\reflection.js:76</code></a>
+        </p>
+
+
+    </div>
+
+    <div class="description">
+        <p>An object that represents the internal reflection plane.
+If no object was provided a plane object will be created.</p>
+<p>Please assign a material that uses the reflection texture
+to this object and add the object to your scene.</p>
+
+    </div>
+
+
+
+</div>
+<div id="property_reflectionCamera" class="property item private">
+    <h3 class="name"><code>reflectionCamera</code></h3>
+    <span class="type">Camera</span>
+
+
         <span class="flag private">private</span>
 
 
@@ -568,23 +571,23 @@
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_distortion.js.html#l84"><code>src\passes\distortion.js:84</code></a>
+        <a href="../files/src_passes_reflection.js.html#l66"><code>src\passes\reflection.js:66</code></a>
         </p>
 
 
     </div>
 
     <div class="description">
-        <p>Maximum duration of the dissolution effect in seconds.</p>
+        <p>The reflection camera.</p>
 
     </div>
 
 
 
 </div>
-<div id="property_dissolve" class="property item">
-    <h3 class="name"><code>dissolve</code></h3>
-    <span class="type">Boolean</span>
+<div id="property_reflectionTexture" class="property item">
+    <h3 class="name"><code>reflectionTexture</code></h3>
+    <span class="type">Texture</span>
 
 
 
@@ -593,77 +596,22 @@
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_distortion.js.html#l133"><code>src\passes\distortion.js:133</code></a>
+        <a href="../files/src_passes_reflection.js.html#l57"><code>src\passes\reflection.js:57</code></a>
         </p>
 
 
     </div>
 
     <div class="description">
-        <p>Dissolution flag.</p>
-<p>Set to false for wavy distortion,
-set to true for dissolution into droplets.</p>
-
-    </div>
-
-        <p><strong>Default:</strong> false</p>
-
-
-</div>
-<div id="property_distortionMaterial" class="property item private">
-    <h3 class="name"><code>distortionMaterial</code></h3>
-    <span class="type"><a href="../classes/DistortionMaterial.html" class="crosslink">DistortionMaterial</a></span>
-
-
-        <span class="flag private">private</span>
-
-
-
-    <div class="meta">
-                <p>
-                Defined in
-        <a href="../files/src_passes_distortion.js.html#l58"><code>src\passes\distortion.js:58</code></a>
-        </p>
-
-
-    </div>
-
-    <div class="description">
-        <p>Distortion shader material.</p>
+        <p>The reflection texture.</p>
 
     </div>
 
 
 
 </div>
-<div id="property_noiseMaterial" class="property item private">
-    <h3 class="name"><code>noiseMaterial</code></h3>
-    <span class="type"><a href="../classes/DropletNoiseMaterial.html" class="crosslink">DropletNoiseMaterial</a></span>
-
-
-        <span class="flag private">private</span>
-
-
-
-    <div class="meta">
-                <p>
-                Defined in
-        <a href="../files/src_passes_distortion.js.html#l46"><code>src\passes\distortion.js:46</code></a>
-        </p>
-
-
-    </div>
-
-    <div class="description">
-        <p>Droplet noise shader material.</p>
-
-    </div>
-
-
-
-</div>
-<div id="property_renderTargetPerturb" class="property item private">
-    <h3 class="name"><code>renderTargetPerturb</code></h3>
+<div id="property_renderTargetReflection" class="property item private">
+    <h3 class="name"><code>renderTargetReflection</code></h3>
     <span class="type">WebGLRenderTarget</span>
 
 
@@ -674,14 +622,14 @@ set to true for dissolution into droplets.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_distortion.js.html#l28"><code>src\passes\distortion.js:28</code></a>
+        <a href="../files/src_passes_reflection.js.html#l40"><code>src\passes\reflection.js:40</code></a>
         </p>
 
 
     </div>
 
     <div class="description">
-        <p>Noise render texture.</p>
+        <p>The reflection render target.</p>
 
     </div>
 
@@ -699,44 +647,18 @@ set to true for dissolution into droplets.</p>
     <div class="meta">
                 <p>
                 Defined in
-        <a href="../files/src_passes_distortion.js.html#l107"><code>src\passes\distortion.js:107</code></a>
+        <a href="../files/src_passes_reflection.js.html#l131"><code>src\passes\reflection.js:131</code></a>
         </p>
 
 
     </div>
 
     <div class="description">
-        <p>The resolution of the noise texture.
-The value should be a power of two.</p>
+        <p>The resolution of the render target. Must be a power of two.</p>
 
     </div>
 
-        <p><strong>Default:</strong> 512</p>
-
-
-</div>
-<div id="property_speed" class="property item">
-    <h3 class="name"><code>speed</code></h3>
-    <span class="type">Number</span>
-
-
-
-
-
-    <div class="meta">
-                <p>
-                Defined in
-        <a href="../files/src_passes_distortion.js.html#l75"><code>src\passes\distortion.js:75</code></a>
-        </p>
-
-
-    </div>
-
-    <div class="description">
-        <p>The effect speed.</p>
-
-    </div>
-
+        <p><strong>Default:</strong> 256</p>
 
 
 </div>

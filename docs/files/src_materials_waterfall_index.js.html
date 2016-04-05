@@ -17,7 +17,7 @@
                 <h1><img src="../assets/css/logo.png" title="solution" width="117" height="52"></h1>
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 0.1.0</em>
+            <em>API Docs for: 0.1.1</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -40,8 +40,9 @@
                             <ul id="api-classes" class="apis classes">
                                 <li><a href="../classes/DistortionMaterial.html">DistortionMaterial</a></li>
                                 <li><a href="../classes/DistortionPass.html">DistortionPass</a></li>
+                                <li><a href="../classes/DropletNoiseMaterial.html">DropletNoiseMaterial</a></li>
                                 <li><a href="../classes/LavaMaterial.html">LavaMaterial</a></li>
-                                <li><a href="../classes/NoiseMaterial.html">NoiseMaterial</a></li>
+                                <li><a href="../classes/ReflectionPass.html">ReflectionPass</a></li>
                                 <li><a href="../classes/WaterfallMaterial.html">WaterfallMaterial</a></li>
                                 <li><a href="../classes/WaterMaterial.html">WaterMaterial</a></li>
                                 <li><a href="../classes/WaterPass.html">WaterPass</a></li>
@@ -89,11 +90,13 @@
 
 <div class="file">
     <pre class="code prettyprint linenums">
-import shader from &quot;./inlined/shader&quot;;
 import THREE from &quot;three&quot;;
 
+import fragment from &quot;./glsl/shader.frag&quot;;
+import vertex from &quot;./glsl/shader.vert&quot;;
+
 /**
- * A mod of xbe&#x27;s &quot;fires&quot; that creates a fast, smooth falling water effect.
+ * A mod of xbe&#x27;s &quot;fire&quot; that creates a fast, smooth falling water effect.
  *
  * Original shader code by: https://www.shadertoy.com/user/bbcollinsworth
  *
@@ -104,52 +107,54 @@ import THREE from &quot;three&quot;;
  * @param {Number} [options.drops=16] - The sharpness of the water drops. The higher, the sharper.
  */
 
-export function WaterfallMaterial(options) {
+export class WaterfallMaterial extends THREE.ShaderMaterial {
 
-	if(options === undefined) { options = {}; }
+	constructor(options) {
 
-	THREE.ShaderMaterial.call(this, {
+		if(options === undefined) { options = {}; }
 
-		uniforms: {
+		super({
 
-			fogDensity: {type: &quot;f&quot;, value: 0.00025},
-			fogNear: {type: &quot;f&quot;, value: 1},
-			fogFar: {type: &quot;f&quot;, value: 2000},
-			fogColor: {type: &quot;c&quot;, value: new THREE.Color(0xffffff)},
+			uniforms: THREE.UniformsUtils.merge([
 
-			time: {type: &quot;f&quot;, value: 0.0},
-			timeScale: {type: &quot;f&quot;, value: (options.timeScale !== undefined) ? options.timeScale : 1.0},
+				THREE.UniformsLib.fog,
 
-			smoothness: {type: &quot;f&quot;, value: (options.smoothness !== undefined) ? options.smoothness : 0.0001},
-			fallAccel: {type: &quot;f&quot;, value: (options.fallAccel !== undefined) ? options.fallAccel : 1.25},
-			spread: {type: &quot;f&quot;, value: (options.spread !== undefined) ? options.spread : 0.6},
-			drops: {type: &quot;f&quot;, value: (options.drops !== undefined) ? options.drops : 16.0},
-			shape: {type: &quot;f&quot;, value: (options.shape !== undefined) ? options.shape : 1.2},
-			power: {type: &quot;f&quot;, value: (options.power !== undefined) ? options.power : 0.7},
-			alpha: {type: &quot;f&quot;, value: (options.alpha !== undefined) ? options.alpha : 10.0},
-			height: {type: &quot;f&quot;, value: (options.height !== undefined) ? options.height : 0.8},
-			overflow: {type: &quot;f&quot;, value: (options.overflow !== undefined) ? options.overflow : 0.2},
-			scale: {type: &quot;v2&quot;, value: (options.scale !== undefined) ? options.scale : new THREE.Vector2(1.0, 1.0)},
-			strength: {type: &quot;v2&quot;, value: (options.strength !== undefined) ? options.strength : new THREE.Vector2(6.0, 26.0)},
-			tint: {type: &quot;c&quot;, value: (options.tint !== undefined) ? options.tint : new THREE.Color(0.25, 0.5, 0.5)},
+				{
 
-			offsetRepeat: {type: &quot;v4&quot;, value: new THREE.Vector4(-0.5, -0.75, 1.0, 1.0)}
+					time: {type: &quot;1f&quot;, value: 0.0},
+					timeScale: {type: &quot;1f&quot;, value: (options.timeScale !== undefined) ? options.timeScale : 1.0},
 
-		},
+					smoothness: {type: &quot;1f&quot;, value: (options.smoothness !== undefined) ? options.smoothness : 0.0001},
+					fallAccel: {type: &quot;1f&quot;, value: (options.fallAccel !== undefined) ? options.fallAccel : 1.25},
+					spread: {type: &quot;1f&quot;, value: (options.spread !== undefined) ? options.spread : 0.6},
+					drops: {type: &quot;1f&quot;, value: (options.drops !== undefined) ? options.drops : 16.0},
+					shape: {type: &quot;1f&quot;, value: (options.shape !== undefined) ? options.shape : 1.2},
+					power: {type: &quot;1f&quot;, value: (options.power !== undefined) ? options.power : 0.7},
+					alpha: {type: &quot;1f&quot;, value: (options.alpha !== undefined) ? options.alpha : 10.0},
+					height: {type: &quot;1f&quot;, value: (options.height !== undefined) ? options.height : 0.8},
+					overflow: {type: &quot;1f&quot;, value: (options.overflow !== undefined) ? options.overflow : 0.2},
+					scale: {type: &quot;v2&quot;, value: (options.scale !== undefined) ? options.scale : new THREE.Vector2(1.0, 1.0)},
+					strength: {type: &quot;v2&quot;, value: (options.strength !== undefined) ? options.strength : new THREE.Vector2(6.0, 26.0)},
+					tint: {type: &quot;c&quot;, value: (options.tint !== undefined) ? options.tint : new THREE.Color(0.25, 0.5, 0.5)},
 
-		fragmentShader: shader.fragment,
-		vertexShader: shader.vertex,
+					offsetRepeat: {type: &quot;v4&quot;, value: new THREE.Vector4(-0.5, -0.75, 1.0, 1.0)}
 
-		side: THREE.DoubleSide,
-		transparent: true,
-		fog: true
+				}
 
-	});
+			]),
+
+			fragmentShader: fragment,
+			vertexShader: vertex,
+
+			side: THREE.DoubleSide,
+			transparent: true,
+			fog: true
+
+		});
+
+	}
 
 }
-
-WaterfallMaterial.prototype = Object.create(THREE.ShaderMaterial.prototype);
-WaterfallMaterial.prototype.constructor = WaterfallMaterial;
 
     </pre>
 </div>

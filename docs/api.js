@@ -3,8 +3,9 @@ YUI.add("yuidoc-meta", function(Y) {
     "classes": [
         "DistortionMaterial",
         "DistortionPass",
+        "DropletNoiseMaterial",
         "LavaMaterial",
-        "NoiseMaterial",
+        "ReflectionPass",
         "WaterMaterial",
         "WaterPass",
         "WaterfallMaterial"
