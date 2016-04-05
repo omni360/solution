@@ -1,10 +1,10 @@
 {
 	"name": "solution",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "An animation library for different types of liquids.",
 	"homepage": "https://github.com/vanruesc/solution",
-	"main": "build/index.js",
-	"jsnext:main": "src/index.js",
+	"main": "build/solution.umd.js",
+	"jsnext:main": "build/solution.js",
 	"license": "Zlib",
 
 	"keywords": [
@@ -25,7 +25,7 @@
 
 	"author": {
 		"name": "Raoul van Rüschen",
-		"email": "vanruesc@fh-brandenburg.de"
+		"email": "vanruesc@outlook.de"
 	},
 
 	"repository": {
@@ -39,9 +39,8 @@
 
 	"scripts": {
 		"test": "node grunt-cli.js",
-		"prepublish": "node grunt-cli.js fsinline",
-		"postpublish": "node grunt-cli.js clean",
-		"copy": "node grunt-cli.js copy:update"
+		"prepublish": "node grunt-cli.js prepublish",
+		"postpublish": "node grunt-cli.js postpublish"
 	},
 
 	"engines": {
@@ -59,12 +58,12 @@
 		"grunt-contrib-jshint": "x.x.x",
 		"grunt-contrib-uglify": "x.x.x",
 		"grunt-contrib-yuidoc": "x.x.x",
-		"grunt-contrib-watch": "x.x.x",
 		"grunt-contrib-clean": "x.x.x",
 		"grunt-contrib-copy": "x.x.x",
-		"grunt-fs-inline": "x.x.x",
+		"grunt-lemon": "x.x.x",
 		"grunt-rollup": "x.x.x",
-		"rollup-plugin-node-resolve": "x.x.x"
+		"rollup-plugin-node-resolve": "x.x.x",
+		"rollup-plugin-string": "x.x.x"
 	},
 
 	"peerDependencies": {
