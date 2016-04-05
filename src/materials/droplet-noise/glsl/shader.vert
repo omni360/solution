@@ -1,3 +1,5 @@
+#define DROPLET_NOISE
+
 varying vec2 vUv;
 
 void main() {

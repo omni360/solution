@@ -6,8 +6,8 @@
 
 export {
 	DistortionMaterial,
+	DropletNoiseMaterial,
 	LavaMaterial,
-	NoiseMaterial,
 	/*OceanMaterial,*/
 	WaterMaterial,
 	WaterfallMaterial
@@ -15,5 +15,6 @@ export {
 
 export {
 	DistortionPass,
-	WaterPass
+	ReflectionPass/*,
+	RefractionPass*/
 } from "./passes";

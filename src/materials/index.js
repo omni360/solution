@@ -6,8 +6,8 @@
  */
 
 export { DistortionMaterial } from "./distortion";
+export { DropletNoiseMaterial } from "./droplet-noise";
 export { LavaMaterial } from "./lava";
-export { NoiseMaterial } from "./noise";
 //export { OceanMaterial } from "./water/oceanic-water";
 export { WaterMaterial } from "./planar-water";
 export { WaterfallMaterial } from "./waterfall";
