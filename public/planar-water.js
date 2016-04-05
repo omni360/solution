@@ -1,7 +1,3 @@
-/**
- * Manual asset loading.
- */
-
 window.addEventListener("load", function loadAssets() {
 
 	window.removeEventListener("load", loadAssets);
@@ -69,21 +65,21 @@ window.addEventListener("load", function loadAssets() {
 
 });
 
-/**
- * Scene setup.
- *
- * @param {Object} assets - The pre-loaded assets.
- */
-
 function setupScene(assets) {
 
-	var renderer = new THREE.WebGLRenderer({antialias: true, logarithmicDepthBuffer: true});
+	var viewport = document.getElementById("viewport");
+	viewport.removeChild(viewport.children[0]);
 
+	// Renderer and Scene.
+
+	var renderer = new THREE.WebGLRenderer({antialias: true, logarithmicDepthBuffer: true});
 	var scene = new THREE.Scene();
-	scene.fog = new THREE.FogExp2(0xc1d0bd, 0.0025);
+	scene.fog = new THREE.FogExp2(0xc1d0bd, 0.00);
 	renderer.setClearColor(0xc1d0bd);
 	renderer.setSize(window.innerWidth, window.innerHeight);
-	document.getElementById("viewport").appendChild(renderer.domElement);
+	viewport.appendChild(renderer.domElement);
+
+	// Camera.
 
 	var camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
 	var controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -145,35 +141,74 @@ function setupScene(assets) {
 
 	scene.add(object);
 
-	// Planar water.
+	// Reflection and refraction.
 
 	var composer = new POSTPROCESSING.EffectComposer(renderer);
 
-	var waterPass = new SOLUTION.WaterPass(scene, camera, directionalLight.position, {
-		normalMap: assets.normalMapWater,
-		reflection: true,
-		refraction: false,
-		resolution: 128
+	var reflectionPass = new SOLUTION.ReflectionPass(scene, camera, {
+		resolution: 256,
+		clipBias: 0.2
 	});
 
-	waterPass.material.uniforms.refractionMap.value = assets.colorMapGround;
-	waterPass.material.uniforms.waveScale.value = 1400;
+	var mesh = reflectionPass.object;
 
-	waterPass.mesh.rotation.set(-Math.PI / 2, 0, 0);
-	waterPass.mesh.scale.set(2000, 2000, 1);
-
-	composer.addPass(waterPass);
+	composer.addPass(reflectionPass);
 
 	var renderPass = new POSTPROCESSING.RenderPass(scene, camera);
 	renderPass.renderToScreen = true;
 
 	composer.addPass(renderPass);
 
+	// Water.
+
+	var material = new SOLUTION.WaterMaterial({
+		lightPosition: directionalLight.position,
+		normalMap: assets.normalMapWater
+	});
+
+	material.uniforms.waveScale.value = 1400;
+
+	material.normalMap = assets.normalMapWater;
+	material.reflectionMap = reflectionPass.reflectionTexture;
+	material.refractionMap = assets.colorMapGround;
+
+	var time = material.uniforms.time;
+
+	mesh.material = material;
+	reflectionPass.materials.push(material);
+
+	mesh.rotation.set(-Math.PI / 2, 0, 0);
+	mesh.scale.set(2000, 2000, 1);
+
+	scene.add(mesh);
+
+	// Render textures.
+
+	var billboardMaterial = new THREE.PointsMaterial({
+		color: 0xffffff,
+		map: reflectionPass.reflectionTexture,
+		sizeAttenuation: false,
+		transparent: false,
+		depthWrite: false,
+		fog: false,
+		size: 128
+	});
+
+	reflectionPass.materials.push(billboardMaterial);
+
+	var billboardGeometry = new THREE.Geometry();
+	billboardGeometry.vertices.push(new THREE.Vector3());
+	var billboard = new THREE.Points(billboardGeometry, billboardMaterial);
+
+	billboard.position.set(-0.0, -0.0, -1.0);
+
+	camera.add(billboard);
+
 	/**
 	 * Handles resizing.
 	 */
 
-	window.addEventListener("resize", function resize() {
+	function resize() {
 
 		var width = window.innerWidth;
 		var height = window.innerHeight;
@@ -182,13 +217,17 @@ function setupScene(assets) {
 		camera.aspect = width / height;
 		camera.updateProjectionMatrix();
 
-	});
+	}
+
+	resize();
+
+	window.addEventListener("resize", resize);
 
 	/**
 	 * Animation loop.
 	 */
 
-	var dt = 1.0 / 60.0;
+	var clock = new THREE.Clock(true);
 
 	(function render(now) {
 
@@ -196,7 +235,9 @@ function setupScene(assets) {
 
 		stats.begin();
 
-		composer.render(dt);
+		composer.render();
+
+		time.value += clock.getDelta();
 
 		stats.end();
 
